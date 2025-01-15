@@ -1,0 +1,27 @@
+<harm>
+  <!--
+  -->
+	<context name="without_next">
+
+		<prop exp="req1" loc="dt"/>
+		<prop exp="req2" loc="dt"/>
+		<prop exp="state" loc="dt"/>
+		<prop exp="rst" loc="dt"/>
+
+		<prop exp="gnt1" loc="c"/>
+		<prop exp="gnt2" loc="c"/>
+
+
+
+		<template dtLimits="3A,1E,O" exp="G({..&&..}|-> P0)" /> 
+
+
+		<sort name="causality" exp="1-afct/traceLength"/>
+		<sort name="frequency" exp="atct/traceLength"/>
+	</context>
+
+
+</harm>
+
+
+

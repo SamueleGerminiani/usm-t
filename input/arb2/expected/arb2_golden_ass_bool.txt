@@ -1,0 +1,6 @@
+G(state && req1 && !req2 -> gnt1)
+G(state && req2 -> gnt2)
+G(!state && req1 -> gnt1)
+G(!state && req2 && !req1 -> gnt2)
+G(rst -> !state)
+G(!rst && gnt1 -> state)
