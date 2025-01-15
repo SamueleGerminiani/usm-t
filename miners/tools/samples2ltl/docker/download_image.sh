@@ -1,1 +1,1 @@
-docker pull samger/samples2LTL:latest
+docker pull samger/samples2ltl:latest

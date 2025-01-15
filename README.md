@@ -74,15 +74,25 @@ Build
 make
 ```
 
-Download the miners
 
 # How to use the tool
+
+Set the environment variables for the tool
+
+```
+bash scripts/setupEnvironment.sh 
+```
+
+Download the miners
+
+```
+bash scripts/downloadMiners.sh
+```
 
 # The configuration file
  
 # Optional arguments
 
-# Docker
 
 
 # Citations
