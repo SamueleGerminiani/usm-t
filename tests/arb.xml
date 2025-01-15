@@ -73,12 +73,12 @@
   -->
 
   <!--
-    <usecase id="goldminer_usecase_1"/>
-    <usecase id="samples2ltl_usecase_1"/>
   -->
 
   <test name="test1">
 
+    <usecase id="goldminer_usecase_1"/>
+    <usecase id="samples2ltl_usecase_1"/>
     <usecase id="harm_usecase_1_bool"/>
     <usecase id="texada_usecase_1"/> 
 
