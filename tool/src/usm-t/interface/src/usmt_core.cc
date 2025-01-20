@@ -68,16 +68,39 @@ void run() {
 
     //print the header of the table
     fort::utf8_table table;
-    table.set_border_style(FT_NICE_STYLE);
+    table.set_border_style(FT_PLAIN_STYLE);
 
-    std::vector<std::string> line;
+    //header
+    std::vector<std::string> line_header;
     table << fort::header;
-    line.push_back("Use Case");
+    line_header.push_back("Use Case");
     for (const auto &comparator : test.comparators) {
-      line.push_back(comparator.with_strategy);
+      line_header.push_back(comparator.with_strategy);
+      if (comparator.with_strategy != "time_to_mine") {
+        line_header.push_back("");
+      }
     }
-    table.range_write_ln(std::begin(line), std::end(line));
-    appendCSVLineToFile(summaryReportDumpPath, line);
+    table.range_write_ln(std::begin(line_header),
+                         std::end(line_header));
+    appendCSVLineToFile(summaryReportDumpPath, line_header);
+
+    std::vector<std::string> line_subheader;
+    table << fort::header;
+    line_subheader.push_back("");
+    for (const auto &comparator : test.comparators) {
+      if (comparator.with_strategy == "time_to_mine") {
+        line_subheader.push_back("");
+      } else if (comparator.with_strategy == "fault_coverage") {
+        line_subheader.push_back("FC");
+        line_subheader.push_back("Min cover");
+      } else {
+        line_subheader.push_back("MS");
+        line_subheader.push_back("R");
+      }
+    }
+    table.range_write_ln(std::begin(line_subheader),
+                         std::end(line_subheader));
+    appendCSVLineToFile(summaryReportDumpPath, line_subheader);
 
     std::unordered_map<std::string, std::vector<EvalReportPtr>>
         useCaseToEvalReports;
@@ -165,10 +188,9 @@ void run() {
           FaultCoverageReportPtr fcr =
               std::dynamic_pointer_cast<FaultCoverageReport>(er);
           line.push_back(
-              to_string_with_precision(fcr->fault_coverage, 2) +
-              " (min cov: " +
-              std::to_string(fcr->_minCoveringAssertions.size()) +
-              ")");
+              to_string_with_precision(fcr->fault_coverage, 2));
+          line.push_back(
+              std::to_string(fcr->_minCoveringAssertions.size()));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, fcr->fault_coverage);
         } else if (std::dynamic_pointer_cast<
@@ -177,9 +199,8 @@ void run() {
               std::dynamic_pointer_cast<SemanticEquivalenceReport>(
                   er);
           line.push_back(
-              to_string_with_precision(evmr->_final_score, 2) +
-              " (noise: " +
-              to_string_with_precision(evmr->_noise, 2) + ")");
+              to_string_with_precision(evmr->_final_score, 2));
+          line.push_back(to_string_with_precision(evmr->_noise, 2));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, evmr->_final_score);
         } else if (std::dynamic_pointer_cast<EditDistanceReport>(
@@ -187,9 +208,8 @@ void run() {
           EditDistanceReportPtr evmr =
               std::dynamic_pointer_cast<EditDistanceReport>(er);
           line.push_back(
-              to_string_with_precision(evmr->_final_score, 2) +
-              " (noise: " +
-              to_string_with_precision(evmr->_noise, 2) + ")");
+              to_string_with_precision(evmr->_final_score, 2));
+          line.push_back(to_string_with_precision(evmr->_noise, 2));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, evmr->_final_score);
         } else if (std::dynamic_pointer_cast<
@@ -198,9 +218,8 @@ void run() {
               std::dynamic_pointer_cast<SyntacticSimilarityReport>(
                   er);
           line.push_back(
-              to_string_with_precision(evmr->_final_score, 2) +
-              " (noise: " +
-              to_string_with_precision(evmr->_noise, 2) + ")");
+              to_string_with_precision(evmr->_final_score, 2));
+          line.push_back(to_string_with_precision(evmr->_noise, 2));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, evmr->_final_score);
         } else if (std::dynamic_pointer_cast<TemporalReport>(er)) {

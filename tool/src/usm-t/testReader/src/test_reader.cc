@@ -100,9 +100,10 @@ Comparator parseCompare(XmlNode *compareNode) {
                    "VCD trace type must have a clk in the xml tag of "
                    "a fault coverage comparator");
     comp.scope = getAttributeValue(compareNode, "scope", "");
-    messageErrorIf(comp.scope == "",
-                   "VCD trace type must have a scope in the xml tag of "
-                   "a fault coverage comparator");
+    messageErrorIf(
+        comp.scope == "",
+        "VCD trace type must have a scope in the xml tag of "
+        "a fault coverage comparator");
   }
   messageErrorIf(
       (comp.trace_type.empty() || comp.faulty_traces.empty()) &&
@@ -231,7 +232,10 @@ std::vector<Test> parseTests(XmlNode *root) {
     for (auto comp : test.comparators) {
       std::cout << "\t\t\twith_strategy: " << comp.with_strategy
                 << "\n";
-      std::cout << "\t\t\texpected: " << comp.expected << "\n";
+      if (comp.with_strategy != "fault_coverage" &&
+          comp.with_strategy != "time_to_mine") {
+        std::cout << "\t\t\texpected: " << comp.expected << "\n";
+      }
     }
 
     for (auto usecase : test.use_cases) {

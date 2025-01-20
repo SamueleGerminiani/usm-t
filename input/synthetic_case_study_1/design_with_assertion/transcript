@@ -1,0 +1,29 @@
+# vsim -c -assertdebug -voptargs="+acc" work.test_bench -do "run -all; exit" 
+# Start time: 17:21:37 on Jan 16,2025
+# ** Note: (vsim-3812) Design is being optimized...
+# //  ModelSim SE-64 2019.4 Oct 15 2019 Linux 6.8.0-49-generic
+# //
+# //  Copyright 1991-2019 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.test_bench(fast)
+# Loading work.test(fast)
+# Loading work.spec0(fast)
+# run -all
+# ** Error: Assertion error.
+#    Time: 10 ns Started: 8 ns  Scope: test_bench.test_ File: test.v Line: 19 Expr: c_1_0
+# ** Error: Assertion error.
+#    Time: 16 ns Started: 14 ns  Scope: test_bench.test_ File: test.v Line: 19 Expr: c_1_0
+# ** Note: $finish    : test_bench.v(123)
+#    Time: 20 ns  Iteration: 0  Instance: /test_bench
+# End time: 17:21:38 on Jan 16,2025, Elapsed time: 0:00:01
+# Errors: 2, Warnings: 0

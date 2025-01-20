@@ -51,7 +51,7 @@ declare -A replacements=(
   ["\([a-zA-Z_][a-zA-Z0-9_]*\)==0"]="!\1" #convert =0 to !boolean      
   ["==1"]="" #convert =1 to boolean      
   ["|->"]="}|->" 
-  ["|=>"]="}|->" 
+  ["|=>"]="}|=>" 
   ["&"]=" && " #convert & to &&
 )
 

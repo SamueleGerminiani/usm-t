@@ -93,12 +93,12 @@ void evaluateWithSyntacticSimilarity(
       //make the alphabet matrix
       int alphabetLength = alphabet.size();
       int scoreMatrix[alphabetLength * alphabetLength];
-      //initialize the score matrix all zero expect for the diagonal
+      //initialize the score matrix all -1 expect for the diagonal
       for (int i = 0; i < alphabetLength; i++) {
         for (int j = 0; j < alphabetLength; j++) {
           scoreMatrix[i * alphabetLength + j] = -1;
         }
-        scoreMatrix[i * alphabetLength + i] = 1;
+        scoreMatrix[i * alphabetLength + i] = 0;
       }
 
       //make db with the mined assertion
@@ -114,15 +114,14 @@ void evaluateWithSyntacticSimilarity(
       int score = results[0]->score;
       delete results[0];
       delete[] results;
-      int max_similarity = fea_tokens.size();
-      int min_similarity =
+
+      int max_penality =
           std::max(fma_tokens.size(), fea_tokens.size());
-      int normalized_max = max_similarity + min_similarity;
       double normalized_similarity =
-          (score + min_similarity) / (double)normalized_max;
+          1.f - ((double)score * -1) / (double)max_penality;
 
       //debug
-      //std::cout << "Score:"<<similarity << "\n";
+      //std::cout << "--------------->Score:" << score << "\n";
       //std::cout << "Normalized similarity between " << fea.flattened_str
       //          << " and " << fma.flattened_str << " is "
       //          << (double)nomalized_similarity / (double)normalized_max
@@ -131,7 +130,7 @@ void evaluateWithSyntacticSimilarity(
       //for (const auto &[token, idx] : alphabet) {
       //  std::cout << token << " " << (int)idx << "\n";
       //}
-      //print as token sequence
+      ////print as token sequence
       //std::cout << "Expected: ";
       //for (auto token : fea_tokens) {
       //  std::cout << (int)token << " ";

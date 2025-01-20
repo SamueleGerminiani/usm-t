@@ -157,7 +157,7 @@ runSemanticEquivalence(const usmt::UseCase &use_case,
 
   //compute final score
   report->_final_score += report->_expectedToCoveredWith.size();
-  report->_final_score += report->_expectedToSimilar.size() * 0.1f;
+  report->_final_score += report->_expectedToSimilar.size() * 0.5f;
 
   size_t totExpected = report->_expectedToCoveredWith.size() +
                        report->_expectedToSimilar.size() +

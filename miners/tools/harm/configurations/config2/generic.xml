@@ -44,8 +44,7 @@
 		<prop exp="a_9_0" loc="dt"/>
 		<prop exp="a_10_0" loc="dt"/>
 
-        <template dtLimits="2A" exp="G({..##1..} |-> P2 && P3)"/>
-        <template dtLimits="2A,-0.1E,O" exp="G({..##1..} |-> P2)"/>
+        <template dtLimits="2A" exp="G({..##1..} |=> (P2 && P3))"/>
 
 
 

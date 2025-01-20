@@ -59,11 +59,15 @@ double computeEditDistanceSimilarity(const SerializedAutomaton &sa1,
   // Retrieve and print the results
   double upper_bound = env.get_upper_bound(graph1, graph2);
 
+  //debug
+  //std::cout << env.get_node_map(graph1,graph2) << "\n";
+
+  //Debug
+  //std::cout << "UP---------------->"<<upper_bound << "\n";
+  //std::cout << "MAX:"<<std::max(sa1.getNumberEdges()+ sa1.getNumberNodes(), sa2.getNumberEdges() + sa2.getNumberNodes()) << "\n";
   double similarity =
       1.f - (upper_bound /
-             (double)std::max(
-                 sa1.getNumberEdges() - 2 + sa1.getNumberNodes(),
-                 sa2.getNumberEdges() - 2 + sa2.getNumberNodes()));
+             (double)std::max(sa1.getNumberEdges() + sa1.getNumberNodes(), sa2.getNumberEdges() + sa2.getNumberNodes()));
   return similarity;
 }
 

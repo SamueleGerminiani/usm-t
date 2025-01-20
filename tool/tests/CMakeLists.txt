@@ -17,3 +17,4 @@ addTest(semantic_equivalence_scalabilityTests semantic_equivalence_scalabilityTe
 addTest(fault_coverage_scalabilityTests fault_coverage_scalabilityTests.cc)
 addTest(syntactic_similarity_scalabilityTests syntactic_similarity_scalabilityTests.cc)
 addTest(flattening_scalabilityTests flattening_scalabilityTests.cc)
+addTest(all_methods_test all_methods_test.cc)
