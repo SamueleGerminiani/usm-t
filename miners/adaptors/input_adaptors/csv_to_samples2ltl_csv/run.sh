@@ -8,7 +8,7 @@ fi
 
 input_path=$1
 output_dir=$2
-max_length=${3:-100}  # Default to 50 if max_length is not provided, indicating no row cut
+max_length=${3:-10}  # Default to 50 if max_length is not provided, indicating no row cut
 
 
 if [ ! -d "$output_dir" ]; then

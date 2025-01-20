@@ -53,11 +53,74 @@ void appendCSVLineToFile(const std::string &filename,
   file.close();
 }
 
+// Function to convert numerical value to a colored string based on min and max values
+std::string colorize(double value, double min, double max,
+                     bool reverse) {
+  std::vector<std::string> colors = {
+      "\033[31m", // Red
+      "\033[33m", // Yellow
+      "\033[32m", // Green
+  };
+
+  int color_index = static_cast<int>((value - min) / (max - min) *
+                                     ((int)colors.size() - 1));
+  color_index =
+      std::min(std::max(color_index, 0), (int)colors.size() - 1);
+
+  if (reverse) {
+    color_index = colors.size() - 1 - color_index;
+  }
+
+  std::ostringstream oss;
+  oss << colors[color_index] << to_string_with_precision(value, 2)
+      << "\033[0m";
+  return oss.str();
+}
+
+std::vector<std::vector<std::string>>
+processTable(const std::vector<std::vector<std::string>> &table_rows,
+             const std::vector<size_t> &heatmap_configuration_col,
+             size_t skip_top_rows = 0) {
+
+  std::vector<std::vector<std::string>> result = table_rows;
+  size_t num_columns = table_rows[0].size();
+
+  for (size_t col = 0; col < num_columns; ++col) {
+    if (heatmap_configuration_col[col] == 0) {
+      continue;
+    }
+    double min_val = std::numeric_limits<double>::max();
+    double max_val = std::numeric_limits<double>::min();
+    std::vector<double> column_values;
+
+    // Extract values and find min/max
+    for (size_t i = skip_top_rows; i < table_rows.size(); i++) {
+      const auto &row = table_rows[i];
+      double val = safeStod(row[col]);
+      min_val = std::min(min_val, val);
+      max_val = std::max(max_val, val);
+      column_values.push_back(val);
+    }
+
+    // Colorize values
+    for (size_t row = skip_top_rows; row < table_rows.size(); ++row) {
+      result[row][col] =
+          colorize(column_values[row - skip_top_rows], min_val,
+                   max_val, heatmap_configuration_col[col] == 2);
+    }
+  }
+
+  return result;
+}
+
 void run() {
 
   std::vector<Test> tests = readTestFile(clc::testFile);
 
   for (auto &test : tests) {
+    std::vector<std::vector<std::string>> table_rows;
+    std::vector<size_t> heatmap_configuration_col = {0};
+
     messageInfo("Running test " + test.name);
     std::string summaryReportDumpPath =
         clc::dumpPath + "/summary_report_" + test.name + ".csv";
@@ -80,8 +143,10 @@ void run() {
         line_header.push_back("");
       }
     }
-    table.range_write_ln(std::begin(line_header),
-                         std::end(line_header));
+
+    table_rows.push_back(line_header);
+    //table.range_write_ln(std::begin(line_header),
+    //                     std::end(line_header));
     appendCSVLineToFile(summaryReportDumpPath, line_header);
 
     std::vector<std::string> line_subheader;
@@ -90,16 +155,20 @@ void run() {
     for (const auto &comparator : test.comparators) {
       if (comparator.with_strategy == "time_to_mine") {
         line_subheader.push_back("");
+        heatmap_configuration_col.push_back(2);
       } else if (comparator.with_strategy == "fault_coverage") {
         line_subheader.push_back("FC");
-        line_subheader.push_back("Min cover");
+        heatmap_configuration_col.push_back(1);
+        line_subheader.push_back("MC");
+        heatmap_configuration_col.push_back(2);
       } else {
         line_subheader.push_back("MS");
-        line_subheader.push_back("R");
+        heatmap_configuration_col.push_back(1);
+        line_subheader.push_back("RS");
+        heatmap_configuration_col.push_back(2);
       }
     }
-    table.range_write_ln(std::begin(line_subheader),
-                         std::end(line_subheader));
+    table_rows.push_back(line_subheader);
     appendCSVLineToFile(summaryReportDumpPath, line_subheader);
 
     std::unordered_map<std::string, std::vector<EvalReportPtr>>
@@ -236,10 +305,24 @@ void run() {
         }
 
       } //end of reports
-      table.range_write_ln(std::begin(line), std::end(line));
+      //table.range_write_ln(std::begin(line), std::end(line));
+      table_rows.push_back(line);
       appendCSVLineToFile(summaryReportDumpPath, line);
     } // end of useCaseToEvalReports
 
+    //tranform the table into a heatmap
+    auto colorized_table_rows =
+        processTable(table_rows, heatmap_configuration_col, 2);
+
+    // print the table to the console
+    for (int i = 0; i < table_rows.size(); ++i) {
+      auto line = colorized_table_rows[i];
+      //mark the header
+      if (i == 0 || i == 1) {
+        table << fort::header;
+      }
+      table.range_write_ln(std::begin(line), std::end(line));
+    }
     std::cout << table.to_string() << std::endl;
 
     //print the best use case

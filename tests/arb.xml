@@ -77,10 +77,10 @@
 
   <test name="test1">
 
-    <usecase id="goldminer_usecase_1"/>
-    <usecase id="samples2ltl_usecase_1"/>
     <usecase id="harm_usecase_1_bool"/>
     <usecase id="texada_usecase_1"/> 
+    <usecase id="goldminer_usecase_1"/>
+    <usecase id="samples2ltl_usecase_1"/>
 
     <compare with_strategy="syntactic_similarity" expected="input/arb2/expected/arb2_golden_ass_bool.txt"/>
     <compare with_strategy="edit_distance" expected="input/arb2/expected/arb2_golden_ass_bool.txt"/>
