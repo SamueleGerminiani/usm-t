@@ -23,6 +23,8 @@ using SemanticEquivalenceReportPtr =
 class SyntacticSimilarityReport;
 using SyntacticSimilarityReportPtr =
     std::shared_ptr<SyntacticSimilarityReport>;
+class NMinedReport;
+using NMinedReportPtr = std::shared_ptr<NMinedReport>;
 class Comparator;
 struct fault_coverage_t;
 struct FlattenedAssertion;
@@ -75,4 +77,5 @@ void evaluateWithSyntacticSimilarity(
     SyntacticSimilarityReportPtr &report,
     const std::unordered_map<
         std::string, std::vector<harm::AssertionPtr>> &assertions);
+
 } // namespace usmt

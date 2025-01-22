@@ -75,20 +75,22 @@ Comparator parseCompare(XmlNode *compareNode) {
                    comp.with_strategy == "semantic_equivalence" ||
                    comp.with_strategy == "edit_distance" ||
                    comp.with_strategy == "syntactic_similarity" ||
+                   comp.with_strategy == "n_mined" ||
                    comp.with_strategy == "time_to_mine"),
                  "Comparator strategy '" + comp.with_strategy +
                      "' not supported, supported strategies are "
                      "'fault_coverage', 'semantic_equivalence', "
-                     "'edit_distance', 'syntactic_similarity' and "
+                     "'edit_distance', 'syntactic_similarity', 'n_mined' and "
                      "'time_to_mine'");
   comp.expected = getAttributeValue(compareNode, "expected", "");
   messageErrorIf(comp.expected.empty() &&
                      (comp.with_strategy == "semantic_equivalence" ||
-                      (comp.with_strategy == "systactic_similarity" ||
-                       comp.with_strategy == "edit_distance")),
+                      comp.with_strategy == "systactic_similarity" ||
+                      comp.with_strategy == "n_mined" ||
+                       comp.with_strategy == "edit_distance"),
                  "Must specify a path to a set of golden assertions "
                  "with the attribute 'expected' when using the "
-                 "'semantic_equivalence', 'edit_distance' or "
+                 "'semantic_equivalence', 'edit_distance', 'n_mined' or "
                  "'syntactic_similarity strategy");
 
   comp.faulty_traces =

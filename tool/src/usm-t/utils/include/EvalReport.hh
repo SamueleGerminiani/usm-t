@@ -240,6 +240,31 @@ public:
   size_t _timeMS = 0;
 };
 
+class NMinedReport : public EvalReport {
+public:
+  NMinedReport() : EvalReport("n_mined") {}
+  ~NMinedReport() = default;
+
+  virtual std::string to_string() override {
+    std::stringstream ss;
+    ss << "N mined specifications: " << _n_mined_assertions << "\n";
+    ss << "N expected specifications: " << _n_expected_assertions
+       << "\n";
+    return ss.str();
+  }
+
+  virtual void dumpTo(const std::string &pathToDir) override {
+    messageInfo("Dumping Temporal Report to: " + pathToDir);
+    std::ofstream out(pathToDir + "/n_mined_report.csv");
+    out << "N. Expected, N. Mined\n";
+    out << _n_expected_assertions << "," << _n_mined_assertions
+        << "\n";
+  }
+
+  size_t _n_mined_assertions = 0;
+  size_t _n_expected_assertions = 0;
+};
+
 using EvalReportPtr = std::shared_ptr<EvalReport>;
 using FaultCoverageReportPtr = std::shared_ptr<FaultCoverageReport>;
 using SemanticEquivalenceReportPtr =
@@ -248,5 +273,6 @@ using EditDistanceReportPtr = std::shared_ptr<EditDistanceReport>;
 using SyntacticSimilarityReportPtr =
     std::shared_ptr<SyntacticSimilarityReport>;
 using TemporalReportPtr = std::shared_ptr<TemporalReport>;
+using NMinedReportPtr = std::shared_ptr<NMinedReport>;
 
 } // namespace usmt

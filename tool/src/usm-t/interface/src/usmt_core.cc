@@ -62,8 +62,19 @@ std::string colorize(double value, double min, double max,
       "\033[32m", // Green
   };
 
-  int color_index = static_cast<int>((value - min) / (max - min) *
-                                     ((int)colors.size() - 1));
+  if (min == max) {
+    std::ostringstream oss;
+    if (reverse) {
+      oss << colors.front() << to_string_with_precision(value, 2)
+          << "\033[0m";
+    } else {
+      oss << colors.back() << to_string_with_precision(value, 2)
+          << "\033[0m";
+    }
+    return oss.str();
+  }
+
+  int color_index = static_cast<int>((value - min) / (max - min) * (int)colors.size());
   color_index =
       std::min(std::max(color_index, 0), (int)colors.size() - 1);
 
@@ -139,14 +150,13 @@ void run() {
     line_header.push_back("Use Case");
     for (const auto &comparator : test.comparators) {
       line_header.push_back(comparator.with_strategy);
-      if (comparator.with_strategy != "time_to_mine") {
+      if (comparator.with_strategy != "time_to_mine" &&
+          comparator.with_strategy != "n_mined") {
         line_header.push_back("");
       }
     }
 
     table_rows.push_back(line_header);
-    //table.range_write_ln(std::begin(line_header),
-    //                     std::end(line_header));
     appendCSVLineToFile(summaryReportDumpPath, line_header);
 
     std::vector<std::string> line_subheader;
@@ -161,6 +171,9 @@ void run() {
         heatmap_configuration_col.push_back(1);
         line_subheader.push_back("MC");
         heatmap_configuration_col.push_back(2);
+      } else if (comparator.with_strategy == "n_mined") {
+        line_subheader.push_back("");
+        heatmap_configuration_col.push_back(0);
       } else {
         line_subheader.push_back("MS");
         heatmap_configuration_col.push_back(1);
@@ -300,12 +313,18 @@ void run() {
 
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, (double)tr->_timeMS / 1000.f, false);
+        } else if (std::dynamic_pointer_cast<NMinedReport>(er)) {
+          NMinedReportPtr nr =
+              std::dynamic_pointer_cast<NMinedReport>(er);
+          line.push_back(std::to_string(nr->_n_mined_assertions));
+
+          strategyToBestUseCase[er->_with_strategy].addUseCase(
+              usecase_id, (double)nr->_n_mined_assertions, false);
         } else {
           messageError("Unknown report type");
         }
 
       } //end of reports
-      //table.range_write_ln(std::begin(line), std::end(line));
       table_rows.push_back(line);
       appendCSVLineToFile(summaryReportDumpPath, line);
     } // end of useCaseToEvalReports
@@ -315,7 +334,7 @@ void run() {
         processTable(table_rows, heatmap_configuration_col, 2);
 
     // print the table to the console
-    for (int i = 0; i < table_rows.size(); ++i) {
+    for (size_t i = 0; i < table_rows.size(); ++i) {
       auto line = colorized_table_rows[i];
       //mark the header
       if (i == 0 || i == 1) {
@@ -326,13 +345,13 @@ void run() {
     std::cout << table.to_string() << std::endl;
 
     //print the best use case
-    for (const auto &[strategy, best] : strategyToBestUseCase) {
-      std::string best_use_cases = "";
-      for (const auto &use_case : best._same_value_use_cases) {
-        best_use_cases += use_case + " ";
-      }
-      messageInfo("Best " + strategy + ": " + best_use_cases);
-    }
+    //for (const auto &[strategy, best] : strategyToBestUseCase) {
+    //  std::string best_use_cases = "";
+    //  for (const auto &use_case : best._same_value_use_cases) {
+    //    best_use_cases += use_case + " ";
+    //  }
+    //  messageInfo("Best " + strategy + ": " + best_use_cases);
+    //}
 
   } //end of tests
 }
