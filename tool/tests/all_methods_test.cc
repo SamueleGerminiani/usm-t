@@ -10,7 +10,7 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
@@ -66,9 +66,9 @@ TEST(all_methodsTetss, amt1) {
 
   evaluateWithSyntacticSimilarity(s_report, assertions);
 
-  EditDistanceReportPtr ed_report =
-      std::make_shared<EditDistanceReport>();
-  evaluateWithEditDistance(ed_report, assertions);
+  HybridReportPtr ed_report =
+      std::make_shared<HybridReport>();
+  evaluateWithHybrid(ed_report, assertions);
 
   evaluateWithSyntacticSimilarity(s_report, assertions);
 

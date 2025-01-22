@@ -285,10 +285,10 @@ void run() {
           line.push_back(to_string_with_precision(evmr->_noise, 2));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, evmr->_final_score);
-        } else if (std::dynamic_pointer_cast<EditDistanceReport>(
+        } else if (std::dynamic_pointer_cast<HybridReport>(
                        er)) {
-          EditDistanceReportPtr evmr =
-              std::dynamic_pointer_cast<EditDistanceReport>(er);
+          HybridReportPtr evmr =
+              std::dynamic_pointer_cast<HybridReport>(er);
           line.push_back(
               to_string_with_precision(evmr->_final_score, 2));
           line.push_back(to_string_with_precision(evmr->_noise, 2));

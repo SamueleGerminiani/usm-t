@@ -35,7 +35,7 @@
 #include "Assertion.hh"
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "Trace.hh"
 #include "VCDtraceReader.hh"
@@ -49,8 +49,8 @@
 namespace usmt {
 using namespace harm;
 
-int compareLanguage(const FlattenedAssertion &a1,
-                    const FlattenedAssertion &a2) {
+int compareLanguage(const SimplifiedAssertion &a1,
+                    const SimplifiedAssertion &a2) {
   //ret 0 if equivalent, 1 if a1 contains/implies/covers a2, 2 if a2 contains/implies/covers a1, -1 if not
   spot::formula p1 = spot::parse_formula(a1.flattened_str);
   spot::formula p2 = spot::parse_formula(a2.flattened_str);
@@ -85,54 +85,54 @@ void evaluateWithSemanticComparison(
   //Flatten assertions--------------------------------------
   std::unordered_map<std::string, std::string>
       targetToRemap; //not used
-  auto flattenedAssertions =
-      getFlattenedAssertions(assertions.at("expected"),
+  auto simplifiedAssertions =
+      getSimplifiedAssertions(assertions.at("expected"),
                              assertions.at("mined"), targetToRemap);
 
   progresscpp::ParallelProgressBar pb;
 
-  const std::vector<FlattenedAssertion> &expectedFAssertions =
-      flattenedAssertions.at("expected");
+  const std::vector<SimplifiedAssertion> &expectedSimpAssertions =
+      simplifiedAssertions.at("expected");
 
-  const std::vector<FlattenedAssertion> &minedFAssertions =
-      flattenedAssertions.at("mined");
+  const std::vector<SimplifiedAssertion> &minedSimpAssertions =
+      simplifiedAssertions.at("mined");
 
   pb.addInstance(0, "Semantic Matching...",
-                 expectedFAssertions.size(), 70);
+                 expectedSimpAssertions.size(), 70);
 
-  for (const auto &fea : expectedFAssertions) {
-    std::string fea_assertionStr = fea.original->toString();
-    if (report->_expectedToCoveredWith.count(fea_assertionStr)) {
+  for (const auto &sea : expectedSimpAssertions) {
+    std::string sea_assertionStr = sea.original->toString();
+    if (report->_expectedToCoveredWith.count(sea_assertionStr)) {
       goto increment_pb;
     }
-    for (const auto &fma : minedFAssertions) {
+    for (const auto &sma : minedSimpAssertions) {
       //no point in comparing if they have no common variables
-      if (getNumberOfCommonVariables(fea.original, fma.original) ==
+      if (getNumberOfCommonVariables(sea.original, sma.original) ==
           0) {
-        //std::cout << "Skipping " << fea.original->toString()
-        //          << " and " << fma.original->toString()
+        //std::cout << "Skipping " << sea.original->toString()
+        //          << " and " << sma.original->toString()
         //          << " because they have no common variables\n";
         continue;
       }
-      int res = compareLanguage(fea, fma);
-      std::string fma_assertionStr = fma.original->toString();
+      int res = compareLanguage(sea, sma);
+      std::string sma_assertionStr = sma.original->toString();
 
       if (res == 0) {
-        report->_expectedToCoveredWith[fea_assertionStr] =
-            fma_assertionStr;
+        report->_expectedToCoveredWith[sea_assertionStr] =
+            sma_assertionStr;
         //clear the similar ones if they are present
-        if (report->_expectedToSimilar.count(fea_assertionStr)) {
-          report->_expectedToSimilar.erase(fea_assertionStr);
+        if (report->_expectedToSimilar.count(sea_assertionStr)) {
+          report->_expectedToSimilar.erase(sea_assertionStr);
         }
         goto increment_pb;
       } else if (res != -1) {
-        report->_expectedToSimilar[fea.original->toString()].insert(
-            fma_assertionStr);
+        report->_expectedToSimilar[sea.original->toString()].insert(
+            sma_assertionStr);
       }
     } //end for mined_assertions
 
-    if (!report->_expectedToSimilar.count(fea_assertionStr)) {
-      report->_uncovered.push_back(fea_assertionStr);
+    if (!report->_expectedToSimilar.count(sea_assertionStr)) {
+      report->_uncovered.push_back(sea_assertionStr);
     }
 
   increment_pb:

@@ -15,8 +15,8 @@ class UseCasePathHandler;
 class UseCase;
 class EvalReport;
 using EvalReportPtr = std::shared_ptr<EvalReport>;
-class EditDistanceReport;
-using EditDistanceReportPtr = std::shared_ptr<EditDistanceReport>;
+class HybridReport;
+using HybridReportPtr = std::shared_ptr<HybridReport>;
 class SemanticEquivalenceReport;
 using SemanticEquivalenceReportPtr =
     std::shared_ptr<SemanticEquivalenceReport>;
@@ -27,17 +27,17 @@ class NMinedReport;
 using NMinedReportPtr = std::shared_ptr<NMinedReport>;
 class Comparator;
 struct fault_coverage_t;
-struct FlattenedAssertion;
+struct SimplifiedAssertion;
 
-int compareLanguage(const FlattenedAssertion &a1,
-                    const FlattenedAssertion &a2);
+int compareLanguage(const SimplifiedAssertion &a1,
+                    const SimplifiedAssertion &a2);
 
 EvalReportPtr
 runSemanticEquivalence(const usmt::UseCase &use_case,
                        const std::string expected_assertion_path);
 
 EvalReportPtr
-runEditDistance(const usmt::UseCase &use_case,
+runHybrid(const usmt::UseCase &use_case,
                 const std::string expected_assertion_path);
 
 EvalReportPtr
@@ -50,8 +50,8 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
 EvalReportPtr evaluate(const usmt::UseCase &use_case,
                        const Comparator &comp);
 
-void evaluateWithEditDistance(
-    EditDistanceReportPtr &report,
+void evaluateWithHybrid(
+    HybridReportPtr &report,
     const std::unordered_map<
         std::string, std::vector<harm::AssertionPtr>> &assertions);
 

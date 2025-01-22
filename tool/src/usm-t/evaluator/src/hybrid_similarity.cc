@@ -1,7 +1,7 @@
 #include "Assertion.hh"
 #include "AutomataBasedEvaluator.hh"
 #include "EvalReport.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "Test.hh"
 #include "Trace.hh"
@@ -21,8 +21,8 @@
 namespace usmt {
 using namespace harm;
 
-void evaluateWithEditDistance(
-    EditDistanceReportPtr &report,
+void evaluateWithHybrid(
+    HybridReportPtr &report,
     const std::unordered_map<std::string, std::vector<AssertionPtr>>
         &assertions) {
 
@@ -34,8 +34,8 @@ void evaluateWithEditDistance(
 
   std::unordered_map<std::string, std::string> targetToRemap;
 
-  auto flattenedAssertions =
-      getFlattenedAssertions(assertions.at("expected"),
+  auto simplifiedAssertions =
+      getSimplifiedAssertions(assertions.at("expected"),
                              assertions.at("mined"), targetToRemap);
 
   //Create a mock trace with all the remap targets
@@ -50,15 +50,15 @@ void evaluateWithEditDistance(
     ppack._tokenToInst[r] = remap_trace->getBooleanVariable(r);
   }
 
-  const std::vector<FlattenedAssertion> &expectedFAssertions =
-      flattenedAssertions.at("expected");
-  const std::vector<FlattenedAssertion> &minedFAssertions =
-      flattenedAssertions.at("mined");
+  const std::vector<SimplifiedAssertion> &expectedSimpAssertions =
+      simplifiedAssertions.at("expected");
+  const std::vector<SimplifiedAssertion> &minedSimpAssertions =
+      simplifiedAssertions.at("mined");
 
-  for (const auto &[ea, fea] : expectedFAssertions) {
+  for (const auto &[ea, sea] : expectedSimpAssertions) {
     Automaton *aut = nullptr;
     try {
-      aut = generateAutomatonFromString(fea, ppack);
+      aut = generateAutomatonFromString(sea, ppack);
     } catch (const std::exception &e) {
       messageWarning("(Edit distance) ignoring specification: " +
                      std::string(e.what()));
@@ -67,10 +67,10 @@ void evaluateWithEditDistance(
     expectedToSAutomaton[ea] = serializeAutomaton(aut);
   }
 
-  for (const auto &[ma, fma] : minedFAssertions) {
+  for (const auto &[ma, sma] : minedSimpAssertions) {
     Automaton *aut = nullptr;
     try {
-      aut = generateAutomatonFromString(fma, ppack);
+      aut = generateAutomatonFromString(sma, ppack);
     } catch (const std::exception &e) {
       messageWarning("(Edit distance) ignoring specification: " +
                      std::string(e.what()));
@@ -102,7 +102,7 @@ void evaluateWithEditDistance(
         similarity = 1.f;
       } else {
         //Edit distance
-        similarity = computeEditDistanceSimilarity(ea_sa, ma_sa);
+        similarity = computeHybridSimilarity(ea_sa, ma_sa);
       }
 
       //std::cout << "Similarity between " << ea->toString() << " and " << ma->toString() << " is " << similarity << "\n";
@@ -122,17 +122,17 @@ void evaluateWithEditDistance(
 }
 
 EvalReportPtr
-runEditDistance(const usmt::UseCase &use_case,
+runHybrid(const usmt::UseCase &use_case,
                 const std::string expected_assertion_path) {
 
-  EditDistanceReportPtr report =
-      std::make_shared<EditDistanceReport>();
+  HybridReportPtr report =
+      std::make_shared<HybridReport>();
 
   std::unordered_map<std::string, std::vector<AssertionPtr>>
       assertions = getExpectedMinedAssertions(
           use_case, expected_assertion_path);
 
-  evaluateWithEditDistance(report, assertions);
+  evaluateWithHybrid(report, assertions);
 
   //compute final score
   for (const auto &[ea, closest] : report->_expectedToClosest) {

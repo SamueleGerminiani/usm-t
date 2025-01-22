@@ -143,10 +143,10 @@ public:
   double _noise = 0.f;
 };
 
-class EditDistanceReport : public EvalReport {
+class HybridReport : public EvalReport {
 public:
-  EditDistanceReport() : EvalReport("edit_distance") {}
-  ~EditDistanceReport() = default;
+  HybridReport() : EvalReport("hybrid_similarity") {}
+  ~HybridReport() = default;
 
   virtual std::string to_string() override {
     std::stringstream ss;
@@ -164,7 +164,7 @@ public:
 
   virtual void dumpTo(const std::string &pathToDir) override {
     messageInfo("Dumping edit distance report to: " + pathToDir);
-    std::ofstream out(pathToDir + "/edit_distance_report.csv");
+    std::ofstream out(pathToDir + "/hybrid_similarity_report.csv");
     out << "Expected, BestCoveredWith, Similarity\n";
     for (const auto &[expected, mostSimilar] : _expectedToClosest) {
       auto &[mostSimilar_assertion, similarity] =
@@ -269,7 +269,7 @@ using EvalReportPtr = std::shared_ptr<EvalReport>;
 using FaultCoverageReportPtr = std::shared_ptr<FaultCoverageReport>;
 using SemanticEquivalenceReportPtr =
     std::shared_ptr<SemanticEquivalenceReport>;
-using EditDistanceReportPtr = std::shared_ptr<EditDistanceReport>;
+using HybridReportPtr = std::shared_ptr<HybridReport>;
 using SyntacticSimilarityReportPtr =
     std::shared_ptr<SyntacticSimilarityReport>;
 using TemporalReportPtr = std::shared_ptr<TemporalReport>;

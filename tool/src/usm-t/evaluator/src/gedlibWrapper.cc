@@ -11,7 +11,7 @@ std::map<std::pair<std::string, std::string>, double>
 namespace usmt {
 using namespace harm;
 
-double computeEditDistanceSimilarity(const SerializedAutomaton &sa1,
+double computeHybridSimilarity(const SerializedAutomaton &sa1,
                                      const SerializedAutomaton &sa2) {
 
   std::unordered_map<std::string, EdgeProposition *>

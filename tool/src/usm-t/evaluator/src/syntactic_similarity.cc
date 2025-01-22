@@ -1,7 +1,7 @@
 #include "Assertion.hh"
 #include "AutomataBasedEvaluator.hh"
 #include "EvalReport.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "Test.hh"
 #include "Trace.hh"
@@ -67,28 +67,28 @@ void evaluateWithSyntacticSimilarity(
 
   std::unordered_map<std::string, std::string> targetToRemap;
 
-  auto flattenedAssertions =
-      getFlattenedAssertions(assertions.at("expected"),
+  auto simplifiedAssertions =
+      getSimplifiedAssertions(assertions.at("expected"),
                              assertions.at("mined"), targetToRemap);
 
-  const std::vector<FlattenedAssertion> &expectedFAssertions =
-      flattenedAssertions.at("expected");
-  const std::vector<FlattenedAssertion> &minedFAssertions =
-      flattenedAssertions.at("mined");
+  const std::vector<SimplifiedAssertion> &expectedSimpAssertions =
+      simplifiedAssertions.at("expected");
+  const std::vector<SimplifiedAssertion> &minedSimpAssertions =
+      simplifiedAssertions.at("mined");
   progresscpp::ParallelProgressBar pb;
   pb.addInstance(0, "Computing Syntactic Similarity...",
-                 expectedFAssertions.size(), 70);
-  for (const auto &fea : expectedFAssertions) {
-    std::string ea_assertionStr = fea.original->toString();
-    for (const auto &fma : minedFAssertions) {
-      std::string ma_assertionStr = fma.original->toString();
+                 expectedSimpAssertions.size(), 70);
+  for (const auto &sea : expectedSimpAssertions) {
+    std::string ea_assertionStr = sea.original->toString();
+    for (const auto &sma : minedSimpAssertions) {
+      std::string ma_assertionStr = sma.original->toString();
 
       //make the alphabet
       std::unordered_map<std::string, unsigned char> alphabet;
-      std::vector<unsigned char> fea_tokens =
-          splitBySpacesCollectRemap(fea.flattened_str, alphabet);
-      std::vector<unsigned char> fma_tokens =
-          splitBySpacesCollectRemap(fma.flattened_str, alphabet);
+      std::vector<unsigned char> sea_tokens =
+          splitBySpacesCollectRemap(sea.flattened_str, alphabet);
+      std::vector<unsigned char> sma_tokens =
+          splitBySpacesCollectRemap(sma.flattened_str, alphabet);
 
       //make the alphabet matrix
       int alphabetLength = alphabet.size();
@@ -102,13 +102,13 @@ void evaluateWithSyntacticSimilarity(
       }
 
       //make db with the mined assertion
-      unsigned char *db[1] = {fma_tokens.data()};
-      int dbSeqsLengths[1] = {(int)fma_tokens.size()};
-      int queryLength = fea_tokens.size();
+      unsigned char *db[1] = {sma_tokens.data()};
+      int dbSeqsLengths[1] = {(int)sma_tokens.size()};
+      int queryLength = sea_tokens.size();
       int dbLength = 1;
 
       OpalSearchResult **results = getSimilarity(
-          alphabetLength, scoreMatrix, fea_tokens.data(), queryLength,
+          alphabetLength, scoreMatrix, sea_tokens.data(), queryLength,
           db, dbLength, dbSeqsLengths);
 
       int score = results[0]->score;
@@ -116,14 +116,14 @@ void evaluateWithSyntacticSimilarity(
       delete[] results;
 
       int max_penality =
-          std::max(fma_tokens.size(), fea_tokens.size());
+          std::max(sma_tokens.size(), sea_tokens.size());
       double normalized_similarity =
           1.f - ((double)score * -1) / (double)max_penality;
 
       //debug
       //std::cout << "--------------->Score:" << score << "\n";
-      //std::cout << "Normalized similarity between " << fea.flattened_str
-      //          << " and " << fma.flattened_str << " is "
+      //std::cout << "Normalized similarity between " << sea.flattened_str
+      //          << " and " << sma.flattened_str << " is "
       //          << (double)nomalized_similarity / (double)normalized_max
       //          << "\n";
       //print the alphabet
@@ -132,12 +132,12 @@ void evaluateWithSyntacticSimilarity(
       //}
       ////print as token sequence
       //std::cout << "Expected: ";
-      //for (auto token : fea_tokens) {
+      //for (auto token : sea_tokens) {
       //  std::cout << (int)token << " ";
       //}
       //std::cout << "\n";
       //std::cout << "Mined   : ";
-      //for (auto token : fma_tokens) {
+      //for (auto token : sma_tokens) {
       //  std::cout << (int)token << " ";
       //}
       //std::cout << "\n";

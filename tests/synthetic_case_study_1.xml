@@ -84,7 +84,7 @@
     <compare with_strategy="n_mined" expected="input/synthetic_case_study_1/expected/specifications.txt"/>
     <compare with_strategy="semantic_equivalence" expected="input/synthetic_case_study_1/expected/specifications.txt"/>
     <compare with_strategy="syntactic_similarity" expected="input/synthetic_case_study_1/expected/specifications.txt"/>
-    <compare with_strategy="edit_distance" expected="input/synthetic_case_study_1/expected/specifications.txt"/>
+    <compare with_strategy="hybrid_similarity" expected="input/synthetic_case_study_1/expected/specifications.txt"/>
     <compare with_strategy="fault_coverage" faulty_traces="input/synthetic_case_study_1/faulty_traces/vcd/" trace_type="vcd" clk="clock" scope="test_bench::test_" />
 
     <compare with_strategy="time_to_mine"/>

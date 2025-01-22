@@ -14,8 +14,8 @@ EvalReportPtr evaluate(const usmt::UseCase &use_case,
   if (comp.with_strategy == "semantic_equivalence") {
     return runSemanticEquivalence(use_case,
                                   ph.ustm_root + "/" + comp.expected);
-  } else if (comp.with_strategy == "edit_distance") {
-    return runEditDistance(use_case,
+  } else if (comp.with_strategy == "hybrid_similarity") {
+    return runHybrid(use_case,
                            ph.ustm_root + "/" + comp.expected);
   } else if (comp.with_strategy == "syntactic_similarity") {
     return runSyntacticSimilarity(use_case,

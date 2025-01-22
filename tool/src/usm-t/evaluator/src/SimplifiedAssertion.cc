@@ -1,4 +1,4 @@
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "formula/formula.hh"
 #include "z3CheckSat.hh"
@@ -126,13 +126,13 @@ void gatherRemapTargets(
   }
 }
 
-std::unordered_map<std::string, std::vector<FlattenedAssertion>>
-getFlattenedAssertions(
+std::unordered_map<std::string, std::vector<SimplifiedAssertion>>
+getSimplifiedAssertions(
     const std::vector<AssertionPtr> &expected_assertions,
     const std::vector<AssertionPtr> &mined_assertions,
     std::unordered_map<std::string, std::string> &targetToRemap) {
 
-  std::unordered_map<std::string, std::vector<FlattenedAssertion>>
+  std::unordered_map<std::string, std::vector<SimplifiedAssertion>>
       ret;
 
   std::unordered_map<std::string, PropositionPtr>

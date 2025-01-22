@@ -11,7 +11,7 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
@@ -169,19 +169,19 @@ size_t test_with_parameters(std::string template_,
   assertions_map["expected"] = assertions;
   assertions_map["mined"] = assertions;
 
-  EditDistanceReportPtr report =
-      std::make_shared<EditDistanceReport>();
+  HybridReportPtr report =
+      std::make_shared<HybridReport>();
 
   std::cout << "Number of comparisons: "
             << assertions_map["expected"].size() *
                    (assertions_map["mined"].size())
             << "\n";
   std::unordered_map<std::string, std::string> targetToRemap;
-  auto tmp = getFlattenedAssertions(assertions_map.at("expected"),
+  auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
                                     assertions_map.at("mined"),
                                     targetToRemap);
   auto start = std::chrono::high_resolution_clock::now();
-  evaluateWithEditDistance(report, assertions_map);
+  evaluateWithHybrid(report, assertions_map);
   auto end = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::milliseconds>(end -
                                                                start)

@@ -22,7 +22,7 @@ public:
   size_t getNumberNodes() const { return nodes.size(); }
 };
 
-double computeEditDistanceSimilarity(const SerializedAutomaton &sa1,
+double computeHybridSimilarity(const SerializedAutomaton &sa1,
                                      const SerializedAutomaton &sa2);
 
 SerializedAutomaton serializeAutomaton(Automaton *aut);

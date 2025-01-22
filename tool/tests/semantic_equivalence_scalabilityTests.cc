@@ -10,7 +10,7 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "FlattenedAssertion.hh"
+#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
@@ -176,7 +176,7 @@ size_t test_with_parameters(std::string template_,
                    (assertions_map["mined"].size())
             << "\n";
   std::unordered_map<std::string, std::string> targetToRemap;
-  auto tmp = getFlattenedAssertions(assertions_map.at("expected"),
+  auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
                                     assertions_map.at("mined"),
                                     targetToRemap);
   auto start = std::chrono::high_resolution_clock::now();
