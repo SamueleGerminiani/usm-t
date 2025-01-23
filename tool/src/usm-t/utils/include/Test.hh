@@ -1,3 +1,4 @@
+#include <set>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,17 @@ struct Config {
   std::string type;
   std::string path;
 };
+struct ExportedVariable {
+  ExportedVariable() = default;
+  ExportedVariable(std::string name, std::string value)
+      : name(name), value(value) {}
+  std::string name;
+  std::string value;
+  bool operator<(const ExportedVariable &rhs) const {
+    return name < rhs.name;
+  }
+
+};
 
 struct UseCase {
   std::string usecase_id;
@@ -25,6 +37,7 @@ struct UseCase {
   std::vector<Config> configs;
   std::string input_adaptor_path;
   std::string output_adaptor_path;
+  std::set<ExportedVariable> exports;
 
   UseCasePathHandler ph;
 };

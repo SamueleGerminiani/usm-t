@@ -74,7 +74,8 @@ std::string colorize(double value, double min, double max,
     return oss.str();
   }
 
-  int color_index = static_cast<int>((value - min) / (max - min) * (int)colors.size());
+  int color_index = static_cast<int>((value - min) / (max - min) *
+                                     (int)colors.size());
   color_index =
       std::min(std::max(color_index, 0), (int)colors.size() - 1);
 
@@ -122,6 +123,19 @@ processTable(const std::vector<std::vector<std::string>> &table_rows,
   }
 
   return result;
+}
+
+//export to docker -e
+std::string
+serializeForDocker(std::set<ExportedVariable> &exportedVariables) {
+  std::string ret = "\"";
+  for (const auto &ev : exportedVariables) {
+    ret += "-e " + ev.name + "=" + ev.value + " ";
+  }
+  ret.pop_back();
+  ret += "\"";
+
+  return ret;
 }
 
 void run() {
@@ -227,6 +241,12 @@ void run() {
       run_container_command += " " + ph.work_path + ph.work_output;
       //add the command to be executed in the container
       run_container_command += " \"bash /input/run_miner.sh\"";
+      //add the exported variables
+      if (!use_case.exports.empty()) {
+        std::string exported_list =
+            serializeForDocker(use_case.exports);
+        run_container_command += " " + exported_list;
+      }
       messageInfo("Running '" + use_case.miner_name + "'");
 
       //start the timer
@@ -285,8 +305,7 @@ void run() {
           line.push_back(to_string_with_precision(evmr->_noise, 2));
           strategyToBestUseCase[er->_with_strategy].addUseCase(
               usecase_id, evmr->_final_score);
-        } else if (std::dynamic_pointer_cast<HybridReport>(
-                       er)) {
+        } else if (std::dynamic_pointer_cast<HybridReport>(er)) {
           HybridReportPtr evmr =
               std::dynamic_pointer_cast<HybridReport>(er);
           line.push_back(

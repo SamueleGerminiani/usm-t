@@ -1,2 +1,2 @@
-python2.7 ../src/goldmine.py -m arb2 -u /input/ -S -V -f /input/ --clock clk:1 -v /input/golden.vcd
+python2.7 ../src/goldmine.py -m $TOP_MODULE -u /input/ -S -V -f /input/ --clock $CLK:1 -v /input/$VCD_FILE
 find goldmine.out/ -name "*.gold" -exec cat {} + > /output/$MINED_ASSERTIONS_FILE

@@ -28,4 +28,15 @@ getAttributeValue(XmlNode *node, const std::string &attributeName,
   return ret == nullptr ? defaultValue : ret->value();
 }
 
+/// @brief get all attributes of a node
+inline std::vector<std::pair<std::string, std::string>>
+getAttributes(XmlNode *node) {
+  std::vector<std::pair<std::string, std::string>> ret;
+  for (auto attr = node->first_attribute(); attr != nullptr;
+       attr = attr->next_attribute()) {
+    ret.push_back({attr->name(), attr->value()});
+  }
+  return ret;
+}
+
 } // namespace rapidxml

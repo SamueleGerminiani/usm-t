@@ -80,18 +80,20 @@ Comparator parseCompare(XmlNode *compareNode) {
                  "Comparator strategy '" + comp.with_strategy +
                      "' not supported, supported strategies are "
                      "'fault_coverage', 'semantic_equivalence', "
-                     "'hybrid_similarity', 'syntactic_similarity', 'n_mined' and "
+                     "'hybrid_similarity', 'syntactic_similarity', "
+                     "'n_mined' and "
                      "'time_to_mine'");
   comp.expected = getAttributeValue(compareNode, "expected", "");
-  messageErrorIf(comp.expected.empty() &&
-                     (comp.with_strategy == "semantic_equivalence" ||
-                      comp.with_strategy == "systactic_similarity" ||
-                      comp.with_strategy == "n_mined" ||
-                       comp.with_strategy == "hybrid_similarity"),
-                 "Must specify a path to a set of golden assertions "
-                 "with the attribute 'expected' when using the "
-                 "'semantic_equivalence', 'hybrid_similarity', 'n_mined' or "
-                 "'syntactic_similarity strategy");
+  messageErrorIf(
+      comp.expected.empty() &&
+          (comp.with_strategy == "semantic_equivalence" ||
+           comp.with_strategy == "systactic_similarity" ||
+           comp.with_strategy == "n_mined" ||
+           comp.with_strategy == "hybrid_similarity"),
+      "Must specify a path to a set of golden assertions "
+      "with the attribute 'expected' when using the "
+      "'semantic_equivalence', 'hybrid_similarity', 'n_mined' or "
+      "'syntactic_similarity strategy");
 
   comp.faulty_traces =
       getAttributeValue(compareNode, "faulty_traces", "");
@@ -167,6 +169,27 @@ UseCase parseUseCase(XmlNode *usecaseNode) {
       getAttributeValue(output_adaptorNodes[0], "path", "");
   messageErrorIf(usecase.output_adaptor_path.empty(),
                  "Output adaptor path cannot be empty");
+
+  std::vector<rapidxml::xml_node<> *> exportNodes;
+  getNodesFromName(usecaseNode, "export", exportNodes);
+  for (auto n : exportNodes) {
+    auto attributes = getAttributes(n);
+    if (!attributes.empty()) {
+      for (auto attr : attributes) {
+        usecase.exports.insert(ExportedVariable(attr.first, attr.second));
+      }
+    }
+  }
+
+  //debug
+  //if (!usecase.exports.empty()) {
+  //  //print the exports
+  //  for (auto export_ : usecase.exports) {
+  //    std::cout << "Export: " << export_.name << " " << export_.value
+  //              << std::endl;
+  //  }
+  //}
+  //exit(0);
 
   return usecase;
 }

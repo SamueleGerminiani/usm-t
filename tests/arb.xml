@@ -13,13 +13,14 @@
   <!--
   <usecase id="harm_usecase_1_numeric">
     <miner name="harm"/> 
-    <input path="arb2/traces/numeric" type="vcd" clk="clk" rst="rst" scope="arb2_tb" />
+    <input path="arb2/traces/numeric/golden.csv" type="csv"/>
     <config type="input" path="config1_numeric/generic.xml"/>
     <config type="run" path="config1_numeric/run_miner.sh"/>
-    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <input_adaptor path="csv_to_harm_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
   </usecase>
   -->
+
 
   <usecase id="harm_usecase_1_bool">
     <miner name="harm"/> 
@@ -28,8 +29,10 @@
     <config type="run" path="config1_bool/run_miner.sh"/>
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <!--
+    -->
+    <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
   </usecase>
-
 
 
   <usecase id="texada_usecase_1">
@@ -38,6 +41,7 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <export LOG_FILE="golden.txt"/>
   </usecase>
 
   <usecase id="samples2ltl_usecase_1">
@@ -46,6 +50,7 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
+    <export LOG_FILE="golden.txt"/>
   </usecase>
 
   <usecase id="goldminer_usecase_1">
@@ -56,6 +61,7 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="goldminer_to_spotltl/run.sh"/>
+    <export VCD_FILE="golden.vcd" CLK="clk" TOP_MODULE="arb2" />
   </usecase>
 
     <!--
@@ -63,23 +69,23 @@
     -->
 
   <!--
-  <test name="test1_numeric" mode="sequential">
+  <test name="test1_numeric">
 
     <compare with_strategy="time_to_mine"/>
-    <compare with_strategy="semantic_equivalence" expected="input/arb2/expected/arb2_golden_ass_bool.txt"/>
+    <compare with_strategy="semantic_equivalence" expected="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
     <compare with_strategy="hybrid_similarity" expected="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
-    <usecase id="harm_usecase_1_numeric"/> 
   </test>
+    <usecase id="harm_usecase_1_numeric"/> 
   -->
 
   <!--
-    <usecase id="harm_usecase_1_bool"/>
-    <usecase id="goldminer_usecase_1"/>
-    <usecase id="texada_usecase_1"/> 
   -->
 
   <test name="test1">
 
+    <usecase id="harm_usecase_1_bool"/>
+    <usecase id="goldminer_usecase_1"/>
+    <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
 
     <compare with_strategy="n_mined" expected="input/arb2/expected/arb2_golden_ass_bool.txt"/>
