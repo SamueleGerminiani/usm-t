@@ -34,55 +34,55 @@ Currently, we support only Linux with gcc and clang (C++17) and cmake 3.14+.
 
 #### Ubuntu
 
-\```bash
+```
 sudo apt-get install -y uuid-dev pkg-config
-\```
+```
 
 #### Third party
 
 * Install all dependencies. These will be compiled from source but will not affect your system, as all dependencies are installed in the third_party directory.
 
-\```bash
+```
 cd third_party
 bash install_all.sh
-\```
+```
 
 ## Build the project
 
 Create a build directory inside the tool directory
 
-\```bash
+```
 cd tool
 mkdir build && cd build
-\```
+```
 
 Configure the build environment with cmake.
 
 For a build without SpotLTL (the generated binaries will comply with the MIT license), and the evaluation of temporal formulas will follow a modular-based approach:
 
-\```bash
+```
 cmake -DCMAKE_BUILD_TYPE=Release ..
-\```
+```
 
 Compile the project:
 
-\```bash
+```
 make
-\```
+```
 
 ## How to use the tool
 
 Set the environment variables for the tool:
 
-\```bash
+```
 bash scripts/setupEnvironment.sh
-\```
+```
 
 Download the miners:
 
-\```bash
+```
 bash scripts/downloadMiners.sh
-\```
+```
 
 ## How to run the tool
 ./usm-t --test <path_to_config_file>
@@ -91,7 +91,7 @@ bash scripts/downloadMiners.sh
 
 The configuration file in XML format specifies inputs and use cases for testing with the Universal Specification Miner Tester. Here is a complete example of the configuration file, followed by an in-depth explanation of each element:
 
-\```xml
+```xml
 <usm-t>
 
   <input id="0">
@@ -210,7 +210,7 @@ The configuration file in XML format specifies inputs and use cases for testing 
     <compare with_strategy="time_to_mine"/>
   </test>
 </usm-t>
-\```
+```
 
 ## Optional arguments
 
