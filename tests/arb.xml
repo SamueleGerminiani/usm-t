@@ -1,24 +1,4 @@
 
-  <!--
-  <usecase id="harm_usecase_1_numeric">
-    <miner name="harm"/> 
-    <input path="arb2/traces/numeric/golden.csv" type="csv"/>
-    <config type="support" path="config1_numeric/generic.xml"/>
-    <config type="run" path="config1_numeric/run_miner.sh"/>
-    <input_adaptor path="csv_to_harm_csv/run.sh"/>
-    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-  </usecase>
-  -->
-
-  <!--
-  <test name="test1_numeric">
-
-    <compare with_strategy="time_to_mine"/>
-    <compare with_strategy="semantic_equivalence" expected="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
-    <compare with_strategy="hybrid_similarity" expected="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
-  </test>
-    <usecase id="harm_usecase_1_numeric"/> 
-  -->
 
 
 <usm-t>
@@ -116,8 +96,8 @@
     - Define the usecases to run for this test (must be defined above)
     - They will appear in the summary report in the same order as in this xml
     -->
-    <usecase id="samples2ltl_usecase_1"/>
     <usecase id="harm_usecase_1_bool"/>
+    <usecase id="samples2ltl_usecase_1"/>
     <usecase id="goldminer_usecase_1"/>
     <usecase id="texada_usecase_1"/> 
 
@@ -141,6 +121,38 @@
     <compare with_strategy="time_to_mine"/>
   </test>
 
+  <!--
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  -->
+
+  <input id="2">
+    <csv path="arb2/traces/numeric/golden.csv"/>
+    <verilog path="arb2/design_bool/arb2_bool.v"/>
+  </input>
+
+  <usecase id="harm_usecase_1_numeric">
+    <miner name="harm"/> 
+    <input id="2" type="csv"/>
+    <config type="support" path="config1_numeric/generic.xml"/>
+    <config type="run" path="config1_numeric/run_miner.sh"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+  </usecase>
+
+  <!--
+  -->
+  <test_disabled name="arb2_test_1_numeric">
+
+    <usecase id="harm_usecase_1_numeric"/> 
+
+    <expected path="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
+
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="time_to_mine"/>
+  </test>
 
 
 </usm-t>

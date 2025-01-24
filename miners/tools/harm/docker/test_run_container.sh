@@ -1,1 +1,0 @@
-bash run_container.sh /home/sam/usm-t/miners/tools/harm/docker/runs/12-30-2024_16-26/input/ /home/sam/usm-t/miners/tools/harm/docker/runs/12-30-2024_16-26/output/ "./harm --clk clk --vcd-dir /input/bool/ --conf /input/generic.xml --dump-to /output/$MINED_ASSERTIONS_FILE  --vcd-ss arb2_tb"

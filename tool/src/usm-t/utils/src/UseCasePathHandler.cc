@@ -49,8 +49,8 @@ void initPathHandler(UseCase &us) {
                      ret.configurations_path + "'");
 
   //--work folder
-  ret.work_path =
-      ret.miner_path + "runs/" + getCurrentDateTime() + "/";
+  ret.work_path = ret.miner_path + "runs/" + us.usecase_id + "_" +
+                  getCurrentDateTime() + "/";
   //check if the work folder exists
   if (std::filesystem::exists(ret.work_path)) {
     //delete the folder

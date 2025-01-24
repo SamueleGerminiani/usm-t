@@ -64,10 +64,15 @@ public:
     out << _totFaults - _uncoveredFaults.size() << ", "
         << fault_coverage * 100.f << ", "
         << _minCoveringAssertions.size() << ", ";
+
+    std::string line = "[";
     for (const auto &assertion : _minCoveringAssertions) {
-      out << assertion << " ";
+      line += "\"" + assertion + "\"; ";
     }
-    out << "\n";
+    line.pop_back();
+    line.pop_back();
+    line += "]";
+    out << line << "\n";
   }
 
   double fault_coverage = 0.f;
@@ -129,9 +134,14 @@ public:
     }
 
     for (const auto &pair : _expectedToSimilar) {
+      std::string line = pair.first + ", None, [";
       for (const auto &similar : pair.second) {
-        out << pair.first << ", None , " << similar << "\n";
+        line += "\"" + similar + "\"; ";
       }
+      line.pop_back();
+      line.pop_back();
+      line += "]\n";
+      out << line;
     }
   }
 
