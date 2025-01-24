@@ -98,46 +98,46 @@ recoverTracesInDirectory(const std::string &path,
   return ret;
 }
 
-TracePtr parseInputTraces(const usmt::UseCase &use_case) {
-  const UseCasePathHandler &ph = use_case.ph;
-
-  std::string trace_prefix = ph.ustm_root + "/input/";
-
-  std::vector<std::string> allTraces;
-
-  for (const auto &input : use_case.input) {
-    if (input.type != "vcd" && input.type != "csv") {
-      continue;
-    }
-    std::string trace_path = trace_prefix + input.path;
-    messageInfo("Parsing input trace(s) at " + trace_path);
-    messageErrorIf(!std::filesystem::exists(trace_path),
-                   "path '" + trace_path + "' does not exist");
-    if (std::filesystem::is_directory(trace_path)) {
-      auto traces_in_dir =
-          recoverTracesInDirectory(trace_path, "." + input.type);
-      allTraces.insert(allTraces.end(), traces_in_dir.begin(),
-                       traces_in_dir.end());
-
-    } else {
-      allTraces.push_back(trace_path);
-    }
-
-    if (input.type == "vcd") {
-      clc::selectedScope = use_case.input[0].scope;
-      clc::vcdRecursive = 1;
-      TraceReaderPtr tr =
-          generatePtr<VCDtraceReader>(allTraces, input.clk);
-      return tr->readTrace();
-    } else if (input.type == "csv") {
-      TraceReaderPtr tr = generatePtr<CSVtraceReader>(allTraces);
-      return tr->readTrace();
-    }
-  }
-
-  messageError("Unsupported trace type");
-  return nullptr;
-}
+//TracePtr parseInputTraces(const usmt::UseCase &use_case) {
+//  const UseCasePathHandler &ph = use_case.ph;
+//
+//  std::string trace_prefix = ph.ustm_root + "/input/";
+//
+//  std::vector<std::string> allTraces;
+//
+//  for (const auto &input : use_case.input) {
+//    if (input.type != "vcd" && input.type != "csv") {
+//      continue;
+//    }
+//    std::string trace_path = trace_prefix + input.path;
+//    messageInfo("Parsing input trace(s) at " + trace_path);
+//    messageErrorIf(!std::filesystem::exists(trace_path),
+//                   "path '" + trace_path + "' does not exist");
+//    if (std::filesystem::is_directory(trace_path)) {
+//      auto traces_in_dir =
+//          recoverTracesInDirectory(trace_path, "." + input.type);
+//      allTraces.insert(allTraces.end(), traces_in_dir.begin(),
+//                       traces_in_dir.end());
+//
+//    } else {
+//      allTraces.push_back(trace_path);
+//    }
+//
+//    if (input.type == "vcd") {
+//      clc::selectedScope = use_case.input[0].scope;
+//      clc::vcdRecursive = 1;
+//      TraceReaderPtr tr =
+//          generatePtr<VCDtraceReader>(allTraces, input.clk);
+//      return tr->readTrace();
+//    } else if (input.type == "csv") {
+//      TraceReaderPtr tr = generatePtr<CSVtraceReader>(allTraces);
+//      return tr->readTrace();
+//    }
+//  }
+//
+//  messageError("Unsupported trace type");
+//  return nullptr;
+//}
 
 TracePtr parseFaultyTrace(const std::string &ftStr) {
   TraceReader *tr;
@@ -205,7 +205,7 @@ getExpectedMinedAssertions(
       getenv("MINED_ASSERTIONS_FILE");
 
   const UseCasePathHandler &ph = use_case.ph;
-  TracePtr trace = parseInputTraces(use_case);
+  TracePtr trace = use_case.input.getTrace();
   auto expected_assertions =
       getAssertionsFromFile(expected_assertion_path, trace);
   messageErrorIf(expected_assertions.empty(),
@@ -215,7 +215,7 @@ getExpectedMinedAssertions(
 
   std::vector<AssertionPtr> mined_assertions;
   std::string adapted_output_folder =
-      ph.work_path + "adapted/" + MINED_ASSERTIONS_FILE;
+      ph.work_path + ph.work_adapted + MINED_ASSERTIONS_FILE;
   auto mined_assertions_tmp =
       getAssertionsFromFile(adapted_output_folder, trace);
   mined_assertions.insert(mined_assertions.end(),

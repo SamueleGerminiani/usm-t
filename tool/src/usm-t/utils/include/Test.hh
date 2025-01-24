@@ -1,23 +1,116 @@
+#include <memory>
 #include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "UseCasePathHandler.hh"
 
+namespace harm {
+class Trace;
+using TracePtr = std::shared_ptr<Trace>;
+} // namespace harm
+
 namespace usmt {
 
-struct Input {
-  std::string type;
+struct TraceInput {
+  std::set<std::string> paths;
+  harm::TracePtr trace;
+};
+struct DesignInput {
+  std::set<std::string> paths;
+};
+
+struct VCDInput : public TraceInput {
   std::string rst;
-  std::string path;
   std::string clk;
   std::string scope;
+  using TraceInput::paths;
+  using TraceInput::trace;
+};
+
+struct CSVInput : public TraceInput {
+  usmt::UseCasePathHandler ph;
+  using TraceInput::paths;
+  using TraceInput::trace;
+};
+
+struct VerilogInput : public DesignInput {
+  using DesignInput::paths;
+};
+
+struct Input {
+  Input() = default;
+  bool vcdExists() const {
+    return std::get<0>(variants).trace != nullptr;
+  }
+  bool csvExists() const {
+    return std::get<1>(variants).trace != nullptr;
+  }
+  bool verilogExists() const {
+    return !std::get<2>(variants).paths.empty();
+  }
+
+  std::string getClk() const {
+    if (vcdExists()) {
+      return std::get<0>(variants).clk;
+    }
+    return "";
+  }
+  std::string getScope() const {
+    if (vcdExists()) {
+      return std::get<0>(variants).scope;
+    }
+    return "";
+  }
+  std::string getRst() const {
+    if (vcdExists()) {
+      return std::get<0>(variants).rst;
+    }
+    return "";
+  }
+  std::set<std::string> getVCDPaths() const {
+    if (vcdExists()) {
+      return std::get<0>(variants).paths;
+    }
+  }
+  std::set<std::string> getCSVPaths() const {
+    if (csvExists()) {
+      return std::get<1>(variants).paths;
+    }
+  }
+
+  std::set<std::string> getVerilogPaths() const {
+    if (verilogExists()) {
+      return std::get<2>(variants).paths;
+    }
+  }
+
+  harm::TracePtr getTrace() const {
+    if (vcdExists()) {
+      return std::get<0>(variants).trace;
+    }
+    if (csvExists()) {
+      return std::get<1>(variants).trace;
+    }
+    return nullptr;
+  }
+
+  VCDInput getVCD() const { return std::get<0>(variants); }
+  CSVInput getCSV() const { return std::get<1>(variants); }
+  VerilogInput getVerilog() const { return std::get<2>(variants); }
+
+  std::tuple<VCDInput, CSVInput, VerilogInput> variants;
+  std::string id;
+  std::set<std::string> selected_type;
+  std::string dest_dir;
 };
 
 struct Config {
   std::string type;
   std::string path;
 };
+
 struct ExportedVariable {
   ExportedVariable() = default;
   ExportedVariable(std::string name, std::string value)
@@ -27,13 +120,12 @@ struct ExportedVariable {
   bool operator<(const ExportedVariable &rhs) const {
     return name < rhs.name;
   }
-
 };
 
 struct UseCase {
   std::string usecase_id;
   std::string miner_name;
-  std::vector<Input> input;
+  Input input;
   std::vector<Config> configs;
   std::string input_adaptor_path;
   std::string output_adaptor_path;

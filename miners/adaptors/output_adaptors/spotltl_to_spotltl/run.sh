@@ -14,9 +14,4 @@ if [ ! -f $in_path ]; then
     exit 1
 fi
 
-if [ -f "$out_path" ]; then
-  echo "Error: Output path '$out_path' is a file, not a directory."
-  exit 1
-fi
-
-cp -r $in_path $out_path
+cp $in_path $out_path

@@ -33,12 +33,6 @@ if [ ! -f "$in_path" ]; then
   exit 1
 fi
 
-# Ensure the output_path points to a directory
-if [ -f "$out_path" ]; then
-  echo "Error: Output path '$out_path' is a file, not a directory."
-  exit 1
-fi
-
 # Hardcoded replacements
 declare -A replacements=(
   ["\s"]=""  # Remove all spaces
@@ -47,9 +41,6 @@ declare -A replacements=(
   ["=1"]="" #convert =1 to boolean      
   ["\([a-zA-Z_][a-zA-Z0-9_]*\)=0"]="!\1" #convert =0 to !boolean      
 )
-
-file_name=$(basename $in_path)
-out_path=$out_path/$file_name
 
 # Create a copy of the input file as the output file
 cp "$in_path" "$out_path"

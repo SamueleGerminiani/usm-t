@@ -1,7 +1,15 @@
 #include "test_reader.hh"
+#include "CSVtraceReader.hh"
+#include "PointerUtils.hh"
 #include "Test.hh"
+#include "Trace.hh"
+#include "VCDtraceReader.hh"
+#include "globals.hh"
 #include "message.hh"
+#include "misc.hh"
 #include "xmlUtils.hh"
+#include <filesystem>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -9,6 +17,7 @@
 
 namespace usmt {
 using namespace rapidxml;
+using namespace harm;
 
 std::vector<Test> parseTests(XmlNode *root);
 
@@ -38,20 +47,209 @@ std::vector<Test> readTestFile(const std::string &filename) {
   return {};
 }
 
-void parseInput(XmlNode *inputNode, Input &input) {
-  input.type = getAttributeValue(inputNode, "type", "");
-  input.path = getAttributeValue(inputNode, "path", "");
-  messageErrorIf(input.type.empty() || input.path.empty(),
-                 "Input type or path cannot be empty in 'input' tag");
-  input.clk = getAttributeValue(inputNode, "clk", "");
-  input.rst = getAttributeValue(inputNode, "rst", "");
-  if (input.type == "vcd") {
-    messageErrorIf(input.clk.empty(),
-                   "VCD input '" + input.path +
-                       "' must have a clk in the xml tag");
+std::vector<std::string>
+recoverFilesInDirectoryWithExtension(const std::string &path,
+                                     const std::string &extension) {
+  messageErrorIf(!std::filesystem::exists(path),
+                 "Could not find '" + path + "'");
+  messageErrorIf(!std::filesystem::is_directory(path),
+                 "Not a directory: '" + path + "'");
+  std::vector<std::string> ret;
+  for (const auto &entry :
+       std::filesystem::directory_iterator(path)) {
+
+    if (entry.path().extension() == extension) {
+      ret.push_back(entry.path().u8string());
+    }
+  }
+  return ret;
+}
+
+Input parseInput(XmlNode *inputNode) {
+  messageErrorIf(getenv("USMT_ROOT") == nullptr,
+                 "USTM_ROOT environment variable not set");
+
+  std::string ustm_root = getenv("USMT_ROOT");
+  std::string input_prefix = ustm_root + "/input/";
+
+  std::string id = getAttributeValue(inputNode, "id", "");
+  messageErrorIf(id == "", "Input id cannot be empty in 'input' tag");
+
+  //VCD input
+  std::vector<rapidxml::xml_node<> *> vcdNodes;
+  getNodesFromName(inputNode, "vcd", vcdNodes);
+  std::vector<rapidxml::xml_node<> *> vcddirNodes;
+  getNodesFromName(inputNode, "vcd_dir", vcddirNodes);
+  std::vector<rapidxml::xml_node<> *> allVCDNodes;
+  allVCDNodes.insert(allVCDNodes.end(), vcdNodes.begin(),
+                     vcdNodes.end());
+  allVCDNodes.insert(allVCDNodes.end(), vcddirNodes.begin(),
+                     vcddirNodes.end());
+
+  VCDInput vcd_in;
+  std::vector<std::string> allVCDTraces;
+
+  //gather all vcd paths
+  if (!allVCDNodes.empty()) {
+    for (auto tn : allVCDNodes) {
+      std::string path =
+          input_prefix + getAttributeValue(tn, "path", "");
+      messageErrorIf(path.empty(),
+                     "Path cannot be empty in 'input' tag");
+      std::string clk = getAttributeValue(tn, "clk", "");
+      messageErrorIf(clk == "",
+                     "VCD input '" + id +
+                         "' must have a clk in the xml tag");
+      messageErrorIf(vcd_in.clk != "" && clk != vcd_in.clk,
+                     "VCD input '" + id +
+                         "' must have the same clk for all vcd "
+                         "traces in the same input set");
+      vcd_in.clk = clk;
+
+      std::string rst = getAttributeValue(tn, "rst", "");
+      messageErrorIf(vcd_in.rst != "" && rst != vcd_in.rst,
+                     "VCD input '" + id +
+                         "' must have the same rst for all vcd "
+                         "traces in the same input set");
+      vcd_in.rst = rst;
+
+      std::string scope = getAttributeValue(tn, "scope", "");
+      messageErrorIf(scope == "",
+                     "VCD input '" + id +
+                         "' must have a scope in the xml tag");
+      messageErrorIf(vcd_in.scope != "" && scope != vcd_in.scope,
+                     "VCD input '" + id +
+                         "' must have the same scope for all vcd "
+                         "traces in the same input set");
+      vcd_in.scope = scope;
+
+      messageErrorIf(vcd_in.paths.count(path),
+                     "VCD input '" + id +
+                         "' cannot have repeated paths");
+      if (std::filesystem::is_directory(path)) {
+        auto traces_in_dir =
+            recoverFilesInDirectoryWithExtension(path, ".vcd");
+        allVCDTraces.insert(allVCDTraces.end(), traces_in_dir.begin(),
+                            traces_in_dir.end());
+
+      } else {
+        allVCDTraces.push_back(path);
+      }
+    }
   }
 
-  input.scope = getAttributeValue(inputNode, "scope", "");
+  if (!allVCDTraces.empty()) {
+    std::sort(allVCDTraces.begin(), allVCDTraces.end());
+    clc::clk = vcd_in.clk;
+    clc::selectedScope = vcd_in.scope;
+    clc::vcdRecursive = 0;
+    TraceReaderPtr tr =
+        generatePtr<VCDtraceReader>(allVCDTraces, vcd_in.clk);
+    vcd_in.trace = tr->readTrace();
+    for (auto trace : allVCDTraces) {
+      vcd_in.paths.insert(trace);
+    }
+  }
+
+  //CSV input
+  std::vector<rapidxml::xml_node<> *> csvNodes;
+  getNodesFromName(inputNode, "csv", csvNodes);
+  std::vector<rapidxml::xml_node<> *> csvdirNodes;
+  getNodesFromName(inputNode, "csv_dir", csvdirNodes);
+  std::vector<rapidxml::xml_node<> *> allCSVNodes;
+  allCSVNodes.insert(allCSVNodes.end(), csvNodes.begin(),
+                     csvNodes.end());
+  allCSVNodes.insert(allCSVNodes.end(), csvdirNodes.begin(),
+                     csvdirNodes.end());
+
+  CSVInput csv_in;
+  std::vector<std::string> allCSVTraces;
+
+  //gather all csv paths
+  if (!allCSVNodes.empty()) {
+    for (auto tn : allCSVNodes) {
+      std::string path =
+          input_prefix + getAttributeValue(tn, "path", "");
+      messageErrorIf(path.empty(),
+                     "Path cannot be empty in 'input' tag");
+
+      messageErrorIf(csv_in.paths.count(path),
+                     "CSV input '" + id +
+                         "' cannot have repeated paths");
+      if (std::filesystem::is_directory(path)) {
+        auto traces_in_dir =
+            recoverFilesInDirectoryWithExtension(path, ".csv");
+        allCSVTraces.insert(allCSVTraces.end(), traces_in_dir.begin(),
+                            traces_in_dir.end());
+
+      } else {
+        allCSVTraces.push_back(path);
+      }
+    }
+  }
+
+  if (!allCSVTraces.empty()) {
+    std::sort(allCSVTraces.begin(), allCSVTraces.end());
+    TraceReaderPtr tr = generatePtr<CSVtraceReader>(allCSVTraces);
+    csv_in.trace = tr->readTrace();
+
+    for (auto trace : allCSVTraces) {
+      csv_in.paths.insert(trace);
+    }
+  }
+
+  //Verilog input
+  std::vector<rapidxml::xml_node<> *> verilogNodes;
+  getNodesFromName(inputNode, "verilog", verilogNodes);
+  std::vector<rapidxml::xml_node<> *> verilogdirNodes;
+  getNodesFromName(inputNode, "verilog_dir", verilogdirNodes);
+  std::vector<rapidxml::xml_node<> *> allVerilogNodes;
+  allVerilogNodes.insert(allVerilogNodes.end(), verilogNodes.begin(),
+                         verilogNodes.end());
+  allVerilogNodes.insert(allVerilogNodes.end(),
+                         verilogdirNodes.begin(),
+                         verilogdirNodes.end());
+
+  VerilogInput verilog_in;
+
+  //gather all verilog paths
+  if (!allVerilogNodes.empty()) {
+    for (auto tn : allVerilogNodes) {
+      std::string path =
+          input_prefix + getAttributeValue(tn, "path", "");
+      messageErrorIf(path.empty(),
+                     "Path cannot be empty in 'input' tag");
+
+      messageErrorIf(verilog_in.paths.count(path),
+                     "Verilog input '" + id +
+                         "' cannot have repeated paths");
+      if (std::filesystem::is_directory(path)) {
+        auto traces_in_dir =
+            recoverFilesInDirectoryWithExtension(path, ".v");
+        for (auto trace : traces_in_dir) {
+          verilog_in.paths.insert(trace);
+        }
+      } else {
+        verilog_in.paths.insert(path);
+      }
+    }
+    std::sort(allVCDTraces.begin(), allVCDTraces.end());
+  }
+
+  if (!csv_in.paths.empty() && !vcd_in.paths.empty()) {
+    //we need to check that the traces are equal
+    messageErrorIf(csv_in.trace->getLength() !=
+                       vcd_in.trace->getLength(),
+                   "CSV and VCD traces must have the same size");
+
+    messageErrorIf(!(csv_in.trace == vcd_in.trace),
+                   "CSV and VCD traces must be equal in input '" +
+                       id + "'");
+  }
+  Input ret;
+  ret.variants = std::make_tuple(vcd_in, csv_in, verilog_in);
+  ret.id = id;
+  return ret;
 }
 
 void parseConfigs(XmlNode *configNode, std::vector<Config> &configs) {
@@ -83,17 +281,6 @@ Comparator parseCompare(XmlNode *compareNode) {
                      "'hybrid_similarity', 'syntactic_similarity', "
                      "'n_mined' and "
                      "'time_to_mine'");
-  comp.expected = getAttributeValue(compareNode, "expected", "");
-  messageErrorIf(
-      comp.expected.empty() &&
-          (comp.with_strategy == "semantic_equivalence" ||
-           comp.with_strategy == "systactic_similarity" ||
-           comp.with_strategy == "n_mined" ||
-           comp.with_strategy == "hybrid_similarity"),
-      "Must specify a path to a set of golden assertions "
-      "with the attribute 'expected' when using the "
-      "'semantic_equivalence', 'hybrid_similarity', 'n_mined' or "
-      "'syntactic_similarity strategy");
 
   comp.faulty_traces =
       getAttributeValue(compareNode, "faulty_traces", "");
@@ -120,7 +307,9 @@ Comparator parseCompare(XmlNode *compareNode) {
   return comp;
 }
 
-UseCase parseUseCase(XmlNode *usecaseNode) {
+UseCase parseUseCase(
+    XmlNode *usecaseNode,
+    const std::unordered_map<std::string, Input> &idToInput) {
   // Parse usecase
   UseCase usecase;
   usecase.usecase_id = getAttributeValue(usecaseNode, "id", "");
@@ -141,11 +330,34 @@ UseCase parseUseCase(XmlNode *usecaseNode) {
   // Parse input
   std::vector<rapidxml::xml_node<> *> inputNodes;
   getNodesFromName(usecaseNode, "input", inputNodes);
-  for (auto n : inputNodes) {
-    Input new_input;
-    parseInput(n, new_input);
-    usecase.input.push_back(new_input);
+  messageErrorIf(
+      inputNodes.size() > 1,
+      "There should be at most one input tag in a usecase");
+  messageErrorIf(
+      inputNodes.size() == 0,
+      "There should be at least one input tag in a usecase");
+  auto inode = inputNodes[0];
+  std::string id = getAttributeValue(inode, "id", "");
+  messageErrorIf(id == "", "Input id cannot be empty in input tag");
+  std::string type = getAttributeValue(inode, "type", "");
+  messageErrorIf(type.empty(),
+                 "Input type cannot be empty in input tag with id '" +
+                     id + "'");
+  messageErrorIf(!idToInput.count(id),
+                 "Input with id '" + id + "' not found");
+  std::string dest_dir = getAttributeValue(inode, "dest_dir", "");
+
+  usecase.input = idToInput.at(id);
+  usecase.input.selected_type = parseCSVToSet(type);
+
+  for (auto type : usecase.input.selected_type) {
+    messageErrorIf(type != "vcd" && type != "csv" &&
+                       type != "verilog",
+                   "Input type '" + type +
+                       "' not supported, supported types are 'vcd', "
+                       "'csv' and 'verilog'");
   }
+  usecase.input.dest_dir = dest_dir;
 
   // Parse configs
   parseConfigs(usecaseNode, usecase.configs);
@@ -176,7 +388,8 @@ UseCase parseUseCase(XmlNode *usecaseNode) {
     auto attributes = getAttributes(n);
     if (!attributes.empty()) {
       for (auto attr : attributes) {
-        usecase.exports.insert(ExportedVariable(attr.first, attr.second));
+        usecase.exports.insert(
+            ExportedVariable(attr.first, attr.second));
       }
     }
   }
@@ -196,12 +409,20 @@ UseCase parseUseCase(XmlNode *usecaseNode) {
 
 std::vector<Test> parseTests(XmlNode *root) {
 
+  XmlNodeList inputNodes;
+  getNodesFromName(root, "input", inputNodes);
+  std::unordered_map<std::string, Input> idToInput;
+  for (auto inputNode : inputNodes) {
+    Input input = parseInput(inputNode);
+    idToInput[input.id] = input;
+  }
+
   //parse usecases declarations
   XmlNodeList usecaseNodes;
   getNodesFromName(root, "usecase", usecaseNodes);
   std::unordered_map<std::string, UseCase> idToUseCase;
   for (auto usecaseNode : usecaseNodes) {
-    auto usecase = parseUseCase(usecaseNode);
+    auto usecase = parseUseCase(usecaseNode, idToInput);
     idToUseCase[usecase.usecase_id] = usecase;
   }
 
@@ -220,13 +441,43 @@ std::vector<Test> parseTests(XmlNode *root) {
     //               "Test name or mode cannot be empty in test tag");
     messageErrorIf(test.name.empty(),
                    "Test name cannot be empty in test tag");
+    //parse comparators
+    XmlNodeList expectedNodes;
+    getNodesFromName(testNode, "expected", expectedNodes);
+    messageErrorIf(expectedNodes.size() > 1,
+                   "There should be at most one expected tag");
+    std::string expected = "";
+    if (!expectedNodes.empty()) {
+      expected = getAttributeValue(expectedNodes[0], "path", "");
+    }
 
     //parse comparators
     XmlNodeList compareNodes;
     getNodesFromName(testNode, "compare", compareNodes);
     for (auto compareNode : compareNodes) {
-      test.comparators.push_back(parseCompare(compareNode));
+      Comparator comp = parseCompare(compareNode);
+      comp.expected = expected;
+      messageErrorIf(
+          comp.expected == "" &&
+              (comp.with_strategy == "semantic_equivalence" ||
+               comp.with_strategy == "systactic_similarity" ||
+               comp.with_strategy == "n_mined" ||
+               comp.with_strategy == "hybrid_similarity"),
+          "Must specify a path to a set of golden assertions "
+          "with the 'expected' tag when using the "
+          "'semantic_equivalence', 'hybrid_similarity', 'n_mined' or "
+          "'syntactic_similarity strategy");
+      test.comparators.push_back(comp);
     }
+    //error if there are reapeted comparators
+    std::unordered_map<std::string, int> comparatorCount;
+    for (auto comp : test.comparators) {
+      comparatorCount[comp.with_strategy]++;
+      messageErrorIf(comparatorCount[comp.with_strategy] > 1,
+                     "Repeated comparator '" + comp.with_strategy +
+                         "' in test '" + test.name + "'");
+    }
+
     messageWarningIf(test.comparators.empty(),
                      "Non comparators found in test '" + test.name +
                          "'");
@@ -267,10 +518,40 @@ std::vector<Test> parseTests(XmlNode *root) {
       std::cout << "Usecase: " << usecase.usecase_id << "\n";
       std::cout << "\t\t\t Miner: " << usecase.miner_name
                 << std::endl;
-      for (auto input : usecase.input) {
-        std::cout << "\t\t\t Input: " << input.type << " "
-                  << input.path << " " << input.clk << std::endl;
+      auto input = usecase.input;
+      std::cout << "INPUT"
+                << "\n";
+      std::cout << "id: " << input.id << "\n";
+      std::cout << "Selected Type: ";
+      for (auto type : input.selected_type) {
+        std::cout << type << " ";
       }
+      std::cout << "\n";
+      if (input.vcdExists()) {
+        std::cout << "CLK: " << input.getVCD().clk << "\n";
+        std::cout << "RST: " << input.getVCD().rst << "\n";
+        std::cout << "Scope: " << input.getVCD().scope << "\n";
+        std::cout << "VCD"
+                  << "\n";
+        for (auto path : input.getVCDPaths()) {
+          std::cout << "\t\t\t" << path << std::endl;
+        }
+      }
+      if (input.csvExists()) {
+        std::cout << "CSV"
+                  << "\n";
+        for (auto path : input.getCSVPaths()) {
+          std::cout << "\t\t\t" << path << std::endl;
+        }
+      }
+      if (input.verilogExists()) {
+        std::cout << "Verilog"
+                  << "\n";
+        for (auto path : input.getVerilogPaths()) {
+          std::cout << "\t\t\t" << path << std::endl;
+        }
+      }
+
       for (auto config : usecase.configs) {
         std::cout << "\t\t\t Config: " << config.type << " "
                   << config.path << std::endl;
@@ -280,7 +561,26 @@ std::vector<Test> parseTests(XmlNode *root) {
       std::cout << "\t\t\t Output Adaptor: "
                 << usecase.output_adaptor_path << std::endl;
     }
-  }
+
+    //check that all usecases in a test use the same input id
+    for (auto test : tests) {
+      auto first_usecase = test.use_cases[0];
+      for (auto usecase : test.use_cases) {
+        messageErrorIf(usecase.input.id != first_usecase.input.id,
+                       "All usecases in a test must use the same "
+                       "input. In test '" +
+                           test.name +
+                           "', "
+                           "usecase '" +
+                           usecase.usecase_id + "' uses input id '" +
+                           usecase.input.id + "' while usecase '" +
+                           first_usecase.usecase_id +
+                           "' uses input id '" +
+                           first_usecase.input.id + "'");
+      }
+    }
+
+  } // for tests
 
   return tests;
 }

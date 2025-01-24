@@ -21,6 +21,6 @@ if [ ! -d "$out_path" ]; then
 fi
 
 
-# Copy all .vcd files from the input directory to the new output directory
-find "$in_path" -maxdepth 1 -type f -name "*.vcd" -exec cp {} "$out_path" \;
+# Copy all .csv files from the input directory to the new output directory
+find "$in_path" -maxdepth 1 -type f -name "*.csv" -exec cp {} "$out_path" \;
 

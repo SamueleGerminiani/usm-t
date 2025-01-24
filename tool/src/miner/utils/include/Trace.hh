@@ -92,6 +92,8 @@ public:
   /// @brief sets the cuts in the trace
   void setCuts(const std::vector<size_t> &cuts);
 
+  void removeVariableByName(const std::string &name);
+
 private:
   /// @brief The float sub-trace containing the values of each Float
   /// variable
@@ -136,4 +138,5 @@ using TracePtr = std::shared_ptr<Trace>;
 void dumpTraceAsCSV(const harm::TracePtr &trace,
                     const std::string &filename);
 
+bool operator==(const TracePtr &t1, const TracePtr &t2);
 } // namespace harm

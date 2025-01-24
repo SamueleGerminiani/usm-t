@@ -3,7 +3,7 @@
 # Function to display usage
 usage() {
   echo "Usage: $0 <in_path> <out_path>"
-  echo "  in_path: Path to the directory with the assertions, ex. goldmine.out/arb2/verif/prism/"
+  echo "  in_path: Path to the file with the assertions"
   echo "  out_path: Path to the output text file"
   exit 1
 }
@@ -39,12 +39,6 @@ if [ ! -f "$in_path" ]; then
   exit 1
 fi
 
-# Ensure the output_path points to a directory
-if [ -f "$out_path" ]; then
-  echo "Error: Output path '$out_path' is a file, not a directory."
-  exit 1
-fi
-
 # Hardcoded replacements
 declare -A replacements=(
   ["\s"]=""  # Remove all spaces
@@ -55,10 +49,7 @@ declare -A replacements=(
   ["&"]=" && " #convert & to &&
 )
 
-file_name=$(basename $in_path)
-out_path=$out_path/$file_name
- 
-#for each file in the list, extract the lines that start with "a\d: " and write them to the output file
+# Extract the lines that start with "a\d: " and write them to the output file
 grep -Po '^a\d: \K.*' $in_path > $out_path
 
 # Apply replacements using sed

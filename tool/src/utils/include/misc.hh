@@ -7,6 +7,7 @@
 #include <iostream>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -441,6 +442,24 @@ inline std::vector<std::string> parseCSV(const std::string &input) {
     while (std::getline(tokenStream, token, ',')) {
       removeSpacesInPlace(token);
       output.push_back(token);
+    }
+  } catch (std::exception &e) {
+    messageError("Error while parsing comma separated string: " +
+                 std::string(e.what()));
+  }
+  return output;
+}
+
+//parse csv string
+inline std::set<std::string> parseCSVToSet(const std::string &input) {
+  std::set<std::string> output;
+
+  try {
+    std::string token;
+    std::istringstream tokenStream(input);
+    while (std::getline(tokenStream, token, ',')) {
+      removeSpacesInPlace(token);
+      output.insert(token);
     }
   } catch (std::exception &e) {
     messageError("Error while parsing comma separated string: " +

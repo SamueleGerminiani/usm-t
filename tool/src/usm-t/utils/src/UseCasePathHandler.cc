@@ -60,6 +60,8 @@ void initPathHandler(UseCase &us) {
   ret.work_input = "input/";
   ret.work_output = "output/";
   ret.work_eval = "evaluation/";
+  ret.work_original_input = "original_input/";
+  ret.work_adapted = "adapted/";
 
   //create the folders
   messageErrorIf(!std::filesystem::create_directories(ret.work_path),
@@ -77,6 +79,10 @@ void initPathHandler(UseCase &us) {
                                                       ret.work_eval),
                  "error while creating directory '" + ret.work_path +
                      ret.work_eval + "'");
+  messageErrorIf(!std::filesystem::create_directories(
+                     ret.work_path + ret.work_original_input),
+                 "error while creating directory '" +
+                     ret.work_original_input + "'");
 
   //container
   ret.run_container_path =

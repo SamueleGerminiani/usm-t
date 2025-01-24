@@ -335,4 +335,84 @@ std::vector<VarDeclaration> Trace::getUnsignedIntVariabes() {
   }
   return ret;
 }
+
+bool operator==(const TracePtr &t1, const TracePtr &t2) {
+
+  if (t1->getLength() != t2->getLength()) {
+    return false;
+  }
+
+  auto vars1 = t1->getDeclarations();
+  auto vars2 = t2->getDeclarations();
+  std::sort(vars1.begin(), vars1.end(),
+            [](const VarDeclaration &a, const VarDeclaration &b) {
+              return a.getName() < b.getName();
+            });
+  std::sort(vars2.begin(), vars2.end(),
+            [](const VarDeclaration &a, const VarDeclaration &b) {
+              return a.getName() < b.getName();
+            });
+
+  //if (vars1.size() != vars2.size()) {
+  //  messageWarning("Different number of variables '" +
+  //                 std::to_string(vars1.size()) + "' '" +
+  //                 std::to_string(vars2.size()) + "'");
+  //  return false;
+  //}
+
+  for (size_t i = 0; i < vars1.size(); i++) {
+    if (vars1[i].getName() != vars2[i].getName() ||
+        vars1[i].getType() != vars2[i].getType() ||
+        vars1[i].getSize() != vars2[i].getSize()) {
+      messageWarning("Different variables '" + vars1[i].getName() +
+                     "' '" + vars2[i].getName() + "'");
+      return false;
+    }
+  }
+
+  for (size_t i = 0; i < t1->getLength(); i++) {
+    for (auto &v : vars1) {
+      if (v.getType() == ExpType::Bool) {
+        auto v1 = t1->getBooleanVariable(v.getName());
+        auto v2 = t2->getBooleanVariable(v.getName());
+        if (v1->evaluate(i) != v2->evaluate(i)) {
+          return false;
+        }
+      } else if (v.getType() == ExpType::Float) {
+        auto v1 = t1->getFloatVariable(v.getName());
+        auto v2 = t2->getFloatVariable(v.getName());
+        if (v1->evaluate(i) != v2->evaluate(i)) {
+          return false;
+        }
+      } else if (v.getType() == ExpType::UInt) {
+        auto v1 = t1->getIntVariable(v.getName());
+        auto v2 = t2->getIntVariable(v.getName());
+        if (v1->evaluate(i) != v2->evaluate(i)) {
+          return false;
+        }
+      } else if (v.getType() == ExpType::SInt) {
+        auto v1 = t1->getIntVariable(v.getName());
+        auto v2 = t2->getIntVariable(v.getName());
+        if (v1->evaluate(i) != v2->evaluate(i)) {
+          return false;
+        }
+      } else {
+        messageError("Unsupported type");
+      }
+    }
+  }
+  return true;
+}
+
+void Trace::removeVariableByName(const std::string &name) {
+  _varName2size.erase(name);
+  _varName2Type.erase(name);
+  _varName2varValues.erase(name);
+  _variables.erase(std::remove_if(_variables.begin(),
+                                  _variables.end(),
+                                  [name](const VarDeclaration &v) {
+                                    return v.getName() == name;
+                                  }),
+                   _variables.end());
+}
 } // namespace harm

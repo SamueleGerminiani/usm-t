@@ -25,7 +25,7 @@ std::vector<harm::AssertionPtr>
 getAssertionsFromFile(const std::string &input_path,
                       const harm::TracePtr &trace);
 
-harm::TracePtr parseInputTraces(const usmt::UseCase &use_case);
+//harm::TracePtr parseInputTraces(const usmt::UseCase &use_case);
 harm::TracePtr parseFaultyTrace(const std::string &ftStr);
 
 std::vector<std::string>

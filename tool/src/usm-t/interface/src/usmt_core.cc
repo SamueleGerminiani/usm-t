@@ -219,9 +219,9 @@ void run() {
               use_case.usecase_id);
       //copy the conf input files to the input folder
       for (const auto &conf : use_case.configs) {
-        if (conf.type == "input") {
+        if (conf.type == "support") {
           std::filesystem::copy(ph.configurations_path + conf.path,
-                                ph.work_path + "input/");
+                                ph.work_path + ph.work_input);
         } else if (conf.type == "run") {
           std::filesystem::copy(ph.configurations_path + conf.path,
                                 ph.work_path + ph.work_input +
@@ -240,7 +240,8 @@ void run() {
       run_container_command += " " + ph.work_path + ph.work_input;
       run_container_command += " " + ph.work_path + ph.work_output;
       //add the command to be executed in the container
-      run_container_command += " \"bash /input/run_miner.sh\"";
+      run_container_command +=
+          " \"bash /" + ph.work_input + "run_miner.sh\"";
       //add the exported variables
       if (!use_case.exports.empty()) {
         std::string exported_list =

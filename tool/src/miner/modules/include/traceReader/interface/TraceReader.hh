@@ -46,4 +46,6 @@ protected:
   harm::TracePtr _trace = nullptr;
 };
 
+using TraceReaderPtr = std::shared_ptr<TraceReader>;
+
 } // namespace harm
