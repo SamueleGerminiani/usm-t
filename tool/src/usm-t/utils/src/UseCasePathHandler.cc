@@ -25,6 +25,7 @@ std::string getCurrentDateTime() {
 void initPathHandler(UseCase &us) {
 
   UseCasePathHandler &ret = us.ph;
+  bool external = us.external_spec_file_path != "";
 
   messageErrorIf(getenv("USMT_ROOT") == nullptr,
                  "USTM_ROOT environment variable not set");
@@ -43,10 +44,22 @@ void initPathHandler(UseCase &us) {
   messageErrorIf(!std::filesystem::exists(ret.miner_path),
                  "Could not find miner path '" + ret.miner_path +
                      "'");
-  ret.configurations_path = ret.miner_path + "configurations/";
-  messageErrorIf(!std::filesystem::exists(ret.configurations_path),
-                 "Could not find configurations path '" +
-                     ret.configurations_path + "'");
+
+  ret.external_spec_file_path =
+      ret.ustm_root + "/" + us.external_spec_file_path;
+
+  //check that the specifications file exists
+  messageErrorIf(external && !std::filesystem::exists(
+                                 ret.external_spec_file_path),
+                 "Could not find external specifications file '" +
+                     ret.external_spec_file_path + "'");
+
+  if (!external) {
+    ret.configurations_path = ret.miner_path + "configurations/";
+    messageErrorIf(!std::filesystem::exists(ret.configurations_path),
+                   "Could not find configurations path '" +
+                       ret.configurations_path + "'");
+  }
 
   //--work folder
   ret.work_path = ret.miner_path + "runs/" + us.usecase_id + "_" +
@@ -75,29 +88,33 @@ void initPathHandler(UseCase &us) {
                      ret.work_path + ret.work_output),
                  "error while creating directory '" + ret.work_path +
                      ret.work_output + "'");
-  messageErrorIf(!std::filesystem::create_directories(ret.work_path +
-                                                      ret.work_eval),
-                 "error while creating directory '" + ret.work_path +
-                     ret.work_eval + "'");
   messageErrorIf(!std::filesystem::create_directories(
                      ret.work_path + ret.work_original_input),
                  "error while creating directory '" +
                      ret.work_original_input + "'");
+  messageErrorIf(!std::filesystem::create_directories(ret.work_path +
+                                                      ret.work_eval),
+                 "error while creating directory '" + ret.work_path +
+                     ret.work_eval + "'");
 
-  //container
-  ret.run_container_path =
-      ret.tools_path + us.miner_name + "/docker/run_container.sh";
-  messageErrorIf(!std::filesystem::exists(ret.run_container_path),
-                 "Run container script '" + ret.run_container_path +
-                     "' not found");
+  if (!external) {
+    //container
+    ret.run_container_path =
+        ret.tools_path + us.miner_name + "/docker/run_container.sh";
+    messageErrorIf(!std::filesystem::exists(ret.run_container_path),
+                   "Run container script '" + ret.run_container_path +
+                       "' not found");
+  }
 
   //adaptors
-  ret.input_adaptor_path = ret.miners_path +
-                           "adaptors/input_adaptors/" +
-                           us.input_adaptor_path;
-  messageErrorIf(!std::filesystem::exists(ret.input_adaptor_path),
-                 "Input adaptor '" + ret.input_adaptor_path +
-                     "' not found");
+  if (!external) {
+    ret.input_adaptor_path = ret.miners_path +
+                             "adaptors/input_adaptors/" +
+                             us.input_adaptor_path;
+    messageErrorIf(!std::filesystem::exists(ret.input_adaptor_path),
+                   "Input adaptor '" + ret.input_adaptor_path +
+                       "' not found");
+  }
 
   ret.output_adaptor_path = ret.miners_path +
                             "adaptors/output_adaptors/" +

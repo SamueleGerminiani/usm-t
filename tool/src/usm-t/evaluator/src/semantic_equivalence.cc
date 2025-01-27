@@ -164,10 +164,12 @@ runSemanticEquivalence(const usmt::UseCase &use_case,
                        report->_uncovered.size();
   report->_final_score /= totExpected;
 
-  report->_noise = (assertions.at("mined").size() -
+  report->_noise = ((double)assertions.at("mined").size() -
                     (report->_expectedToCoveredWith.size() +
                      report->_expectedToSimilar.size())) /
                    (double)assertions.at("mined").size();
+
+  report->_noise = (report->_noise < 0.f) ? 0.f : report->_noise;
 
   return report;
 }

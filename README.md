@@ -174,7 +174,7 @@ The configuration file in XML format specifies inputs and use cases for testing 
 ```
 
 - Define the usecases to run for this test (must be defined above)
-- They will appear in the summary report in the same order as in this xml
+- They will appear in the summary report in alphabetical order
 
 
 ```xml

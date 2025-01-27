@@ -1,8 +1,8 @@
 #include "Assertion.hh"
 #include "AutomataBasedEvaluator.hh"
 #include "EvalReport.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "Test.hh"
 #include "Trace.hh"
 #include "assertion_utils.hh"
@@ -69,7 +69,7 @@ void evaluateWithSyntacticSimilarity(
 
   auto simplifiedAssertions =
       getSimplifiedAssertions(assertions.at("expected"),
-                             assertions.at("mined"), targetToRemap);
+                              assertions.at("mined"), targetToRemap);
 
   const std::vector<SimplifiedAssertion> &expectedSimpAssertions =
       simplifiedAssertions.at("expected");
@@ -181,9 +181,11 @@ runSyntacticSimilarity(const usmt::UseCase &use_case,
 
   report->_final_score /= report->_expectedToClosest.size();
 
-  report->_noise = (assertions.at("mined").size() -
+  report->_noise = ((double)assertions.at("mined").size() -
                     report->_expectedToClosest.size()) /
                    (double)assertions.at("mined").size();
+
+  report->_noise = (report->_noise < 0.f) ? 0.f : report->_noise;
 
   return report;
 }

@@ -24,6 +24,8 @@ public:
   std::string input_adaptor_path = "";
   std::string output_adaptor_path = "";
   std::string configurations_path = "";
+
+  std::string external_spec_file_path = "";
 };
 
 std::string getCurrentDateTime();

@@ -67,7 +67,7 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
-    <export LOG_FILE="all_traces.txt"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="10"/>
   </usecase>
 
   <usecase id="goldminer_usecase_1">
@@ -80,6 +80,14 @@
     <export VCD_FILE="golden.vcd" CLK="clk" TOP_MODULE="arb2" />
   </usecase>
 
+  <!--
+    - The path is relative to $USMT_ROOT/
+  -->
+  <external id="manually_defined">
+    <external_specifications path="input/arb2/external/manually_defined.txt"/>
+    <input id="0" type="vcd"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+  </external>
 
 
   <!--
@@ -90,12 +98,13 @@
 
     <!--
     - Define the usecases to run for this test (must be defined above)
-    - They will appear in the summary report in the same order as in this xml
+    - They will appear in the summary report in alphabetical order
     -->
     <usecase id="harm_usecase_1_bool"/>
     <usecase id="texada_usecase_1"/> 
-    <usecase id="samples2ltl_usecase_1"/>
     <usecase id="goldminer_usecase_1"/>
+    <usecase id="samples2ltl_usecase_1"/>
+    <usecase id="manually_defined"/>
 
 
     <!--

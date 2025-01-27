@@ -340,27 +340,10 @@ Comparator parseCompare(XmlNode *compareNode) {
   return comp;
 }
 
-UseCase parseUseCase(
-    XmlNode *usecaseNode,
+void populateWithInput(
+    UseCase &usecase, XmlNode *usecaseNode,
     const std::unordered_map<std::string, Input> &idToInput) {
-  // Parse usecase
-  UseCase usecase;
-  usecase.usecase_id = getAttributeValue(usecaseNode, "id", "");
-  messageErrorIf(usecase.usecase_id.empty(),
-                 "Usecase id cannot be empty");
-  // Parse miner
-  std::vector<rapidxml::xml_node<> *> minerNodes;
-  getNodesFromName(usecaseNode, "miner", minerNodes);
-  messageErrorIf(minerNodes.size() != 1,
-                 "There should be exactly one miner tag got '" +
-                     std::to_string(minerNodes.size()) + "'");
 
-  usecase.miner_name = getAttributeValue(minerNodes[0], "name", "");
-
-  messageErrorIf(usecase.miner_name.empty(),
-                 "Miner name cannot be empty");
-
-  // Parse input
   std::vector<rapidxml::xml_node<> *> inputNodes;
   getNodesFromName(usecaseNode, "input", inputNodes);
   messageErrorIf(
@@ -391,6 +374,71 @@ UseCase parseUseCase(
                        "'csv' and 'verilog'");
   }
   usecase.input.dest_dir = dest_dir;
+}
+
+UseCase parseExternal(
+    XmlNode *externalNode,
+    const std::unordered_map<std::string, Input> &idToInput) {
+  UseCase usecase;
+  usecase.usecase_id = getAttributeValue(externalNode, "id", "");
+  messageErrorIf(usecase.usecase_id.empty(),
+                 "Usecase id cannot be empty");
+  usecase.miner_name = "external";
+
+  std::vector<rapidxml::xml_node<> *> specificationsNodes;
+  getNodesFromName(externalNode, "external_specifications",
+                   specificationsNodes);
+  //check that there is only one external_specifications tag
+  messageErrorIf(specificationsNodes.size() != 1,
+                 "There should be exactly one "
+                 "external_specifications tag in external with id '" +
+                     usecase.usecase_id + "'");
+  auto specNode = specificationsNodes[0];
+
+  usecase.external_spec_file_path =
+      getAttributeValue(specNode, "path", "");
+  messageErrorIf(usecase.external_spec_file_path.empty(),
+                 "External specifications file path cannot be empty "
+                 "in external with id '" +
+                     usecase.usecase_id + "'");
+
+  std::vector<rapidxml::xml_node<> *> output_adaptorNodes;
+  getNodesFromName(externalNode, "output_adaptor",
+                   output_adaptorNodes);
+
+  usecase.output_adaptor_path =
+      getAttributeValue(output_adaptorNodes[0], "path", "");
+  messageErrorIf(
+      usecase.output_adaptor_path.empty(),
+      "Output adaptor path cannot be empty in external with id '" +
+          usecase.usecase_id + "'");
+
+  populateWithInput(usecase, externalNode, idToInput);
+
+  return usecase;
+}
+UseCase parseUseCase(
+    XmlNode *usecaseNode,
+    const std::unordered_map<std::string, Input> &idToInput) {
+  // Parse usecase
+  UseCase usecase;
+  usecase.usecase_id = getAttributeValue(usecaseNode, "id", "");
+  messageErrorIf(usecase.usecase_id.empty(),
+                 "Usecase id cannot be empty");
+  // Parse miner
+  std::vector<rapidxml::xml_node<> *> minerNodes;
+  getNodesFromName(usecaseNode, "miner", minerNodes);
+  messageErrorIf(minerNodes.size() != 1,
+                 "There should be exactly one miner tag got '" +
+                     std::to_string(minerNodes.size()) + "'");
+
+  usecase.miner_name = getAttributeValue(minerNodes[0], "name", "");
+
+  messageErrorIf(usecase.miner_name.empty(),
+                 "Miner name cannot be empty");
+
+  // Parse input
+  populateWithInput(usecase, usecaseNode, idToInput);
 
   // Parse configs
   parseConfigs(usecaseNode, usecase.configs);
@@ -404,7 +452,9 @@ UseCase parseUseCase(
   usecase.input_adaptor_path =
       getAttributeValue(input_adaptorNodes[0], "path", "");
   messageErrorIf(usecase.input_adaptor_path.empty(),
-                 "Input adaptor path cannot be empty");
+                 "Input adaptor path of "
+                 "usecase with id '" +
+                     usecase.usecase_id + "' cannot be empty");
 
   // Parse output adaptor
   std::vector<rapidxml::xml_node<> *> output_adaptorNodes;
@@ -463,7 +513,16 @@ std::vector<Test> parseTests(XmlNode *root) {
                    "Repeated usecase id '" + usecase.usecase_id +
                        "'");
     idToUseCase[usecase.usecase_id] = usecase;
-    //check for repeated usecase ids
+  }
+
+  XmlNodeList externalNodes;
+  getNodesFromName(root, "external", externalNodes);
+  for (auto usecaseNode : externalNodes) {
+    auto external = parseExternal(usecaseNode, idToInput);
+    messageErrorIf(idToUseCase.count(external.usecase_id),
+                   "Repeated usecase id '" + external.usecase_id +
+                       "'");
+    idToUseCase[external.usecase_id] = external;
   }
 
   //parse tests
@@ -573,8 +632,7 @@ std::vector<Test> parseTests(XmlNode *root) {
     for (auto usecase : test.use_cases) {
       std::cout << "USECASE: " << usecase.usecase_id
                 << "-------------------\n";
-      std::cout << "\t\t\t MINER: " << usecase.miner_name
-                << std::endl;
+      std::cout << "MINER: " << usecase.miner_name << std::endl;
       auto input = usecase.input;
       if (!usecase.exports.empty()) {
         //print the exports

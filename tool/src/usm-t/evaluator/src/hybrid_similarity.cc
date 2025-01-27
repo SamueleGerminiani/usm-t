@@ -1,8 +1,8 @@
 #include "Assertion.hh"
 #include "AutomataBasedEvaluator.hh"
 #include "EvalReport.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "Test.hh"
 #include "Trace.hh"
 #include "assertion_utils.hh"
@@ -36,7 +36,7 @@ void evaluateWithHybrid(
 
   auto simplifiedAssertions =
       getSimplifiedAssertions(assertions.at("expected"),
-                             assertions.at("mined"), targetToRemap);
+                              assertions.at("mined"), targetToRemap);
 
   //Create a mock trace with all the remap targets
   std::vector<VarDeclaration> trace_vars;
@@ -121,12 +121,10 @@ void evaluateWithHybrid(
   pb.done(0);
 }
 
-EvalReportPtr
-runHybrid(const usmt::UseCase &use_case,
-                const std::string expected_assertion_path) {
+EvalReportPtr runHybrid(const usmt::UseCase &use_case,
+                        const std::string expected_assertion_path) {
 
-  HybridReportPtr report =
-      std::make_shared<HybridReport>();
+  HybridReportPtr report = std::make_shared<HybridReport>();
 
   std::unordered_map<std::string, std::vector<AssertionPtr>>
       assertions = getExpectedMinedAssertions(
@@ -142,9 +140,11 @@ runHybrid(const usmt::UseCase &use_case,
 
   report->_final_score /= report->_expectedToClosest.size();
 
-  report->_noise = (assertions.at("mined").size() -
+  report->_noise = ((double)assertions.at("mined").size() -
                     report->_expectedToClosest.size()) /
                    (double)assertions.at("mined").size();
+
+  report->_noise = (report->_noise < 0.f) ? 0.f : report->_noise;
 
   return report;
 }

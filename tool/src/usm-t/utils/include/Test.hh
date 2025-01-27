@@ -130,8 +130,11 @@ struct UseCase {
   std::string input_adaptor_path;
   std::string output_adaptor_path;
   std::set<ExportedVariable> exports;
-
   UseCasePathHandler ph;
+
+  //used only in external use cases
+  std::string external_spec_file_path;
+
 };
 
 struct Comparator {

@@ -32,4 +32,4 @@ miners/tools/harm/runs/*
 miners/tools/texada/runs/*
 miners/tools/goldminer/runs/*
 miners/tools/samples2ltl/runs/*
-miners/tools/daikon/runs/*
+miners/tools/external/runs/*
