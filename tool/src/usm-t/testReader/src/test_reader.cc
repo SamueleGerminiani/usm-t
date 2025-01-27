@@ -237,13 +237,46 @@ Input parseInput(XmlNode *inputNode) {
   }
 
   if (!csv_in.paths.empty() && !vcd_in.paths.empty()) {
-    //we need to check that the traces are equal
+
+    //Check that name of csv and vcd files match (without extension)
+    std::vector<std::string> csv_names;
+    for (auto csv_path : csv_in.paths) {
+      std::string csv_name =
+          csv_path.substr(csv_path.find_last_of("/\\") + 1);
+      csv_name = csv_name.substr(0, csv_name.find_last_of("."));
+      csv_names.push_back(csv_name);
+    }
+    std::vector<std::string> vcd_names;
+    for (auto vcd_path : vcd_in.paths) {
+      std::string vcd_name =
+          vcd_path.substr(vcd_path.find_last_of("/\\") + 1);
+      vcd_name = vcd_name.substr(0, vcd_name.find_last_of("."));
+      vcd_names.push_back(vcd_name);
+    }
+    //check if the sets are equal
+    messageErrorIf(
+        csv_names.size() != vcd_names.size(),
+        "CSV and VCD traces are not equal in input '" + id +
+            "': different number of trace files found " +
+            std::to_string(csv_names.size()) + " (csv) != " +
+            std::to_string(vcd_names.size()) + " (vcd)");
+
+    std::sort(csv_names.begin(), csv_names.end());
+    std::sort(vcd_names.begin(), vcd_names.end());
+    messageErrorIf(csv_names != vcd_names,
+                   "CSV and VCD trace files dont have the same base "
+                   "names in input '" +
+                       id + "'");
+
+    //we need to check that the traces are equal in content
     messageErrorIf(csv_in.trace->getLength() !=
                        vcd_in.trace->getLength(),
-                   "CSV and VCD traces must have the same size");
+                   "CSV and VCD traces have different content: "
+                   "different length");
 
     messageErrorIf(!(csv_in.trace == vcd_in.trace),
-                   "CSV and VCD traces must be equal in input '" +
+                   "CSV and VCD traces have different content: "
+                   "different variables or different samples'" +
                        id + "'");
   }
   Input ret;
@@ -414,6 +447,9 @@ std::vector<Test> parseTests(XmlNode *root) {
   std::unordered_map<std::string, Input> idToInput;
   for (auto inputNode : inputNodes) {
     Input input = parseInput(inputNode);
+    //check for repeated input ids
+    messageErrorIf(idToInput.count(input.id),
+                   "Repeated input id '" + input.id + "'");
     idToInput[input.id] = input;
   }
 
@@ -423,7 +459,11 @@ std::vector<Test> parseTests(XmlNode *root) {
   std::unordered_map<std::string, UseCase> idToUseCase;
   for (auto usecaseNode : usecaseNodes) {
     auto usecase = parseUseCase(usecaseNode, idToInput);
+    messageErrorIf(idToUseCase.count(usecase.usecase_id),
+                   "Repeated usecase id '" + usecase.usecase_id +
+                       "'");
     idToUseCase[usecase.usecase_id] = usecase;
+    //check for repeated usecase ids
   }
 
   //parse tests
@@ -485,6 +525,7 @@ std::vector<Test> parseTests(XmlNode *root) {
     //Parse usecases used in the test
     XmlNodeList usecaseNodes;
     getNodesFromName(testNode, "usecase", usecaseNodes);
+    std::string this_test_input_id = "";
     for (auto usecaseNode : usecaseNodes) {
       std::string id = getAttributeValue(usecaseNode, "id", "");
       messageErrorIf(id.empty(),
@@ -494,6 +535,22 @@ std::vector<Test> parseTests(XmlNode *root) {
       } else {
         test.use_cases.push_back(idToUseCase[id]);
       }
+      //check that all usecases in a test use the same input id
+      if (this_test_input_id == "") {
+        this_test_input_id = idToUseCase[id].input.id;
+      } else {
+        messageErrorIf(
+            this_test_input_id != idToUseCase[id].input.id,
+            "All usecases in a test must use the same "
+            "input. In test '" +
+                test.name +
+                "', "
+                "usecase '" +
+                idToUseCase[id].usecase_id + "' uses input id '" +
+                idToUseCase[id].input.id + "' while usecase '" +
+                test.use_cases[0].usecase_id + "' uses input id '" +
+                this_test_input_id + "'");
+      }
     }
 
     tests.push_back(test);
@@ -501,9 +558,8 @@ std::vector<Test> parseTests(XmlNode *root) {
 
   //print tests
   for (auto test : tests) {
-    std::cout << "Test: " << test.name << " Mode: " << test.mode
-              << std::endl;
-    std::cout << "\tComparators:"
+    std::cout << "TEST: " << test.name;
+    std::cout << "\tCOMPARATORS:"
               << "\n";
     for (auto comp : test.comparators) {
       std::cout << "\t\t\twith_strategy: " << comp.with_strategy
@@ -515,37 +571,48 @@ std::vector<Test> parseTests(XmlNode *root) {
     }
 
     for (auto usecase : test.use_cases) {
-      std::cout << "Usecase: " << usecase.usecase_id << "\n";
-      std::cout << "\t\t\t Miner: " << usecase.miner_name
+      std::cout << "USECASE: " << usecase.usecase_id
+                << "-------------------\n";
+      std::cout << "\t\t\t MINER: " << usecase.miner_name
                 << std::endl;
       auto input = usecase.input;
+      if (!usecase.exports.empty()) {
+        //print the exports
+        std::cout << "EXPORTS:"
+                  << "\n";
+        for (auto export_ : usecase.exports) {
+          std::cout << "\t\t\t" << export_.name << " "
+                    << export_.value << std::endl;
+        }
+      }
       std::cout << "INPUT"
                 << "\n";
-      std::cout << "id: " << input.id << "\n";
-      std::cout << "Selected Type: ";
+      std::cout << "\t\t\tID: " << input.id << "\n";
+      std::cout << "\t\t\tSELECTED TYPE: ";
       for (auto type : input.selected_type) {
         std::cout << type << " ";
       }
       std::cout << "\n";
-      if (input.vcdExists()) {
-        std::cout << "CLK: " << input.getVCD().clk << "\n";
-        std::cout << "RST: " << input.getVCD().rst << "\n";
-        std::cout << "Scope: " << input.getVCD().scope << "\n";
+      if (input.vcdExists() && input.selected_type.count("vcd")) {
         std::cout << "VCD"
                   << "\n";
+        std::cout << "\t\t\tCLK: " << input.getVCD().clk << "\n";
+        std::cout << "\t\t\tRST: " << input.getVCD().rst << "\n";
+        std::cout << "\t\t\tSCOPE: " << input.getVCD().scope << "\n";
         for (auto path : input.getVCDPaths()) {
           std::cout << "\t\t\t" << path << std::endl;
         }
       }
-      if (input.csvExists()) {
+      if (input.csvExists() && input.selected_type.count("csv")) {
         std::cout << "CSV"
                   << "\n";
         for (auto path : input.getCSVPaths()) {
           std::cout << "\t\t\t" << path << std::endl;
         }
       }
-      if (input.verilogExists()) {
-        std::cout << "Verilog"
+      if (input.verilogExists() &&
+          input.selected_type.count("verilog")) {
+        std::cout << "VERILOG"
                   << "\n";
         for (auto path : input.getVerilogPaths()) {
           std::cout << "\t\t\t" << path << std::endl;
@@ -553,13 +620,16 @@ std::vector<Test> parseTests(XmlNode *root) {
       }
 
       for (auto config : usecase.configs) {
-        std::cout << "\t\t\t Config: " << config.type << " "
-                  << config.path << std::endl;
+        std::cout << "CONFIG: " << config.type << " " << config.path
+                  << std::endl;
       }
-      std::cout << "\t\t\t Input Adaptor: "
-                << usecase.input_adaptor_path << std::endl;
-      std::cout << "\t\t\t Output Adaptor: "
-                << usecase.output_adaptor_path << std::endl;
+      std::cout << "INPUT ADAPTOR: " << usecase.input_adaptor_path
+                << std::endl;
+      std::cout << "OUTPUT ADAPTOR: " << usecase.output_adaptor_path
+                << std::endl;
+      std::cout
+          << "---------------------------------------------------"
+          << "\n";
     }
 
     //check that all usecases in a test use the same input id

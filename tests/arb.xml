@@ -1,16 +1,13 @@
-
-
-
 <usm-t>
 
   <input id="0">
     <!--
-      - Defines the input of the test: traces and/or design
       - The paths a relative to $USMT_ROOT/input/
-      - The id can be used in usecases to use this test
-      - If both csv and vcd traces are used, the resulting vcd set must be equal to the csv test and viceversa, both from a naming point of view of the single elements (with different suffix) and in the content of the trace
+      - Defines the input of the test: traces and/or design
+      - The id can be used in a usecases to specify which input to use
+      - If both csv and vcd traces are used, the resulting vcd set must be equal to the csv trace and viceversa, both from a naming point of view of the single elements (with different suffix) and in the content of the trace
       - Source designs are not checked for equivalence
-      - clk and scope are mandatory, the scope is the hierachical path from the top module separate with ::
+      - clk and scope are mandatory when using vcd, the scope is the hierachical path from the top module separated with ::
     -->
     <vcd path="arb2/traces/bool/golden.vcd" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
     <csv path="arb2/traces/bool/golden.csv"/>
@@ -19,7 +16,7 @@
 
   <input id="1">
     <!--
-    Also directories containing the traces and the design can be defined (suffix must match the type, e.g. .vcd for VCD, .csv for CSV, .v for Verilog)
+    Also directories containing the traces and the design can be defined (the suffix of the files must match the type, e.g. .vcd for VCD, .csv for CSV, .v for Verilog)
     -->
     <vcd_dir path="arb2/traces/bool/" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
     <csv_dir path="arb2/traces/bool/"/>
@@ -27,18 +24,17 @@
   </input>
 
 
-
   <usecase id="harm_usecase_1_bool">
     <miner name="harm"/> 
     <!--
     - Select the input to use for this usecase specifying the id and the types (as a comma separated list) of the input to use
-    - dest_dir is the directory where the miner will write the input files relative to /input/ (of the docker container)
+    - dest_dir is the directory where the miner will write the input files relative to /input/ (in the docker container)
     -->
     <input id="0" type="vcd" dest_dir="bool/"/>
     <!--
-      - Define the configuration files to use for this usecase. The type can be either "support" or "run". "run" specifies a path to the file containing an sh script to run the miner. The script will be used in the run_container.sh script (in $USMT_ROOT/miners/<miner_name>/docker/) to run the miner.
-    - "support" specifies additional configuration files that are needed by the miner. 
-    - The path is relative to $USMT_ROOT/miners/<miner_name>/configurations/
+      - The path is relative to $USMT_ROOT/miners/<miner_name>/configurations/
+      - Define the configuration files to use for this usecase. The type can be either "support" or "run". "run" specifies a path to the file containing a bash script to run the miner. The script will be used in the run_container.sh script (in $USMT_ROOT/miners/<miner_name>/docker/) to run the miner.
+      - "support" specifies additional configuration files that are needed by the miner and will be copied to /input/ in the docker container.
     -->
 
     <config type="support" path="config1_bool/generic.xml"/>
@@ -97,14 +93,14 @@
     - They will appear in the summary report in the same order as in this xml
     -->
     <usecase id="harm_usecase_1_bool"/>
+    <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
     <usecase id="goldminer_usecase_1"/>
-    <usecase id="texada_usecase_1"/> 
 
 
     <!--
+      - The path is relative to $USMT_ROOT/
     - File containing the golden assertions to compare with
-    - The path is relative to the root of usm-t
     - This is neccessary for all comparison strategies except for time_to_mine and fault_coverage
     -->
     <expected path="input/arb2/expected/arb2_golden_ass_bool.txt"/>
