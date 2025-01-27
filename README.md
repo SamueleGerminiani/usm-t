@@ -75,25 +75,25 @@ make
 
 ## How to use the tool
 
-Set the environment variables for the tool:
+#### Set the environment variables for the tool
 
 ```
 bash scripts/setupEnvironment.sh
 ```
 
-Download the miners:
+#### Download the miners
 
 ```
 bash scripts/downloadMiners.sh
 ```
 
-Go to the build directory:
+#### Go to the build directory
 
 ```
 cd tool/build
 ```
 
-## Run the sample example
+#### Run the sample example
 ./usm-t --test ../../tests/arb.xml
 
 ## The configuration file
