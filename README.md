@@ -47,7 +47,7 @@ The script will install the following dependencies:
 * [z3](https://github.com/Z3Prover/z3.git)
 
 
-* Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
+### Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
 
 ## Build the project
 
@@ -71,8 +71,6 @@ make
 ```
 
 ## How to use the tool
-
-```
 
 #### Set the environment variables for the tool
 
