@@ -568,7 +568,7 @@ std::vector<Test> parseTests(XmlNode *root) {
           "'syntactic_similarity strategy");
       test.comparators.push_back(comp);
     }
-    //error if there are reapeted comparators
+    //error if there are repeated comparators
     std::unordered_map<std::string, int> comparatorCount;
     for (auto comp : test.comparators) {
       comparatorCount[comp.with_strategy]++;
@@ -581,9 +581,10 @@ std::vector<Test> parseTests(XmlNode *root) {
                      "Non comparators found in test '" + test.name +
                          "'");
 
-    //Parse usecases used in the test
+    //Parse usecases and externals used in the test
     XmlNodeList usecaseNodes;
     getNodesFromName(testNode, "usecase", usecaseNodes);
+    getNodesFromName(testNode, "external", usecaseNodes);
     std::string this_test_input_id = "";
     for (auto usecaseNode : usecaseNodes) {
       std::string id = getAttributeValue(usecaseNode, "id", "");

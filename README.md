@@ -33,22 +33,21 @@ Currently, we support only Linux with gcc and clang (C++17) and cmake 3.14+.
 sudo apt-get install -y uuid-dev pkg-config
 ```
 
-#### Install all third party dependencies. These will be compiled from source but will not affect your system, as all dependencies are installed in the third_party directory.
+* Install all third party dependencies. These will be compiled from source but will not affect your system, as all dependencies are installed in the third_party directory.
 
 ```
 cd third_party
 bash install_all.sh
 ```
 
-The following dependencies will be installed:
+The script will install the following dependencies:
 * [spotLTL](https://spot.lrde.epita.fr/install.html)
 * [antlr4-runtime](https://www.antlr.org)
 * [gedlib](https://dbblumenthal.github.io/gedlib/)
 * [z3](https://github.com/Z3Prover/z3.git)
 
 
-#### Install Docker
-* [Docker](https://docs.docker.com/engine/install/ubuntu/)
+* Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
 
 ## Build the project
 
@@ -60,8 +59,6 @@ mkdir build && cd build
 ```
 
 Configure the build environment with cmake.
-
-For a build without SpotLTL (the generated binaries will comply with the MIT license), and the evaluation of temporal formulas will follow a modular-based approach:
 
 ```
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -75,13 +72,19 @@ make
 
 ## How to use the tool
 
+```
+
 #### Set the environment variables for the tool
+
+The next command must be run from the root of the repository.
 
 ```
 bash scripts/setupEnvironment.sh
 ```
 
-#### Download the miners
+This will set the variable USMT_ROOT to the root of this repo.
+
+#### Download the containerized miners
 
 ```
 bash scripts/downloadMiners.sh
@@ -162,6 +165,20 @@ The configuration file in XML format specifies inputs and use cases for testing 
 
 
 ```xml
+<external id="manually_defined">
+    <external_specifications path="input/arb2/external/manually_defined.txt"/>
+    <input id="0" type="vcd"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+</external>
+```
+- The path is relative to $USMT_ROOT/
+- It is possible to use external specifications (not mined by the miners) to compare with the mined ones
+- The external_specifications file must contain the specifications (one per line) to be used in the evaluation.
+- This tag is similar to usecase; however, it does not run the miner. 
+- The input trace, and the output adaptor are still needed to evaluate the mined specifications.
+
+
+```xml
 <test name="arb2_test_1">
 ```
 - Define the test to run
@@ -171,9 +188,10 @@ The configuration file in XML format specifies inputs and use cases for testing 
     <usecase id="harm_usecase_1_bool"/>
     <usecase id="goldminer_usecase_1"/>
     <usecase id="texada_usecase_1"/> 
+    <external id="manually_defined"/>
 ```
 
-- Define the usecases to run for this test (must be defined above)
+- Define the use cases (and externals) to use in this test (must be defined above)
 - They will appear in the summary report in alphabetical order
 
 

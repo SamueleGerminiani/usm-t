@@ -101,16 +101,16 @@
     - They will appear in the summary report in alphabetical order
     -->
     <usecase id="harm_usecase_1_bool"/>
+    <external id="manually_defined"/>
     <usecase id="texada_usecase_1"/> 
     <usecase id="goldminer_usecase_1"/>
     <usecase id="samples2ltl_usecase_1"/>
-    <usecase id="manually_defined"/>
 
 
     <!--
       - The path is relative to $USMT_ROOT/
     - File containing the golden assertions to compare with
-    - This is neccessary for all comparison strategies except for time_to_mine and fault_coverage
+    - This is necessary for all comparison strategies except for time_to_mine and fault_coverage
     -->
     <expected path="input/arb2/expected/arb2_golden_ass_bool.txt"/>
 
