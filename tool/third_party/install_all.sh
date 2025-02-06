@@ -10,6 +10,8 @@ else
     bash install_antlr.sh "$installPrefix"
     bash install_spotltl.sh "$installPrefix"
     bash install_boost.sh "$installPrefix"
+    bash install_hifsuite.sh
+    bash install_oss-cad.sh "$installPrefix"
 fi
 
 
