@@ -2,10 +2,12 @@ import subprocess
 import os
 import random
 import copy 
+import sys
+
 root = os.environ["USMT_ROOT"]
 yosis_prefix = root + '/tool/third_party/oss-cad-suite/bin/'
 ltlsynt_prefix = root + '/tool/third_party/spot/bin/'
-verilator_tb_prefix = root + '/tool/syntetic_gen/verilator_tests/'
+hif_tb_prefix = root + '/tool/syntetic_gen/hif_sim/'
 xml_prefix = root +'/tool/syntetic_gen/specs/'
 out_folder = root + '/tool/syntetic_gen/temp/'
 
@@ -68,6 +70,9 @@ def expand_spec(specification, lenght, assnumb):
     print(f"Expanded formula: {ret_spec['formula']}")
     return ret_spec
 
+#Converts an AIGER file to a SystemVerilog file using Yosys
+#design_aiger: the name of the AIGER file to convert
+#specification: the specification dictionary containing the inputs and outputs. Needed to fix yosys nonsense
 def aigerToSv(design_aiger, specification):
     input_file = design_aiger
     output_file = design_aiger.replace('.aiger', '.v')
@@ -87,16 +92,16 @@ def aigerToSv(design_aiger, specification):
                 module_decl = line.strip()
                 break
 
-        # Split the module declaration line into parts
+        # Split the module declaration line into parts and get the module name
         parts = module_decl.split('(')
         module_name = parts[0]
-        signals = parts[1].rstrip(');').split(',')
+        #signals = parts[1].rstrip(');').split(',')
 
-        # Separate the clock, inputs, and outputs
-        new_signals = ['clock'] + inputs.split(',') + outputs.split(',')
+        # Separate the clock, inputs, and outputs to create an ordered module port list
+        new_ports = ['clock'] + inputs.split(',') + outputs.split(',')
 
         # Create the new module declaration line
-        new_module_decl = module_name + '(' + ', '.join(new_signals) + ');'
+        new_module_decl = module_name + '(' + ', '.join(new_ports) + ');'
 
         # Replace the old module declaration line with the new one
         lines[i] = new_module_decl + '\n'
@@ -107,12 +112,16 @@ def aigerToSv(design_aiger, specification):
 
     print(f"Generated SystemVerilog file: {output_file} in {out_folder}")
 
-def synthesize_controller(specification, aiger_file='test.aiger'):
+#Call ltlsynt to generate a controller from a specification
+#The generated controller is saved in "aiger_filename" 
+#aiger_filename is default to 'test.aiger' as the function will be called with a single parameter in the case of merged specifications.
+#In the case of the submodules options being enabled, the function will be called with a second parameter to specify the name of the aiger file for each spec.
+def synthesize_controller(specification, aiger_filename='test.aiger'):
     formula = specification.get('formula')
     inputs = specification.get('inputs')
     outputs = specification.get('outputs')
     
-    ltlsynt_command = f'ltlsynt --formula="{formula}" --ins="{inputs}" --outs="{outputs}" --aiger > {out_folder}{aiger_file}'
+    ltlsynt_command = f'ltlsynt --formula="{formula}" --ins="{inputs}" --outs="{outputs}" --aiger > {out_folder}{aiger_filename}'
 
     result = subprocess.run(ltlsynt_command, shell=True, check=False, capture_output=True, text=True)
     if result.returncode == 1:
@@ -124,12 +133,13 @@ def synthesize_controller(specification, aiger_file='test.aiger'):
     else:
         print("Controller synthesized successfully.")
         #Remove REALIZABLE/UNREALIZABLE output line from aiger file
-        with open(out_folder + aiger_file, 'r') as file:
+        with open(out_folder + aiger_filename, 'r') as file:
             lines = file.readlines()
-        with open(out_folder + aiger_file, 'w') as file:
+        with open(out_folder + aiger_filename, 'w') as file:
             file.writelines(lines[1:])
-        return aiger_file
+        return aiger_filename
 
+#Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
     #prefix of the top module 
     top_module = 'module test(\n'
@@ -160,7 +170,12 @@ def generate_top_module(spec_list):
 
     # instantiate the submodules
     for spec in spec_list:
-        top_module += 'spec' + str(spec_list.index(spec)) + ' spec_sbm' + str(spec_list.index(spec)) + '(' + "clock, " + spec['inputs'] + ',' + spec['outputs'] + ');\n'    
+        top_module += 'spec' + str(spec_list.index(spec)) + ' spec_sbm' + str(spec_list.index(spec)) + '(' + ".clock(clock), "
+        for input_signal in spec['inputs'].split(','):
+            top_module += f".{input_signal}({input_signal}), "
+        for output_signal in spec['outputs'].split(','):
+            top_module += f".{output_signal}({output_signal}), "
+        top_module = top_module.rstrip(', ') + ');\n'
 
     top_module += 'endmodule\n'
 
@@ -168,6 +183,7 @@ def generate_top_module(spec_list):
         file.write(top_module)
     print(f"Generated test module: {out_folder}test.v")
 
+#Generates the circuit for the merged specification or for each submodule if the modules option is enabled
 def generate_circuit(specification,spec_list, modules):
     if(modules):
         #We need to generate a module for each property
@@ -177,53 +193,453 @@ def generate_circuit(specification,spec_list, modules):
             design_aiger = synthesize_controller(spec, specfile_name + '.aiger')
             #Generate a SystemVerilog file for each controller
             aigerToSv(design_aiger,spec)
+        #Generate a top module that instantiates all the submodules
         generate_top_module(spec_list)
     else:
+        #generate a single controller for the merged specification
         design_aiger = synthesize_controller(specification)
+        #Generate a SystemVerilog file for the controller
         aigerToSv(design_aiger,specification)
 
+#Generate testbench for Verilator
+#def generate_testbench(specification):
+    # inputs = specification.get('inputs', '').split(',')
+    # testbench_code = ""
+    # #create instructions to insert in tb
+    # for signal in inputs:
+    #     testbench_code += f"dut->{signal} = rand() % 2;\n\t\t"
+    
+    # print(f"Generated testbench file:\n {testbench_code}")
+    
+    # #retrieve the template for the testbench
+    # with open(hif_tb_prefix + 'tb_test_template.txt', 'r') as template_file:
+    #     template_content = template_file.read()
+
+    # #substite the placeholder with the generated code
+    # testbench_content = template_content.replace("PLACEHOLDER", testbench_code)
+
+    # #write the testbench to a .cpp file
+    # with open(hif_tb_prefix + 'tb_test.cpp', 'w') as testbench_file:
+    #     testbench_file.write(testbench_content)
+
+    #print(f"Generated testbench file: {hif_tb_prefix}tb_test.cpp")
+
+#Generate testbench for HIFSuite
 def generate_testbench(specification):
+    #Get input and outputs
     inputs = specification.get('inputs', '').split(',')
-    testbench_code = ""
-    #create instructions to insert in tb
+    outputs = specification.get('outputs', '').split(',')
+    
+    #Testbench file includes and declarations
+    declarations_string = "#include <stdlib.h>\n#include <algorithm>\n #include <cstdio>\n#include <filesystem>\n#include <fstream>\n#include <iostream>\n#include <vector>\n\n#include \"cpptracer/tracer.hpp\"\n#include \"muffin_dataTypes.hpp\"\n#include \"test.hpp\"\n\nusing Trace = std::vector<test::test_iostruct>;\n\n"
+    
+    #################################################
+    #setRandomInputs function creation
+    set_rand_input_string = "void setRandomInputs(test::test_iostruct& in) {\n"
     for signal in inputs:
-        testbench_code += f"dut->{signal} = rand() % 2;\n\t\t"
+        set_rand_input_string += f"\tin.{signal} = rand() % 2;\n"
+    set_rand_input_string += "}"
+    #################################################
     
-    print(f"Generated testbench file:\n {testbench_code}")
+    #################################################
+    #setInputsFromTraceSample function creation
+    set_inputs_from_trace_string = "void setInputsFromTraceSample(test::test_iostruct& in, const test::test_iostruct& dump) {\n"
+    for signal in inputs:
+        set_inputs_from_trace_string += f"\tin.{signal} = dump.{signal};\n"
+    set_inputs_from_trace_string += "}"
+    #################################################
+
+    #################################################
+    #checkOutputs function creation
+    check_outputs_string = "bool checkOutput(const test::test_iostruct& golden, const test::test_iostruct& faulty) {\n"
+    check_outputs_string += " if ("
+    for signal in outputs:
+        check_outputs_string += f"golden.{signal} != faulty.{signal} || "
+    check_outputs_string = check_outputs_string[:-3] + ") {\n return 0;\n}\n return 1;\n}"
+    #################################################
+
+    #################################################
+    #printSample function creation
+    print_sample_string = "void printSample(test::test_iostruct& in) {"
+    for signal in inputs:
+        print_sample_string += f"printf(\"{signal}: %d\\n\", in.{signal});\n"
+    print_sample_string += "}"   
+    #################################################
+
+    #################################################
+    #we need to this to dump as a wire 1 bit long
+    dump_string = "static std::vector<bool> vcd_clock = {0};\n "
+    zero = '{0}'
+    for signal in inputs:
+        dump_string += f"static std::vector<bool> vcd_{signal} = {zero};\n"
+    for signal in outputs:  
+        dump_string += f"static std::vector<bool> vcd_{signal} = {zero};\n"
+    #################################################
+
+    #################################################
+    #timestep declaration
+    timestep_string = "static cpptracer::TimeScale timeStep(1, cpptracer::TimeUnit::NS);\n"
+    #################################################
+
+    #################################################
+    #initVCDTrace function creation
+    init_vcd_trace_string = "cpptracer::Tracer initVCDTrace(const std::string& name) {\n cpptracer::Tracer tracer(name, timeStep,\"test_bench\");\n tracer.addScope(\"test_\");\n\n"
+    init_vcd_trace_string += "tracer.addTrace(vcd_clock, \"clock\");\n"
+    for signal in inputs:
+        init_vcd_trace_string += f"tracer.addTrace(vcd_{signal}, \"{signal}\");\n"
+    for signal in outputs:
+        init_vcd_trace_string += f"tracer.addTrace(vcd_{signal}, \"{signal}\");\n"
+
+    init_vcd_trace_string += "tracer.closeScope();\n tracer.createTrace();\n return tracer;\n}"
+    #################################################
+
+    #################################################
+    #updateVCDTrace function creation
+    update_vcd_trace_string = "void updateVCDVariables(const test::test_iostruct& in) {\n vcd_clock[0] = in.clock;\n"
+    for signal in inputs:
+        update_vcd_trace_string += f"vcd_{signal}[0] = in.{signal};\n"
+    for signal in outputs:
+        update_vcd_trace_string += f"vcd_{signal}[0] = in.{signal};\n"
+    update_vcd_trace_string += "}"
+    #################################################
+
+    #################################################
+    #areEquivalent function creation
+    are_equivalent_string = "bool areEquivalent(const Trace& t1, const Trace& t2) {\n"
+    are_equivalent_string += "if (t1.size() != t2.size()) {\n return false;\n}\n"
+    are_equivalent_string += "for (size_t i = 0; i < t1.size(); ++i) {\n"
+    are_equivalent_string += "if ("
+    for signal in inputs:
+        are_equivalent_string += f"t1[i].{signal} != t2[i].{signal} || "
+    for signal in outputs:
+        are_equivalent_string += f"t1[i].{signal} != t2[i].{signal} || "
+    are_equivalent_string = are_equivalent_string[:-3] + ") {\n return false;\n}\n}\n return true;\n}"
+    #################################################
+
+    #################################################
+    #main function creation
+    main_string = "int main() {\n"
+    #main function body hardcoded in the script as it can remain the same for all the testbenches
+    main_string += """
+          muffin::stuck_at = 0;
+          muffin::hif_global_instance_counter = 0;
+
+          // number of faulted instances created with muffin, 0 is the original design
+          // without faults
+          muffin::instance_number = 0;
+
+          // faults
+          int32_t cycles_number = 0;
+          size_t traceLength = 1000 * 2;  // 1000 positive and 1000 negative edges
+
+          bool clock_0 = 0;
+
+          printf("Simulate golden \\n");
+
+          test test_instance;
+          test_instance.initialize();
+
+          Trace golden_trace;
+
+          // in case of a rst
+          test::test_iostruct in_rst_on;
+          in_rst_on.clock = clock_0;
+          test_instance.simulate(&in_rst_on, cycles_number);
+
+          srand(0);
+
+          test::test_iostruct in;
+
+          for (size_t k = 0; k < traceLength; ++k) {
+            clock_0 = !clock_0;
+
+            in.clock = clock_0;
+
+            // in
+            if (!clock_0) {
+              setRandomInputs(in);
+            }
+
+            test_instance.simulate(&in, cycles_number);
+
+            // out
+            golden_trace.push_back(in);
+            // printSample(in);
+          }
+          // Simulate the design with faults (instance 1 to 4), 1 is test with 0 faults
+          // input trace
+          size_t faultObserved = 0;
+          std::vector<std::pair<size_t, size_t>> uncoveredFaults;
+          std::vector<Trace> faultyTraces;
+          std::cout << "Number of faults: " << test_instance.hif_fault_node.number
+                    << "\\n";
+
+          std::cout << "N instances: " << muffin::hif_global_instance_counter << "\\n";
+          std::cout << "N faults test: " << test_instance.hif_fault_node.number << "\\n";
+          std::cout << "N faults spec0: "
+                    << test_instance.spec_sbm0.hif_fault_node.number << "\\n";
+          std::cout << "N faults spec1: "
+                    << test_instance.spec_sbm1.hif_fault_node.number << "\\n";
+          std::cout << "N faults spec2: "
+                    << test_instance.spec_sbm2.hif_fault_node.number << "\\n";
+
+          std::vector<size_t> instanceToNumberOfFaults;
+          """
     
-    #retrieve the template for the testbench
-    with open(verilator_tb_prefix + 'tb_test_template.txt', 'r') as template_file:
-        template_content = template_file.read()
+    #golden module 
+    main_string += f"instanceToNumberOfFaults.push_back(0);\n"
+    
+    #test module
+    main_string += f"instanceToNumberOfFaults.push_back(test_instance.hif_fault_node.number);\n"
+    
+    #if we have multiple submodules we need to inject faults in each of them
+    spec_cpp_files = len([f for f in os.listdir(f"{hif_tb_prefix}injected/src") if f.endswith(".cpp") and f not in ["main.cpp", "hif_globals.cpp"]])
+    for i in range(spec_cpp_files-1):
+        main_string += f"instanceToNumberOfFaults.push_back(test_instance.spec_sbm{i}.hif_fault_node.number);\n"
 
-    #substite the placeholder with the generated code
-    testbench_content = template_content.replace("PLACEHOLDER", testbench_code)
+    main_string +="""
+          for (size_t curr_instance_number = 1;
+               curr_instance_number <= instanceToNumberOfFaults.size() - 1;
+               ++curr_instance_number) {
+            muffin::instance_number = curr_instance_number;
+            size_t nFaults = instanceToNumberOfFaults[curr_instance_number];
+          
+            for (muffin::fault_number = 0; muffin::fault_number < nFaults;
+                 ++muffin::fault_number) {
+              Trace faulty_trace;
+              printf("Simulating fault number '%ld:%ld'\\n", muffin::instance_number,
+                     muffin::fault_number);
+          
+              clock_0 = 0;
+              test::test_iostruct in_rst_on;
+              in_rst_on.clock = clock_0;
+              test_instance.simulate(&in_rst_on, cycles_number);
+              test_instance.initialize();
+          
+              test::test_iostruct in;
+              bool faultFound = 0;
+              for (size_t k = 0; k < traceLength; ++k) {
+                clock_0 = !clock_0;
+          
+                in.clock = clock_0;
+                // in
+                if (!clock_0) {
+                  setInputsFromTraceSample(in, golden_trace[k]);
+                }
+                test_instance.simulate(&in, cycles_number);
+          
+                faulty_trace.push_back(in);
+          
+                // get the output
+                if (clock_0) {
+                  if (!checkOutput(golden_trace[k], in)) {
+                    faultFound = 1;
+                  }
+                }
+              }
+          
+              if (faultFound) {
+                faultyTraces.push_back(faulty_trace);
+                ++faultObserved;
+              } else {
+                uncoveredFaults.emplace_back(muffin::fault_number,
+                                             muffin::instance_number);
+              }
+          
+            }  // end for fault_number
+          }    // end for instance_number
+    
 
+          // remove redundant faulty traces
+          for (auto it = faultyTraces.begin(); it != faultyTraces.end(); ++it) {
+            for (auto it2 = it + 1; it2 != faultyTraces.end(); ++it2) {
+              if (areEquivalent(*it, *it2)) {
+                faultyTraces.erase(it2);
+                --it2;
+              }
+            }
+          }
+
+          printf("Faults observed: %ld\\n", faultObserved);
+          for (auto fault : uncoveredFaults) {
+            printf("Fault n %ld not observed\\n", fault);
+          }
+          printf("Unique faulty traces: %ld\\n", faultyTraces.size());
+
+          //-------------------------------------------------------------------------
+          // Dump traces to VCD
+          // make traces directory if it does not exist
+          if (!std::filesystem::exists("traces")) {
+            std::filesystem::create_directory("traces");
+          }
+
+          auto tracer = initVCDTrace("traces/golden.vcd");
+          double time = 0;
+          for (auto& sample : golden_trace) {
+            updateVCDVariables(sample);
+            tracer.updateTrace(time);
+            time += timeStep;
+          }
+          tracer.closeTrace();
+
+          for (size_t i = 0; i < faultyTraces.size(); ++i) {
+            time = 0;
+            auto tracer = initVCDTrace("traces/fault_" + std::to_string(i) + ".vcd");
+            for (auto& sample : faultyTraces[i]) {
+              updateVCDVariables(sample);
+              tracer.updateTrace(time);
+              time += timeStep;
+            }
+            tracer.closeTrace();
+          }
+
+          return 0;
+        }"""
+
+    #concatenate all the strings to create the testbench
+    testbench = declarations_string + "\n" +  set_rand_input_string + "\n" + set_inputs_from_trace_string + "\n" + check_outputs_string + "\n" + print_sample_string  + "\n"+ dump_string  + "\n"+ timestep_string + "\n"+ init_vcd_trace_string + "\n"+ update_vcd_trace_string + "\n"+ are_equivalent_string + "\n"+ main_string
     #write the testbench to a .cpp file
-    with open(verilator_tb_prefix + 'tb_test.cpp', 'w') as testbench_file:
-        testbench_file.write(testbench_content)
+    with open(hif_tb_prefix + 'injected/src/main.cpp', 'w') as testbench_file:
+        testbench_file.write(testbench)
 
-    print(f"Generated testbench file: {verilator_tb_prefix}tb_test.cpp")
+    return testbench
 
-def run_verilator():
+
+#Run verilator tb
+#TODO: Rewrite this function to run hifsuite
+def run_hifsuite(specification):
     #move all .v in outs folder to verilator folder 
-    subprocess.run(f"cp {out_folder}*.v {verilator_tb_prefix}", shell=True, check=False)
+    result = subprocess.run(f"cp {out_folder}*.v {hif_tb_prefix}/rtl", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to copy .v files to hif_tb_prefix.")
+        exit(1)
+        
     # Collect all files that are not test.v
-    file_names = ""
-    for file in os.listdir(out_folder):
-        if file.endswith(".v") and file != "test.v":
-            file_names += file + " "
-    #run verilator
-    subprocess.run(f"cd {verilator_tb_prefix} && make sim", shell=True, check=False)
-    subprocess.run(f"cp {verilator_tb_prefix}trace.vcd {out_folder}", shell=True, check=False)
-    #clean up 
-    subprocess.run(f"rm -rf {verilator_tb_prefix}trace.vcd {verilator_tb_prefix}*.v {verilator_tb_prefix}tb_test.cpp", shell=True, check=False)
-    subprocess.run(f"rm -rf {verilator_tb_prefix}obj_dir {verilator_tb_prefix}.stamp.verilate", shell=True, check=False)
+    #file_names = ""
+    #for file in os.listdir(out_folder):
+    #    if file.endswith(".v") and file != "test.v":
+    #        file_names += file + " "
 
+    #run hif pipeline
+    generate_injectable_design()  
+
+    #create testbench and setup the simulation directory
+    testbench_file = generate_testbench(specification)
+     
+    #move the makfile to the simulation folder
+    result = subprocess.run(f"cp {hif_tb_prefix}CMakeLists.txt {hif_tb_prefix}injected/", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to copy Makefile to hif_tb_prefix.")
+        exit(1)
+
+    #modify the CMakeLists.txt to include the eventual submodules
+    submodule_string = "./src/test.cpp\n"
+    spec_cpp_files = [f for f in os.listdir(f"{hif_tb_prefix}injected/src") if f.startswith("spec")]
+    for spec_cpp_file in spec_cpp_files:
+        submodule_string += f"./src/{spec_cpp_file}\n"
+    with open (f"{hif_tb_prefix}injected/CMakeLists.txt", "r") as file:
+        Cmake_template = file.read()    
+    Cmake_template = Cmake_template.replace("./src/test.cpp", submodule_string)
+    with open(f"{hif_tb_prefix}injected/CMakeLists.txt", "w") as file:
+        file.write(Cmake_template)
+
+    #Create the build directory and run cmake
+    os.chdir(f"{hif_tb_prefix}injected")
+    result = subprocess.run(f"mkdir build", shell=True, check=False, capture_output=True)
+    if result.returncode != 0:
+        if result.stderr.decode().find("File exists") != -1:
+            print("Build directory already exists. Cleaning up...")
+            result = subprocess.run(f"rm -rf build/*", shell=True, check=False)
+            if result.returncode != 0:
+                print("Error: Failed to clean build directory.")
+                exit(1)
+        else:
+            print("Error: Failed to create build directory.")
+            exit(1)    
+    
+    result = subprocess.run(f"cd build && cmake ..", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run cmake.")
+        exit(1)
+
+    #compile the testbench
+    result = subprocess.run(f"cd build && make", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed compile.")
+        exit(1)
+
+    #run the simulation
+    result = subprocess.run("./build/synthetic_circuit", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run the simulation.")
+        exit(1)
+    os.chdir(f"{root}/tool/syntetic_gen")
+
+    #copy the trace file to the output_folder
+    result = subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}", shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to copy trace file to out_folder.")
+        exit(1)
+    #clean up 
+    #subprocess.run(f"rm -rf {hif_tb_prefix}injected/build {hif_tb_prefix}/traces {hif_tb_prefix}/CMakeLists.txt {hif_tb_prefix}/rtl/*.v", shell=True, check=False)
+
+#Support function that calls the hif pipeline anche check for errors
+def generate_injectable_design():
+    # Set the LD_LIBRARY_PATH here because it conflicts with other commands
+    verilog_files = subprocess.run(f"find {hif_tb_prefix}rtl/ -name '*.v'", shell=True, check=False, capture_output=True, text=True).stdout.strip().replace('\n', ' ')
+    debug = True  # Set this to True to enable debug prints
+
+
+    verilog2hif_command = f"verilog2hif {verilog_files} --output {hif_tb_prefix}syntetic_design.hif.xml"
+    if debug:
+        print(f"Running command: {verilog2hif_command}")
+    result = subprocess.run(verilog2hif_command, stdout=subprocess.DEVNULL, shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to convert Verilog to HIF.")
+        exit(1)
+
+    ddt_command = f"ddt {hif_tb_prefix}syntetic_design.hif.xml --toplevel test --output {hif_tb_prefix}syntetic_design.ddt.hif.xml"
+    if debug:
+        print(f"Running command: {ddt_command}")
+    result = subprocess.run(ddt_command, stdout=subprocess.DEVNULL, shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run ddt on syntetic_design.hif.xml.")
+        exit(1)
+    
+    a2tool_command = f"a2tool {hif_tb_prefix}syntetic_design.ddt.hif.xml --protocol CPP --toplevel test --output {hif_tb_prefix}syntetic_design.ddt.a2t.hif.xml"
+    if debug:
+        print(f"Running command: {a2tool_command}")
+    result = subprocess.run(a2tool_command, stdout=subprocess.DEVNULL, shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run a2tool on syntetic_design.ddt.hif.xml.")
+        exit(1)
+    
+    muffin_command = f"muffin {hif_tb_prefix}syntetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock clock --toplevel test --output {hif_tb_prefix}syntetic_design.ddt.a2t.muffin.hif.xml"
+    if debug:
+        print(f"Running command: {muffin_command}")
+    result = subprocess.run(muffin_command, stdout=subprocess.DEVNULL, shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run muffin on syntetic_design.ddt.a2t.hif.xml.")
+        exit(1)
+    
+    hif2sc_command = f"hif2sc {hif_tb_prefix}syntetic_design.ddt.a2t.muffin.hif.xml --extensions cpp_hpp --directory {hif_tb_prefix}injected"
+    if debug:
+        print(f"Running command: {hif2sc_command}")
+    result = subprocess.run(hif2sc_command, stdout=subprocess.DEVNULL, shell=True, check=False)
+    if result.returncode != 0:
+        print("Error: Failed to run hif2sc on syntetic_design.ddt.a2t.muffin.hif.xml.")
+        exit(1)
+
+    #unset the LD_LIBRARY_PATH to avoid conflicts
+
+    print("HIF_SIM: sussessfully generated injectable design \n")
+
+#Support function that moves the generated files to the input folder
 def populate_input_dir():
     input_prefix = root + '/input/syntetic'
     subprocess.run(f"mv {out_folder}*.v {input_prefix}/design/", shell=True, check=False)
     subprocess.run(f"mv {out_folder}specifications.txt {input_prefix}/expected/", shell=True, check=False)
-    subprocess.run(f"mv {out_folder}trace.vcd {input_prefix}/traces/", shell=True, check=False)
+    subprocess.run(f"mv {out_folder}*.vcd {input_prefix}/traces/", shell=True, check=False)
     subprocess.run(f"rm -rf {out_folder}/*", shell=True, check=False)
 
 def main():
@@ -232,29 +648,47 @@ def main():
     tree = ET.parse(xml_file)
     root = tree.getroot()
     templates = root.findall('Template')
+    #This will be used when everything works and we will have to select the templates
     num_templates = len(templates)
 
-    #input parameters
-    try:
-        template_number = int(input(f"Enter how many specification to use (1-{num_templates}): "))
-        if not 1 <= template_number <= num_templates:
-            print(f"Error: Template number must be between 1 and {num_templates}.")
-            exit(3)
-    except ValueError:
-        print("Error: Invalid input. Please enter a number between 1 and {num_templates}.")
-        exit(3)
-    ant_props = int(input(f"Insert the lenghts of the antecedent sequence: "))
-    con_props = int(input(f"Insert the lenghts of the consequent sequence: "))
-    numprops = (ant_props,con_props)
-    assnumbs = int(input(f"Insert the number of parallel properties to be used in the design: "))
 
-    #enable parallel module config
-    modules_input = input("Enable parallel module configuration? (yes/no): ").strip().lower()
-    if modules_input in ['yes', 'no']:
-        modules = modules_input == 'yes'
-    else:
-        print("Invalid input. Please enter 'yes' or 'no'.")
-        exit(4)
+    import xml.etree.ElementTree as ET2
+    #input parameters
+    if len(sys.argv) != 2:
+        print("Usage: python gen.py <config_file>")
+        exit(1)
+    config_file = sys.argv[1]
+    config_tree = ET2.parse(config_file)
+    config_root = config_tree.getroot()
+
+    template_number = int(config_root.find('parameter').attrib['ntemplates'])
+    ant_props = int(config_root.find('parameter').attrib['nant'])
+    con_props = int(config_root.find('parameter').attrib['ncon'])
+    numprops = (ant_props, con_props)
+    assnumbs = int(config_root.find('parameter').attrib['nspec'])
+    modules = config_root.find('parameter').attrib['parallel'] == "1"
+
+    #Legacy parameters input
+    # try:
+    #     template_number = int(input(f"Enter how many specification to use (1-{num_templates}): "))
+    #     if not 1 <= template_number <= num_templates:
+    #         print(f"Error: Template number must be between 1 and {num_templates}.")
+    #         exit(3)
+    # except ValueError:
+    #     print("Error: Invalid input. Please enter a number between 1 and {num_templates}.")
+    #     exit(3)
+    # ant_props = int(input(f"Insert the lenghts of the antecedent sequence: "))
+    # con_props = int(input(f"Insert the lenghts of the consequent sequence: "))
+    # numprops = (ant_props,con_props)
+    # assnumbs = int(input(f"Insert the number of parallel properties to be used in the design: "))
+
+    # #enable parallel module config
+    # modules_input = input("Enable parallel module configuration? (yes/no): ").strip().lower()
+    # if modules_input in ['yes', 'no']:
+    #     modules = modules_input == 'yes'
+    # else:
+    #     print("Invalid input. Please enter 'yes' or 'no'.")
+    #     exit(4)
 
 
     merged_specification = {}
@@ -306,8 +740,7 @@ def main():
     print(merged_specification)
     print("Generating circuit for merged specification")
     generate_circuit(merged_specification,spec_list, modules)
-    generate_testbench(merged_specification)
-    run_verilator()
+    run_hifsuite(merged_specification)
     populate_input_dir()
 
 if __name__ == "__main__":

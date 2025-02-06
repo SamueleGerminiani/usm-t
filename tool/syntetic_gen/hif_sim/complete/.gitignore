@@ -1,0 +1,4 @@
+traces/*
+build/*
+compile_commands.json
+gmon.out

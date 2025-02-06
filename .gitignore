@@ -24,6 +24,7 @@ tool/third_party/spot
 tool/third_party/antlr4
 tool/third_party/boost
 tool/third_party/oss-cad-suite
+tool/third_party/hifsuite_linux_x86_stand_alone
 tool/src/miner/modules/src/traceReader/vcdTraceReader/pyVCDparser/vcdToC.pyc
 tool/src/miner/modules/src/traceReader/vcdTraceReader/pyVCDparser/Verilog_VCD.pyc
 tool/src/api/cpp/example/harm_example
@@ -34,3 +35,11 @@ tool/.cache/*
 .cache/*
 miners/tools/harm/runs/*
 miners/tools/texada/runs/*
+tool/syntetic_gen/hif_sim/complete
+tool/syntetic_gen/hif_sim/syntetic_design*
+tool/syntetic_gen/hif_sim/rtl/*
+tool/syntetic_gen/hif_sim/injected/inc
+tool/syntetic_gen/hif_sim/injected/src/muffin
+tool/syntetic_gen/hif_sim/injected/src/*.cpp
+tool/syntetic_gen/hif_sim/injected/CMakeLists.txt
+tool/syntetic_gen/hif_sim/traces

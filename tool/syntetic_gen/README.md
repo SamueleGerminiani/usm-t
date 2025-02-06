@@ -23,14 +23,8 @@ To use correctly the gen script ltlsynt and yosys binaries need to be added to t
 # Navigate to the root directory
 cd path/to/usm-t
 
-# set the root-dir variable
+# set the PATH to the necessary tools
 source env-setup.sh
-
-# Navigate to the syntetic_gen directory
-cd ./tool/syntetic_gen
-
-# add ltlsynt and yosys binaries to the path
-source setup_env.sh
 
 ```
 
