@@ -21,15 +21,7 @@ add_subdirectory(src/cpptracer)
 add_executable(
     ${PROJECT_NAME}
     ./src/main.cpp
-    ./src/test.cpp
-./src/spec1.cpp
-./src/spec0.cpp
-./src/spec2.cpp
-
-./src/spec1.cpp
-./src/spec0.cpp
-./src/spec2.cpp
-
+    ./src/top_module.cpp
     ./src/hif_globals.cpp
     ./src/muffin/muffin_dataTypes.cpp
     ./src/muffin/FaultNode.cpp
