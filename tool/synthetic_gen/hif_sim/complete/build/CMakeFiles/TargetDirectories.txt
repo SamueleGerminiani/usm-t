@@ -1,0 +1,7 @@
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/CMakeFiles/synthetic_case_study_1.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/CMakeFiles/edit_cache.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/CMakeFiles/rebuild_cache.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/src/cpptracer/CMakeFiles/cpptracer_test_datatypes.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/src/cpptracer/CMakeFiles/cpptracer_documentation.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/src/cpptracer/CMakeFiles/edit_cache.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/src/cpptracer/CMakeFiles/rebuild_cache.dir

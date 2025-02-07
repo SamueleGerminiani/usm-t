@@ -1,0 +1,3 @@
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/_deps/doxygenawesome-subbuild/CMakeFiles/doxygenawesome-populate.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/_deps/doxygenawesome-subbuild/CMakeFiles/edit_cache.dir
+/home/magister/usm-t/tool/syntetic_gen/hif_sim/complete/build/_deps/doxygenawesome-subbuild/CMakeFiles/rebuild_cache.dir
