@@ -1,0 +1,50 @@
+<usmt_default_config>
+
+  <miner name="harm">
+    <input_adaptor path="csv_to_texada_log/run.sh"/>
+    <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <config type="support" path="?"/>
+    <config type="run" path="?"/>
+    <export MAX_THREADS="1" CONFIG="?" VCD_DIR="?" CLK="clk" VCD_SS="?"/>
+  </miner>   
+
+  <miner name="texada">
+    <config type="run" path="?"/>
+    <input_adaptor path="csv_to_texada_log/run.sh"/>
+    <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt"/>
+  </miner>
+
+  <miner id="samples2ltl">
+    <config type="run" path="?"/>
+    <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
+    <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="?"/>
+  </miner>
+
+  <miner id="goldminer">
+    <config type="support" path="?"/>
+    <config type="run" path="?"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="goldminer_to_spotltl/run.sh"/>
+    <export VCD_FILE="?" CLK="?" TOP_MODULE="?" />
+  </miner>
+
+  <test name="?">
+    <usecase id="?"/>
+    <usecase id="?"/>
+    <usecase id="?"/>
+    <usecase id="?"/>
+
+
+    <expected path="?"/>
+
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="fault_coverage" faulty_traces="?" trace_type="?" />
+    <compare with_strategy="time_to_mine"/>
+  </test>
+
+</usmt_default_config>
