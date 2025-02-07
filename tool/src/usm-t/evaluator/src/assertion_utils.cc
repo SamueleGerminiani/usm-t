@@ -65,7 +65,7 @@ getAssertionsFromFile(const std::string &input_path,
 
   messageErrorIf(!std::filesystem::exists(input_path),
                  "Could not find assertino file'" + input_path + "'");
-  messageInfo("Parsing assertion file '" + input_path);
+  messageInfo("Parsing specification file '" + input_path);
   std::vector<std::string> assStrs;
   std::fstream ass(input_path);
 
@@ -97,47 +97,6 @@ recoverTracesInDirectory(const std::string &path,
   }
   return ret;
 }
-
-//TracePtr parseInputTraces(const usmt::UseCase &use_case) {
-//  const UseCasePathHandler &ph = use_case.ph;
-//
-//  std::string trace_prefix = ph.ustm_root + "/input/";
-//
-//  std::vector<std::string> allTraces;
-//
-//  for (const auto &input : use_case.input) {
-//    if (input.type != "vcd" && input.type != "csv") {
-//      continue;
-//    }
-//    std::string trace_path = trace_prefix + input.path;
-//    messageInfo("Parsing input trace(s) at " + trace_path);
-//    messageErrorIf(!std::filesystem::exists(trace_path),
-//                   "path '" + trace_path + "' does not exist");
-//    if (std::filesystem::is_directory(trace_path)) {
-//      auto traces_in_dir =
-//          recoverTracesInDirectory(trace_path, "." + input.type);
-//      allTraces.insert(allTraces.end(), traces_in_dir.begin(),
-//                       traces_in_dir.end());
-//
-//    } else {
-//      allTraces.push_back(trace_path);
-//    }
-//
-//    if (input.type == "vcd") {
-//      clc::selectedScope = use_case.input[0].scope;
-//      clc::vcdRecursive = 1;
-//      TraceReaderPtr tr =
-//          generatePtr<VCDtraceReader>(allTraces, input.clk);
-//      return tr->readTrace();
-//    } else if (input.type == "csv") {
-//      TraceReaderPtr tr = generatePtr<CSVtraceReader>(allTraces);
-//      return tr->readTrace();
-//    }
-//  }
-//
-//  messageError("Unsupported trace type");
-//  return nullptr;
-//}
 
 TracePtr parseFaultyTrace(const std::string &ftStr) {
   TraceReader *tr;
@@ -201,8 +160,8 @@ getExpectedMinedAssertions(
     const std::string expected_assertion_path) {
   std::unordered_map<std::string, std::vector<AssertionPtr>> ret;
 
-  const std::string MINED_ASSERTIONS_FILE =
-      getenv("MINED_ASSERTIONS_FILE");
+  const std::string MINED_SPECIFICATIONS_FILE =
+      getenv("MINED_SPECIFICATIONS_FILE");
 
   const UseCasePathHandler &ph = use_case.ph;
   TracePtr trace = use_case.input.getTrace();
@@ -215,7 +174,7 @@ getExpectedMinedAssertions(
 
   std::vector<AssertionPtr> mined_assertions;
   std::string adapted_output_folder =
-      ph.work_path + ph.work_adapted + MINED_ASSERTIONS_FILE;
+      ph.work_path + ph.work_adapted + MINED_SPECIFICATIONS_FILE;
   auto mined_assertions_tmp =
       getAssertionsFromFile(adapted_output_folder, trace);
   mined_assertions.insert(mined_assertions.end(),

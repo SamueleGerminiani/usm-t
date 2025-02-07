@@ -23,8 +23,8 @@ getCoverageSet(const fault_coverage_t &fc_result);
 
 EvalReportPtr runFaultCoverage(const UseCase &use_case,
                                const Comparator comp) {
-  const std::string MINED_ASSERTIONS_FILE =
-      getenv("MINED_ASSERTIONS_FILE");
+  const std::string MINED_SPECIFICATIONS_FILE =
+      getenv("MINED_SPECIFICATIONS_FILE");
 
   FaultCoverageReportPtr ret = generatePtr<FaultCoverageReport>();
 
@@ -35,7 +35,7 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
   std::vector<AssertionPtr> mined_assertions;
 
   std::string adapted_output_folder =
-      ph.work_path + ph.work_adapted + MINED_ASSERTIONS_FILE;
+      ph.work_path + ph.work_adapted + MINED_SPECIFICATIONS_FILE;
   auto mined_assertions_tmp =
       getAssertionsFromFile(adapted_output_folder, trace);
   mined_assertions.insert(mined_assertions.end(),

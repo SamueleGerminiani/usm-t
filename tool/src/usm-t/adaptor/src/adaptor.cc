@@ -55,8 +55,8 @@ void adaptInput(const UseCase &use_case) {
 
 void adaptOutput(const UseCase &use_case) {
   const std::string VARIABLES_MAP_FILE = getenv("VARIABLES_MAP_FILE");
-  const std::string MINED_ASSERTIONS_FILE =
-      getenv("MINED_ASSERTIONS_FILE");
+  const std::string MINED_SPECIFICATIONS_FILE =
+      getenv("MINED_SPECIFICATIONS_FILE");
 
   const UseCasePathHandler &ph = use_case.ph;
   messageInfo("Adapting output...");
@@ -73,9 +73,9 @@ void adaptOutput(const UseCase &use_case) {
   //add the path to the input and output file of the output adaptor (add an optional var map file)
   //in
   adapt_output_command +=
-      " " + ph.work_path + ph.work_output + MINED_ASSERTIONS_FILE;
+      " " + ph.work_path + ph.work_output + MINED_SPECIFICATIONS_FILE;
   //out
-  adapt_output_command += " " + adapted_output_folder + MINED_ASSERTIONS_FILE;
+  adapt_output_command += " " + adapted_output_folder + MINED_SPECIFICATIONS_FILE;
   //add the path to the variables map file
   adapt_output_command +=
       " " + ph.work_path + ph.work_input + VARIABLES_MAP_FILE;

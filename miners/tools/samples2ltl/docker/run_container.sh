@@ -5,7 +5,7 @@ xml_exported_vars=$4
 
 docker run \
 --cpus $MAX_N_CORES \
--e MINED_ASSERTIONS_FILE=$MINED_ASSERTIONS_FILE $xml_exported_vars \
+-e MINED_SPECIFICATIONS_FILE=$MINED_SPECIFICATIONS_FILE $xml_exported_vars \
 -u root --rm -it \
 -v $input_mount_volume:/input:rw \
 -v $output_mount_volume:/output:rw \

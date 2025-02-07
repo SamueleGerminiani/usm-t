@@ -42,7 +42,7 @@
     <!--
      - Define the adaptors to use for this usecase.
      - Each input adaptor must have two inputs, a path to a directory containing the input files and a path to a directory where the output files will be written.
-     - Each output adaptor must have two inputs, a path to a file containing the mined assertions in the custom format of the miner, and a path to an output file where the assertions will be written in a supported format (e.g. spotltl).
+     - Each output adaptor must have two inputs, a path to a file containing the mined specifications in the custom format of the miner, and a path to an output file where the specifications will be written in a supported format (e.g. spotltl).
     -->
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
@@ -109,7 +109,7 @@
 
     <!--
       - The path is relative to $USMT_ROOT/
-    - File containing the golden assertions to compare with
+    - File containing the golden specifications to compare with
     - This is necessary for all comparison strategies except for time_to_mine and fault_coverage
     -->
     <expected path="input/arb2/expected/arb2_golden_ass_bool.txt"/>

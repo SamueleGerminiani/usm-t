@@ -1,0 +1,74 @@
+<usm-t>
+
+  <input id="0">
+    <vcd_dir path="synthetic_case_study_1/traces/vcd/" clk="clock" rst="rst" scope="test_bench::test_"/>
+    <verilog_dir path="synthetic_case_study_1/design/"/>
+    <csv_dir path="synthetic_case_study_1/traces/csv/"/>
+  </input>
+
+  <usecase id="goldminer_usecase_1">
+    <miner name="goldminer"/>
+    <input id="0" type="vcd,verilog"/>
+    <config type="support" path="date2025/goldmine.cfg"/>
+    <config type="run" path="date2025/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="goldminer_to_spotltl/run.sh"/>
+    <export VCD_FILE="golden.vcd" CLK="clock" TOP_MODULE="test_bench"/>
+  </usecase>
+
+  <usecase id="harm_optimize_match">
+    <miner name="harm"/>
+    <input id="0" type="vcd"/>
+    <config type="support" path="date2025/optimize_match.xml"/>
+    <config type="run" path="date2025/run_miner_om.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export CLK="clock" SCOPE="test_bench::test_" CONFIG="optimize_match.xml"/>
+  </usecase>
+
+  <usecase id="harm_optimize_all">
+    <miner name="harm"/>
+    <input id="0" type="vcd"/>
+    <config type="support" path="date2025/optimize_all.xml"/>
+    <config type="run" path="date2025/run_miner_oa.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
+  </usecase>
+
+  <usecase id="texada_usecase_1">
+    <miner name="texada"/>
+    <input id="0" type="csv"/>
+    <config type="run" path="date2025/run_miner.sh"/>
+    <input_adaptor path="csv_to_texada_log/run.sh"/>
+    <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt"/>
+  </usecase>
+
+  <usecase id="samples2ltl_usecase_1">
+    <miner name="samples2ltl"/>
+    <input id="0" type="csv"/>
+    <config type="run" path="date2025/run_miner.sh"/>
+    <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
+    <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="200"/>
+  </usecase>
+
+  <test name="date2025">
+    <usecase id="harm_optimize_match"/>
+    <usecase id="harm_optimize_all"/>
+    <usecase id="texada_usecase_1"/>
+    <usecase id="samples2ltl_usecase_1"/>
+    <usecase id="goldminer_usecase_1"/>
+
+    <expected path="input/synthetic_case_study_1/expected/specifications.txt"/>
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="fault_coverage" faulty_traces="input/synthetic_case_study_1/faulty_traces/vcd/" trace_type="vcd" clk="clock" scope="test_bench::test_"/>
+    <compare with_strategy="time_to_mine"/>
+  </test>
+
+</usm-t>
+
