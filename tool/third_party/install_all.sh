@@ -12,6 +12,8 @@ else
     bash install_spotltl.sh "$installPrefix"
     bash install_z3.sh "$installPrefix"
     bash install_gedlib..sh "$installPrefix"
+    bash install_hifsuite.sh "$installPrefix"
+    bash install_os-cad.sh "$installPrefix"
 fi
 
 
