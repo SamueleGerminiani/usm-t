@@ -1,9 +1,9 @@
 - syntetic -> synthetic  ✓
 - Remove verilator_tests  ✓
-- change the name of gen.py to something more meaningful
+- change the name of gen.py to something more meaningful ✓ changed to generate_from_ltl
 - setup_env must unified with the one in the root  ✓
-- the temp directory must appear and disappear automatically, only in debug mode it should be kept
-- Where is the output? add --output option (or similar to specify the output directory)
+- the temp directory must appear and disappear automatically, only in debug mode it should be kept ✓
+- Where is the output? add --output option (or similar to specify the output directory) ✓ output directory is specified in the config, otherwise is default to "./synthetic_gen_output"
 - Remove the configuration file, there are too few parameters to justify it, use command line arguments instead. Also use command line arguments to specify the templates (is this a good idea?)
 - Add tests for most combinations of input parameters, including the different templates
 - Add debug features: if something goes wrong I need to quickly understand what happened.

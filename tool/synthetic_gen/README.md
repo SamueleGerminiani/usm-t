@@ -11,7 +11,7 @@ This project allows to generate automatically a verilog implementation starting 
 - [Contact](#contact)
 
 ## Installation
-The requirements for the usage of gen.py are the following:
+The requirements for the usage of generate_from_ltl.py are the following:
     - Python (at least 3.10)
     - ltlsynt (see ../third_party/spot_install.sh)
     - yosys (see ../third_party/install_os-cad.sh)
@@ -32,7 +32,7 @@ To run the generation of verilog designs simply use the following command from t
 
 ```bash
 # Run the project
-python gen.py config_file.xml
+python generate_from_ltl.py config_file.xml
 ```
 
 ## Expanding the template library
@@ -57,7 +57,7 @@ The configuration file contains two main elements:
 
 1. A list of templates that can be extended indefinitely by the user. Each template need to contain a list of input and output signals and the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
 
-    Note that, special operations as **..&&..** and **..##1..** will be expanded by the gen.py program as:
+    Note that, special operations as **..&&..** and **..##1..** will be expanded by the generate_from_ltl.py program as:
     -  **..&&..** : prop0 & prop1 & prop2 & ...
     -  **..##1..** : prop0 ##1 prop1 ##1 prop2 ##1 ...
 
@@ -67,7 +67,7 @@ The configuration file contains two main elements:
     - **ncon**: number of propositions that will be used for expanding the consequent
     - **nspec**: number of specification that will be used to generate the design
     - **parallel**: boolean value (0 or 1). If set to 1 each specification will be used to generate a standalone module. If set to 0 a single monolitic module will be generated
-
+    - **debug**: bolean value. If 1 enable debug features
 
 
 ## Contact

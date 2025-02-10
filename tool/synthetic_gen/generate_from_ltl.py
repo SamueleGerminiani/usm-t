@@ -8,15 +8,21 @@ root = os.environ["USMT_ROOT"]
 yosis_prefix = root + '/tool/third_party/oss-cad-suite/bin/'
 ltlsynt_prefix = root + '/tool/third_party/spot/bin/'
 hif_tb_prefix = root + '/tool/synthetic_gen/hif_sim/'
-xml_prefix = root +'/tool/synthetic_gen/specs/'
 out_folder = root + '/tool/synthetic_gen/temp/'
+debug = False
+#debug color
+CDBG = '\033[43m'
+#error color
+CERR = '\033[41m'
+#procedure step color
+CSTP = '\033[42m'
+#terminal color reset
+CEND = '\033[0m'
+
 
 def expand_spec(specification, lenght, assnumb):
     formula = specification['formula'] 
-    #base name for the proposition is a_propertyIndex
-    #ant_base = specification['inputs'] + "_" + str(assnumb)
-    #con_base = specification['outputs'] + "_" + str(assnumb)
-    #first propositions in the sequences are a_propertyIndex_0 and c_propertyIndex_0
+    #first proposition is a, second is b and so on
     # + { is needed beacause we are using SERE syntax 
     ant_seq = "{" +  chr(97) + "_" + str(assnumb)
     con_seq = "{" + chr(97 + (lenght[0])) + "_" + str(assnumb)
@@ -67,7 +73,9 @@ def expand_spec(specification, lenght, assnumb):
     ret_spec['formula'] = formula
     ret_spec['inputs'] = ins
     ret_spec['outputs'] = outs
-    print(f"Expanded formula: {ret_spec['formula']}")
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Expanded formula: {ret_spec['formula']}")
     return ret_spec
 
 #Converts an AIGER file to a SystemVerilog file using Yosys
@@ -79,7 +87,11 @@ def aigerToSv(design_aiger, specification):
     module_name = design_aiger.replace('.aiger', '')
     clk_name = 'clock'
     yosys_command = f"yosys -p 'read_aiger  -module_name {module_name} -clk_name {clk_name} {out_folder}{input_file}; write_verilog {out_folder}{output_file}'"
-    subprocess.run(yosys_command, shell=True, check=False)
+    try:    
+        subprocess.run(yosys_command, stdout=subprocess.DEVNULL, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to convert AIGER to SystemVerilog. errno: {e.returncode}")
+        exit(1)
 
     #yosys for some reason mixes inputs and outputs in the module signal list so we need to fix it
     inputs = specification.get('inputs')
@@ -95,7 +107,6 @@ def aigerToSv(design_aiger, specification):
         # Split the module declaration line into parts and get the module name
         parts = module_decl.split('(')
         module_name = parts[0]
-        #signals = parts[1].rstrip(');').split(',')
 
         # Separate the clock, inputs, and outputs to create an ordered module port list
         new_ports = ['clock'] + inputs.split(',') + outputs.split(',')
@@ -110,7 +121,9 @@ def aigerToSv(design_aiger, specification):
         with open(out_folder + output_file, 'w') as file:
             file.writelines(lines)
 
-    print(f"Generated SystemVerilog file: {output_file} in {out_folder}")
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Generated SystemVerilog file: {output_file} in {out_folder} \n")
 
 #Call ltlsynt to generate a controller from a specification
 #The generated controller is saved in "aiger_filename" 
@@ -125,13 +138,15 @@ def synthesize_controller(specification, aiger_filename='top_module.aiger'):
 
     result = subprocess.run(ltlsynt_command, shell=True, check=False, capture_output=True, text=True)
     if result.returncode == 1:
-        print("Error: The design is unrealizable.")
+        print(CERR +"Error:" + CEND + "The design is unrealizable.")
         exit(1)
     elif result.returncode == 2:
-        print("Error: An error occurred during the realizability check.")
+        print(CERR +"Error:" + CEND + "An error occurred during the realizability check.")
         exit(2)
     else:
-        print("Controller synthesized successfully.")
+        if debug:
+            print(CDBG+"DEBUG_MSG"+CEND)
+            print("Controller synthesized successfully. \n")
         #Remove REALIZABLE/UNREALIZABLE output line from aiger file
         with open(out_folder + aiger_filename, 'r') as file:
             lines = file.readlines()
@@ -181,7 +196,9 @@ def generate_top_module(spec_list):
 
     with open(out_folder + 'top_module.v', 'w') as file:
         file.write(top_module)
-    print(f"Generated top_module module: {out_folder}top_module.v")
+    if debug:    
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Generated top_module module: {out_folder}top_module.v")
 
 #Generates the circuit for the merged specification or for each submodule if the modules option is enabled
 def generate_circuit(specification,spec_list, modules):
@@ -200,29 +217,9 @@ def generate_circuit(specification,spec_list, modules):
         design_aiger = synthesize_controller(specification)
         #Generate a SystemVerilog file for the controller
         aigerToSv(design_aiger,specification)
-
-#Generate testbench for Verilator
-#def generate_testbench(specification):
-    # inputs = specification.get('inputs', '').split(',')
-    # testbench_code = ""
-    # #create instructions to insert in tb
-    # for signal in inputs:
-    #     testbench_code += f"dut->{signal} = rand() % 2;\n\t\t"
-    
-    # print(f"Generated testbench file:\n {testbench_code}")
-    
-    # #retrieve the template for the testbench
-    # with open(hif_tb_prefix + 'tb_test_template.txt', 'r') as template_file:
-    #     template_content = template_file.read()
-
-    # #substite the placeholder with the generated code
-    # testbench_content = template_content.replace("PLACEHOLDER", testbench_code)
-
-    # #write the testbench to a .cpp file
-    # with open(hif_tb_prefix + 'tb_test.cpp', 'w') as testbench_file:
-    #     testbench_file.write(testbench_content)
-
-    #print(f"Generated testbench file: {hif_tb_prefix}tb_test.cpp")
+    if debug: 
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Circuit generated! \n")
 
 #Generate testbench for HIFSuite
 def generate_testbench(specification):
@@ -502,47 +499,52 @@ def generate_testbench(specification):
     with open(hif_tb_prefix + 'injected/src/main.cpp', 'w') as testbench_file:
         testbench_file.write(testbench)
 
+    if debug: 
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Generated testbench: {hif_tb_prefix}injected/src/main.cpp \n")
 
-#Run verilator tb
+#Run hif tb
 def run_hifsuite(specification):
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Performing Fault injection and simulation \n")
+
     #create rtl folder if needed
     rtl_folder = os.path.join(hif_tb_prefix, 'rtl')
     if not os.path.exists(rtl_folder):
         try:
             os.makedirs(rtl_folder)
-            print(f"Created directory: {rtl_folder}")
+            if debug:
+                print(CDBG+"DEBUG_MSG"+CEND)
+                print(f"Created directory: {rtl_folder}")
         except OSError as e:
-            print(f"Error: Failed to create directory {rtl_folder}. {e}")
+            print(CERR +"Error:" + CEND + f"Failed to create directory {rtl_folder}. {e}")
             exit(1)
 
     #move all .v in outs folder to hif folder 
-    result = subprocess.run(f"cp {out_folder}*.v {hif_tb_prefix}/rtl", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to copy .v files to hif_tb_prefix.")
-        exit(1)
-        
-    # Collect all files that are not top_module.v
-    #file_names = ""
-    #for file in os.listdir(out_folder):
-    #    if file.endswith(".v") and file != "top_module.v":
-    #        file_names += file + " "
-
+    try:
+        subprocess.run(f"cp {out_folder}*.v {hif_tb_prefix}/rtl", stdout=subprocess.DEVNULL, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to copy files to {hif_tb_prefix}/rtl. {e}")
+        exit(1)    
+   
     #run hif pipeline
     generate_injectable_design()  
 
     #create testbench and setup the simulation directory
     generate_testbench(specification)
      
-    #move the makfile to the simulation folder
-    result = subprocess.run(f"cp {hif_tb_prefix}components/CMakeLists.txt {hif_tb_prefix}injected/", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to copy Makefile to hif_tb_prefix.")
+    #copy the makfile to the simulation folder
+    try:
+        subprocess.run(f"cp {hif_tb_prefix}components/CMakeLists.txt {hif_tb_prefix}injected/", stdout=subprocess.DEVNULL, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to copy Makefile to {hif_tb_prefix}. {e}")
         exit(1)
-
-    #move cpptracer to the simulation folder
-    result = subprocess.run(f"cp -r {hif_tb_prefix}components/cpptracer {hif_tb_prefix}injected/src", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to copy Makefile to hif_tb_prefix.")
+    #copy cpptracer to the simulation folder
+    try:
+        subprocess.run(f"cp -r {hif_tb_prefix}components/cpptracer {hif_tb_prefix}injected/src", stdout=subprocess.DEVNULL, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to copy cpptracer to {hif_tb_prefix}. {e}")
         exit(1)
 
     #modify the CMakeLists.txt to include the eventual submodules
@@ -558,120 +560,201 @@ def run_hifsuite(specification):
 
     #Create the build directory and run cmake
     os.chdir(f"{hif_tb_prefix}injected")
-    result = subprocess.run(f"mkdir build", shell=True, check=False, capture_output=True)
-    if result.returncode != 0:
-        if result.stderr.decode().find("File exists") != -1:
-            print("Build directory already exists. Cleaning up...")
-            result = subprocess.run(f"rm -rf build/*", shell=True, check=False)
-            if result.returncode != 0:
-                print("Error: Failed to clean build directory.")
-                exit(1)
-        else:
-            print("Error: Failed to create build directory.")
-            exit(1)    
+
+    if os.path.exists("build"):
+        if debug:
+            print(CDBG+"DEBUG_MSG"+CEND)
+            print("Removing existing build directory\n")
+        try:
+            subprocess.run(f"rm -rf build", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to remove build directory. {e}")
+            exit(1)
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Creating build directory\n")        
+    try:
+        subprocess.run(f"mkdir build", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to create build directory. {e}")
+        exit(1)
+
     
-    result = subprocess.run(f"cd build && cmake ..", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run cmake.")
+    try:
+        subprocess.run(f"cd build && cmake ..",stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run cmake. {e}")
         exit(1)
 
     #compile the testbench
-    result = subprocess.run(f"cd build && make", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed compile.")
+    try:
+        subprocess.run(f"cd build && make",stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to compile the testbench. {e}")
         exit(1)
 
     #run the simulation
-    result = subprocess.run("./build/synthetic_circuit", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run the simulation.")
+    try:
+        subprocess.run(f"./build/synthetic_circuit",stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run the simulation. {e}")
         exit(1)
+
     os.chdir(f"{root}/tool/synthetic_gen")
 
     #copy the trace file to the output_folder
-    result = subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}", shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to copy trace file to out_folder.")
+    try:
+        subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to copy trace file to {out_folder}. {e}")
         exit(1)
 
     #clean up the hif_sim folder
-    subprocess.run(f"rm -rf {hif_tb_prefix}injected {hif_tb_prefix}traces {hif_tb_prefix}rtl {hif_tb_prefix}*.xml" , shell=True, check=False)
+    if not debug:
+        try:
+            subprocess.run(f"rm -rf {hif_tb_prefix}injected {hif_tb_prefix}traces {hif_tb_prefix}rtl {hif_tb_prefix}*.xml" , shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to clean up the simulation directory. {e}")
+            exit(1)
+
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Design injected and simulated correctly \n")
 
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Generating injectable design \n")
+
     # Set the LD_LIBRARY_PATH here because it conflicts with other commands
     verilog_files = subprocess.run(f"find {hif_tb_prefix}rtl/ -name '*.v'", shell=True, check=False, capture_output=True, text=True).stdout.strip().replace('\n', ' ')
-    debug = True  # Set this to True to enable debug prints
-
 
     verilog2hif_command = f"verilog2hif {verilog_files} --output {hif_tb_prefix}synthetic_design.hif.xml"
     if debug:
-        print(f"Running command: {verilog2hif_command}")
-    result = subprocess.run(verilog2hif_command, stdout=subprocess.DEVNULL, shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to convert Verilog to HIF.")
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Running command: {verilog2hif_command} \n")
+    try:    
+        subprocess.run(verilog2hif_command,stderr=subprocess.DEVNULL if not debug else None,  stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run verilog2hif. {e}")
         exit(1)
 
     ddt_command = f"ddt {hif_tb_prefix}synthetic_design.hif.xml --toplevel top_module --output {hif_tb_prefix}synthetic_design.ddt.hif.xml"
     if debug:
-        print(f"Running command: {ddt_command}")
-    result = subprocess.run(ddt_command, stdout=subprocess.DEVNULL, shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run ddt on synthetic_design.hif.xml.")
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Running command: {ddt_command} \n")
+    try: 
+        subprocess.run(ddt_command,stderr=subprocess.DEVNULL if not debug else None,  stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run ddt. {e}")
         exit(1)
-    
     a2tool_command = f"a2tool {hif_tb_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel top_module --output {hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml"
     if debug:
-        print(f"Running command: {a2tool_command}")
-    result = subprocess.run(a2tool_command, stdout=subprocess.DEVNULL, shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run a2tool on synthetic_design.ddt.hif.xml.")
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Running command: {a2tool_command} \n")
+    try:
+        subprocess.run(a2tool_command,stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run a2tool. {e}")
         exit(1)
     
     muffin_command = f"muffin {hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock clock --toplevel top_module --output {hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
     if debug:
-        print(f"Running command: {muffin_command}")
-    result = subprocess.run(muffin_command, stdout=subprocess.DEVNULL, shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run muffin on synthetic_design.ddt.a2t.hif.xml.")
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Running command: {muffin_command} \n")
+    try:
+        subprocess.run(muffin_command,stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run muffin. {e}")
         exit(1)
     
     hif2sc_command = f"hif2sc {hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml --extensions cpp_hpp --directory {hif_tb_prefix}injected"
     if debug:
-        print(f"Running command: {hif2sc_command}")
-    result = subprocess.run(hif2sc_command, stdout=subprocess.DEVNULL, shell=True, check=False)
-    if result.returncode != 0:
-        print("Error: Failed to run hif2sc on synthetic_design.ddt.a2t.muffin.hif.xml.")
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print(f"Running command: {hif2sc_command} \n")
+    try:
+        subprocess.run(hif2sc_command,stderr=subprocess.DEVNULL if not debug else None, stdout=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to run hif2sc. {e}")
         exit(1)
 
-    #unset the LD_LIBRARY_PATH to avoid conflicts
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("HIF: sussessfully generated injectable design \n")
 
-    print("HIF_SIM: sussessfully generated injectable design \n")
+#Support function that moves the generated files to the designated output folder
+def populate_output_dir(dirpath):
+    #if the directories do not exist create it
+    if not os.path.exists(dirpath):
+        try:
+            subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
+            subprocess.run(f"mkdir -p {dirpath}/specs", shell=True, check=True)
+            subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}. errno: {e.returncode}")
+            exit(1)
+    else:
+        if not os.path.exists(dirpath + '/design'):
+            try:
+                subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/design. errno: {e.returncode}")
+                exit(1)
 
-#Support function that moves the generated files to the input folder
-def populate_input_dir():
-    input_prefix = root + '/input/synthetic'
-    subprocess.run(f"mv {out_folder}*.v {input_prefix}/design/", shell=True, check=False)
-    subprocess.run(f"mv {out_folder}specifications.txt {input_prefix}/expected/", shell=True, check=False)
-    subprocess.run(f"mv {out_folder}*.vcd {input_prefix}/traces/", shell=True, check=False)
-    subprocess.run(f"rm -rf {out_folder}/*", shell=True, check=False)
+        if not os.path.exists(dirpath + '/specs'):
+            try:
+                subprocess.run(f"mkdir -p {dirpath}/specs", shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/specs. errno: {e.returncode}")
+                exit(1)
+
+        if not os.path.exists(dirpath + '/traces'):
+            try:
+                subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/traces. errno: {e.returncode}")
+                exit(1)
+
+    #populate every subdirectory
+    try:
+        subprocess.run(f"mv {out_folder}*.v {dirpath}/design/", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to move files to {dirpath}/design. {e}")
+        exit(1)
+    try:
+        subprocess.run(f"mv {out_folder}specifications.txt {dirpath}/specs/", shell=True, check=True)
+    except  subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to move specifications.txt to {dirpath}/specs. {e}")
+        exit(1)
+    try:
+        subprocess.run(f"mv {out_folder}*.vcd {dirpath}/traces/", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to move traces to {dirpath}/traces. {e}")
+        exit(1)
+
+    #clean the output folder
+    if not debug:
+        try:
+            subprocess.run(f"rm -rf {out_folder}", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to clean the output folder. {e}")
+            exit(1)
 
 def main():
     import xml.etree.ElementTree as ET
-    # xml_file = f'{xml_prefix}output_templates.xml'
-    # tree = ET.parse(xml_file)
-    # root = tree.getroot()
-    # templates = root.findall('Template')
-    # #This will be used when everything works and we will have to select the templates
-    # num_templates = len(templates)
+    #need this because of scopes
+    global debug 
 
     #input parameters
     if len(sys.argv) != 2:
-        print("Usage: python gen.py <config_file>")
+        print("Usage: python generate_from_ltl.py <config_file>")
         exit(1)
     config_file = sys.argv[1]
     config_tree = ET.parse(config_file)
     config_root = config_tree.getroot()
+
+    print(CSTP + "1." + CEND + " Parsing configuration file" + " \n")
 
     template_number = int(config_root.find('parameter').attrib['ntemplates'])
     ant_props = int(config_root.find('parameter').attrib['nant'])
@@ -680,17 +763,42 @@ def main():
     assnumbs = int(config_root.find('parameter').attrib['nspec'])
     modules = config_root.find('parameter').attrib['parallel'] == "1"
     templates = config_root.findall('template')
-    
+    debug = config_root.find('parameter').attrib['debug'] == "1"
+    if 'outdir' in config_root.find('parameter').attrib:
+        dirpath = config_root.find('parameter').attrib['outdir']
+    else:
+        dirpath = './synthetic_gen_output/'
 
+    print(CSTP + "1."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
+    print(CSTP + "2."  + CEND + " Creating LTL specifications" + " \n")
 
     merged_specification = {}
-    subprocess.run(f'touch {out_folder}/specifications.txt', shell=True, check=False)
-
+    #check if the output folder exists and create it if needed
+    if not os.path.exists(out_folder):
+        try:
+            subprocess.run(f"mkdir -p {out_folder}", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to create directory {out_folder}. errno: {e.returncode}")
+            exit(1)
+    # if the folder exists empty it
+    else:
+        try:
+            subprocess.run(f"rm -rf {out_folder}*", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to clean directory {out_folder}. errno: {e.returncode}")
+            exit(1)
+    try:
+        subprocess.run(f'touch {out_folder}/specifications.txt', shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to create specifications.txt file {out_folder}. errno: {e.returncode}")
+            exit(1)
     #This is used to count the global number of specifications thata has been generated so far
     specounter = 0
 
     #randomly select template_number templates
     random_templates = random.sample(templates, template_number)
+    #This will be used in case of module subdivision
+    spec_list = []
     #iterate over the selected templates to expand them and merge them
     for i, template in enumerate(random_templates, start=1):
         specification = {}
@@ -698,12 +806,13 @@ def main():
         specification['inputs'] = template.attrib['ins']
         specification['outputs'] = template.attrib['outs']
         
-        spec_list = []
         #TODO: this works only for multiple instances of the same template, if we get multiple templates we need to share assnumbs between them or just ignore it and have numtemplates*numassertions specifications
         for j, num in enumerate(range(1, assnumbs + 1), start=1):
             #expand special templates
             if(specification['formula'].find('..##1..') or specification['formula'].find('..&&..')):
-                print(f"Expanding template")  
+                if debug:
+                    print(CDBG+"DEBUG_MSG"+CEND)
+                    print(f"Expanding template")  
                 expanded_formula = expand_spec(specification,numprops,specounter)
             else: 
                 expanded_formula = specification
@@ -727,20 +836,24 @@ def main():
                 
             #update the global spec counter    
             specounter += 1
+    if debug:
+        print(CDBG+"DEBUG_MSG"+CEND)
+        print("Merged specification:")
+        print(merged_specification)
+        print("\n")
+    print(CSTP + "2."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
 
-    # Write merged specification to a file
-    #with open(out_folder + 'specifications.txt', 'a') as file:
-        #file.write("Merged specification:\n")
-        #file.write(f"Formula: {merged_specification['formula']}\n")
-        #file.write(f"Inputs: {merged_specification['inputs']}\n")
-        #file.write(f"Outputs: {merged_specification['outputs']}\n")
-    
-    print("Merged specification:\n")
-    print(merged_specification)
-    print("Generating circuit for merged specification")
+    print(CSTP + "3."  + CEND + " Generating circuit from specification" + " \n")
     generate_circuit(merged_specification,spec_list, modules)
+    print(CSTP + "3."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
+    print(CSTP +"4." + CEND + " Running HIFSuite" + " \n")
     run_hifsuite(merged_specification)
-    populate_input_dir()
+    print(CSTP + "4."  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
+    print(CSTP +"5." + CEND +" Populating selected output directory" + " \n")
+    populate_output_dir(dirpath)
+    print(CSTP + "5."  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
+    print(CSTP + "################# " + CEND + f"Procedure complete! All generated files can be found in {dirpath}" + CSTP + " #################"+ CEND + "\n\n")
+
 
 if __name__ == "__main__":
     main()
