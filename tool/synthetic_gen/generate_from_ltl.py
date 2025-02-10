@@ -767,7 +767,7 @@ def main():
     if 'outdir' in config_root.find('parameter').attrib:
         dirpath = config_root.find('parameter').attrib['outdir']
     else:
-        dirpath = './synthetic_gen_output/'
+        dirpath = './synthetic_gen_output'
 
     print(CSTP + "1."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
     print(CSTP + "2."  + CEND + " Creating LTL specifications" + " \n")

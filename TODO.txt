@@ -1,12 +1,12 @@
-- syntetic -> synthetic  ✓
-- Remove verilator_tests  ✓
-- change the name of gen.py to something more meaningful ✓ changed to generate_from_ltl
-- setup_env must unified with the one in the root  ✓
-- the temp directory must appear and disappear automatically, only in debug mode it should be kept ✓
-- Where is the output? add --output option (or similar to specify the output directory) ✓ output directory is specified in the config, otherwise is default to "./synthetic_gen_output"
+✓ - syntetic -> synthetic  
+✓ - Remove verilator_tests
+✓ - change the name of gen.py to something more meaningful 
+✓ - setup_env must unified with the one in the root 
+✓ - the temp directory must appear and disappear automatically, only in debug mode it should be kept
+✓ output directory is specified in the config, otherwise is default to "./synthetic_gen_output" - Where is the output? add --output option (or similar to specify the output directory)
 - Remove the configuration file, there are too few parameters to justify it, use command line arguments instead. Also use command line arguments to specify the templates (is this a good idea?)
 - Add tests for most combinations of input parameters, including the different templates
-- Add debug features: if something goes wrong I need to quickly understand what happened.
+✓ Added some debug features, can be refined if needed - Add debug features: if something goes wrong I need to quickly understand what happened.
 - New feature: decide how many specifications in the same module (max 5 per module: ltl2synth explodes)
 - New feature: use the vcd2csv tool (inside usm-t) convert the generated vcd to csv (we always need both versions to run the miners)
 - New feature: need to automatically instrument usm-t with the generated synthetic test. Furthermore, we need to generate several synthetic tests, especially if HIF performance issues are not solvable. Use the "usm-t/miners/usmt_default_config.xml" to generate the synthetic test xml file.
