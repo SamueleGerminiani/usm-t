@@ -6,12 +6,14 @@ then
     bash install_spotltl.sh
     bash install_z3.sh
     bash install_gedlib.sh
+    bash install_boost.sh
 else
     installPrefix="$1"
     bash install_antlr.sh "$installPrefix"
     bash install_spotltl.sh "$installPrefix"
     bash install_z3.sh "$installPrefix"
     bash install_gedlib..sh "$installPrefix"
+    bash install_boost.sh "$installPrefix"
 fi
 
 

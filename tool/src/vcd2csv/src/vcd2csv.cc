@@ -20,6 +20,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+harm::VCDTraceReaderConfig vcd_config;
+std::vector<std::string> traceFiles;
+
 /// @brief handle all the command line arguments
 static void parseCommandLineArguments(int argc, char *args[]);
 
@@ -30,7 +33,7 @@ int main(int arg, char *argv[]) {
 
   parseCommandLineArguments(arg, argv);
 
-  if (clc::traceFiles.size() == 2 && clc::traceFiles[1] == "END") {
+  if (traceFiles.size() == 2 && traceFiles[1] == "END") {
     //check that clc::dumpPath is a file with .csv extension
     messageErrorIf(
         clc::dumpPath.find(".csv") == std::string::npos,
@@ -38,8 +41,8 @@ int main(int arg, char *argv[]) {
         "input a single trace with --vcd, got '" +
             clc::dumpPath + "'");
     std::shared_ptr<harm::TraceReader> tr =
-        std::make_shared<harm::VCDtraceReader>(clc::traceFiles[0],
-                                               clc::clk);
+        std::make_shared<harm::VCDtraceReader>(traceFiles[0],
+                                               vcd_config);
     auto trace = tr->readTrace();
     dumpTraceAsCSV(trace, clc::dumpPath);
   } else {
@@ -50,9 +53,9 @@ int main(int arg, char *argv[]) {
                    "multiple traces with --vcd-dir, got '" +
                        clc::dumpPath + "'");
 
-    for (const auto &tf : clc::traceFiles) {
+    for (const auto &tf : traceFiles) {
       std::shared_ptr<harm::TraceReader> tr =
-          std::make_shared<harm::VCDtraceReader>(tf, clc::clk);
+          std::make_shared<harm::VCDtraceReader>(tf, vcd_config);
       auto trace = tr->readTrace();
       //check if output directory exists otherwise create it
 
@@ -84,11 +87,12 @@ void parseCommandLineArguments(int argc, char *args[]) {
   //vcd-ss + vcd-r = n with n>0 : get signals in selected scope and recursive with depth n
   //vcd-ss + vcd-unroll = n with n>0 : get signals in selected scope and recursive with depth n and make a context for each scope
   if (result.count("vcd-ss")) {
-    clc::selectedScope = result["vcd-ss"].as<std::string>();
-    clc::vcdRecursive = 0;
+    vcd_config._selectedScope = result["vcd-ss"].as<std::string>();
+    vcd_config._vcdRecursive = 0;
   }
   if (result.count("vcd-r")) {
-    clc::vcdRecursive = safeStoull(result["vcd-r"].as<std::string>());
+    vcd_config._vcdRecursive =
+        safeStoull(result["vcd-r"].as<std::string>());
   }
 
   messageErrorIf(result.count("vcd-unroll") &&
@@ -100,27 +104,24 @@ void parseCommandLineArguments(int argc, char *args[]) {
       "Can not use 'vcd-unroll' without 'generate-config'");
 
   if (result.count("vcd-unroll")) {
-    clc::vcdUnroll =
+    vcd_config._vcdUnroll =
         safeStoull(result["vcd-unroll"].as<std::string>());
-    messageErrorIf(clc::vcdUnroll == 0,
+    messageErrorIf(vcd_config._vcdUnroll == 0,
                    "vcd-unroll must be greater than 0");
   }
 
   if (result.count("clk")) {
-    clc::clk = result["clk"].as<std::string>();
+    vcd_config._clk = result["clk"].as<std::string>();
   }
 
   if (result.count("vcd")) {
-    clc::parserType = "vcd";
-    clc::traceFiles.push_back(result["vcd"].as<std::string>());
-    messageErrorIf(!std::filesystem::exists(clc::traceFiles[0]),
-                   "Can not find trace file '" + clc::traceFiles[0] +
-                       "'");
-    clc::traceFiles.push_back("END");
+    traceFiles.push_back(result["vcd"].as<std::string>());
+    messageErrorIf(!std::filesystem::exists(traceFiles[0]),
+                   "Can not find trace file '" + traceFiles[0] + "'");
+    traceFiles.push_back("END");
   }
 
   if (result.count("vcd-dir")) {
-    clc::parserType = "vcd";
     messageErrorIf(!std::filesystem::is_directory(
                        result["vcd-dir"].as<std::string>()),
                    "Can not find directory '" +
@@ -128,10 +129,10 @@ void parseCommandLineArguments(int argc, char *args[]) {
     for (const auto &entry : std::filesystem::directory_iterator(
              result["vcd-dir"].as<std::string>())) {
       if (entry.path().extension() == ".vcd") {
-        clc::traceFiles.push_back(entry.path().u8string());
+        traceFiles.push_back(entry.path().u8string());
       }
     }
-    messageErrorIf(clc::traceFiles.empty(),
+    messageErrorIf(traceFiles.empty(),
                    "No vcd trace found in: " +
                        result["vcd-dir"].as<std::string>());
   }

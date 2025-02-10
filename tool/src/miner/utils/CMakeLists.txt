@@ -12,7 +12,6 @@ SET(MINER_UTILS_SRC
     src/Automaton.cc
     src/Evaluator.cc
     src/AutomataBasedEvaluator.cc
-    src/Permutator.cc
     src/EdgeProposition.cc
     src/minerUtils.cc
     src/Assertion.cc

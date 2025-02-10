@@ -45,6 +45,8 @@ The script will install the following dependencies:
 * [antlr4-runtime](https://www.antlr.org)
 * [gedlib](https://dbblumenthal.github.io/gedlib/)
 * [z3](https://github.com/Z3Prover/z3.git)
+* [spot](https://github.com/Z3Prover/z3.git)
+* [boost](https://archives.boost.io/release/1.83.0/source/boost_1_83_0.tar.gz)
 
 
 ### Install [Docker](https://docs.docker.com/engine/install/ubuntu/)

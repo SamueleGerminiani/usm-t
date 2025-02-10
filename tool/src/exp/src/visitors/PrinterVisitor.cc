@@ -4,7 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "../../miner/utils/include/DTLimits.hh"
 #include "Int.hh"
 #include "colors.hh"
 #include "expUtils/ExpType.hh"
@@ -294,8 +293,7 @@ bool isBinaryRightAssociative(ope::temporalOpe op) {
                                                                      \
     if (clc::svaAssert &&                                            \
         _printMode != PrintMode::ShowOnlyPermuationPlaceholders) {   \
-      std::string assert =                                           \
-          "assert property ((@posedge " + clc::clk + ") ";           \
+      std::string assert = "assert property ((@posedge <clk>) ";    \
       _ss << selCol(assert, chooseTemporalOpColor(                   \
                                 assert, ope::temporalOpe::NODE));    \
     } else {                                                         \
@@ -428,34 +426,6 @@ void PrinterVisitor::visit(BooleanLayerPermutationPlaceholder &o) {
   }
 }
 void PrinterVisitor::visit(BooleanLayerDTPlaceholder &o) {
-  if (_printMode == PrintMode::ShowAll) {
-    if (isEmptyPropositionAnd(*o.getPlaceholderPointer())) {
-      _ss << selCol("true", BOOL("true"));
-      return;
-    }
-
-    bool needsBrackets = !isUnary(*o.getPlaceholderPointer());
-
-    needsBrackets &=
-        !isPropositionAnd(*o.getPlaceholderPointer()) ||
-        getPropositionAndSize(*o.getPlaceholderPointer()) > 1;
-
-    if (needsBrackets) {
-      _ss << selCol("(", TEMP("("));
-    }
-
-    (*o.getPlaceholderPointer())->acceptVisitor(*this);
-
-    if (needsBrackets) {
-      _ss << selCol(")", TEMP(")"));
-    }
-  } else if (_printMode ==
-             PrintMode::ShowOnlyPermuationPlaceholders) {
-    _ss << selCol(toString(o.getType()),
-                  toColoredString(o.getType()));
-  } else {
-    _ss << selCol(o.getToken(), VAR(o.getToken()));
-  }
 }
 void PrinterVisitor::visit(BooleanLayerInst &o) {
   bool needsBrackets = !isUnary(o.getProposition());

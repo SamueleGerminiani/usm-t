@@ -9,6 +9,8 @@ using AssertionPtr = std::shared_ptr<Assertion>;
 
 class Trace;
 using TracePtr = std::shared_ptr<Trace>;
+
+struct VCDTraceReaderConfig;
 } // namespace harm
 
 namespace usmt {
@@ -25,8 +27,10 @@ std::vector<harm::AssertionPtr>
 getAssertionsFromFile(const std::string &input_path,
                       const harm::TracePtr &trace);
 
-//harm::TracePtr parseInputTraces(const usmt::UseCase &use_case);
-harm::TracePtr parseFaultyTrace(const std::string &ftStr);
+harm::TracePtr
+parseFaultyVCDTrace(const std::string &ftStr,
+                    const harm::VCDTraceReaderConfig vcd_config);
+harm::TracePtr parseFaultyCSVTrace(const std::string &ftStr);
 
 std::vector<std::string>
 recoverTracesInDirectory(const std::string &path,

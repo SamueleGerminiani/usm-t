@@ -98,25 +98,26 @@ recoverTracesInDirectory(const std::string &path,
   return ret;
 }
 
-TracePtr parseFaultyTrace(const std::string &ftStr) {
+TracePtr parseFaultyCSVTrace(const std::string &ftStr) {
   TraceReader *tr;
-  if (clc::parserType == "vcd") {
-    messageErrorIf(!std::filesystem::exists(ftStr),
-                   "Can not find '" + ftStr + "'");
-    tr = new VCDtraceReader(ftStr, clc::clk);
-    TracePtr t = tr->readTrace();
-    delete tr;
-    return t;
-  } else if (clc::parserType == "csv") {
-    messageErrorIf(!std::filesystem::exists(ftStr),
-                   "Can not find '" + ftStr + "'");
-    tr = new CSVtraceReader(ftStr);
-    TracePtr t = tr->readTrace();
-    delete tr;
-    return t;
-  }
-  messageError("Uknown parser type");
-  return nullptr;
+  //csv parser
+  messageErrorIf(!std::filesystem::exists(ftStr),
+                 "Can not find '" + ftStr + "'");
+  tr = new CSVtraceReader(ftStr);
+  TracePtr t = tr->readTrace();
+  delete tr;
+  return t;
+}
+
+TracePtr parseFaultyVCDTrace(const std::string &ftStr,
+                             const VCDTraceReaderConfig vcd_config) {
+  TraceReader *tr;
+  messageErrorIf(!std::filesystem::exists(ftStr),
+                 "Can not find '" + ftStr + "'");
+  tr = new VCDtraceReader(ftStr, vcd_config);
+  TracePtr t = tr->readTrace();
+  delete tr;
+  return t;
 }
 
 static std::map<std::pair<std::string, std::string>, int> cache;

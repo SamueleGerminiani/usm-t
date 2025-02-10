@@ -36,10 +36,8 @@ protected:
 ///pointer to an Evaluator
 using EvaluatorPtr = std::shared_ptr<Evaluator>;
 
-EvaluatorPtr
-generateEvaluator(const TemporalExpressionPtr &formula,
-                  const TracePtr &trace,
-                  const std::string &evaluatorType = "None");
+EvaluatorPtr generateEvaluator(const TemporalExpressionPtr &formula,
+                               const TracePtr &trace);
 
 } // namespace harm
 

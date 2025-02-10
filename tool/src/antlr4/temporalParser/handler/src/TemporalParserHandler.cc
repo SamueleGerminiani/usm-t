@@ -4,8 +4,6 @@
 #include <sstream>
 #include <string>
 
-#include "DTLimits.hh"
-#include "DTUtils.hh"
 #include "Float.hh"
 #include "TemporalParserHandler.hh"
 #include "Trace.hh"
@@ -513,10 +511,6 @@ TemporalParserHandler::getTemporalExpression() {
                       PrintMode::ShowOnlyPermuationPlaceholders) +
           "' " + printErrorMessage());
   return _temporalExpression;
-}
-
-harm::DTOParam TemporalParserHandler::getDTOParam() {
-  return _dto_param;
 }
 
 } // namespace hparser

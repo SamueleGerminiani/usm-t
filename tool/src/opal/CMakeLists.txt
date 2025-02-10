@@ -15,10 +15,8 @@ SET(OPAL_SRC
 #############################################
 # Targets.
 #############################################
-#add_library(metric ${METRIC_SRC})
-#target_link_libraries(metric propositionParser)
-
 add_library(${NAME} ${OPAL_SRC})
+target_link_libraries(${NAME} Boost::boost)
 target_include_directories(${NAME} PUBLIC src/)
 target_compile_options(${NAME} PRIVATE -march=native)
 
