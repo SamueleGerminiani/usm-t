@@ -149,7 +149,6 @@ expCopyOp(Int, IntExpressionPtr)
   CopyVisitor copier(false);
   o->acceptVisitor(copier);
   NumericExpressionPtr copy = copier.getNum();
-  copy->_clsConfig = o->_clsConfig;
   return (copy);
 }
 // clang-format off

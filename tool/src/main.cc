@@ -81,10 +81,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
     clc::psilent = true;
   }
 
-  if (result.count("dump-stat")) {
-    clc::dumpStat = true;
-  }
-
   if (result.count("dump-to")) {
     clc::dumpPath = result["dump-to"].as<std::string>();
     messageErrorIf(!std::filesystem::exists(clc::dumpPath),
