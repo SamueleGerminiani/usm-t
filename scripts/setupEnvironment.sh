@@ -1,6 +1,6 @@
 export USMT_ROOT=$(pwd)
 export VARIABLES_MAP_FILE=variables_map.txt
-export MINED_ASSERTIONS_FILE=mined_assertions.txt
+export MINED_SPECIFICATIONS_FILE=mined_specifications.txt
 export MAX_N_CORES=$(grep -c ^processor /proc/cpuinfo)
 export PATH=$USMT_ROOT/tool/third_party/spot/bin/:$PATH
 export PATH=$USMT_ROOT/tool/third_party/oss-cad-suite/bin/:$PATH

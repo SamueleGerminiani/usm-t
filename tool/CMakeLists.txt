@@ -114,6 +114,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 #gtests
 add_subdirectory(src/googletest EXCLUDE_FROM_ALL)
 
+#boost
+find_package(BOOST1_83)
+
 #spotLTL
 find_package(SPOTLTL REQUIRED)
 add_compile_definitions(SPOTLTL)
@@ -193,11 +196,7 @@ add_subdirectory(src/opal)
 add_subdirectory(src/usm-t)
 target_link_libraries(${NAME} usmt_core)
 
-#ast printer
-add_subdirectory(src/ast)
-
 #vcd to csv tool
-add_subdirectory(src/clustering)
 add_subdirectory(src/miner)
 add_subdirectory(src/vcd2csv)
 
@@ -205,7 +204,6 @@ add_subdirectory(src/vcd2csv)
 enable_testing()
 include (CTest)
 add_subdirectory(tests)
-add_subdirectory(examples)
 
 ######### INSTALLATION #################################
 set(CMAKE_INSTALL_MESSAGE NEVER)
@@ -223,8 +221,10 @@ INSTALL(
         COMMAND
         ${CMAKE_COMMAND}
         -DSpotLib=${SPOTLTL_LIB}
+        -DBoostLib=${BoostLinkedLibraries}
         -DBddxLib=${BDDX_LIB}
         -DAntrLib=${ANTLR4_RUNTIME}
+        -Dz3Lib=${Z3_LIBRARY}
         -DIP=${CMAKE_INSTALL_PREFIX}
         -P
         ${CMAKE_SOURCE_DIR}/cmake/PostInstall.cmake

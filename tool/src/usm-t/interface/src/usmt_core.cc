@@ -265,9 +265,9 @@ void run() {
       } else {
         //external use case
         messageInfo("External use case " + use_case.usecase_id);
-        messageErrorIf(getenv("MINED_ASSERTIONS_FILE") == nullptr,
-                       "MINED_ASSERTIONS_FILE is not set");
-        std::string mined_file_name = getenv("MINED_ASSERTIONS_FILE");
+        messageErrorIf(getenv("MINED_SPECIFICATIONS_FILE") == nullptr,
+                       "MINED_SPECIFICATIONS_FILE is not set");
+        std::string mined_file_name = getenv("MINED_SPECIFICATIONS_FILE");
         //copy the external spec file to the output folder
         std::filesystem::copy(ph.external_spec_file_path,
                               ph.work_path + ph.work_output +

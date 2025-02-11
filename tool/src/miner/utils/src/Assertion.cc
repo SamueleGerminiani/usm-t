@@ -1,7 +1,6 @@
 #include <algorithm>
 
 #include "Assertion.hh"
-#include "DTOperator.hh"
 #include "Evaluator.hh"
 #include "TemplateImplication.hh"
 #include "Trinary.hh"

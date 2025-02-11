@@ -61,9 +61,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
             " threads at most");
 
     clc::maxThreads = nt;
-    l3Constants::MAX_THREADS = nt;
-    l2Constants::MAX_THREADS = nt;
-    l1Constants::MAX_THREADS = nt;
   }
 
   if (result.count("silent")) {
@@ -79,10 +76,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
   }
   if (result.count("psilent")) {
     clc::psilent = true;
-  }
-
-  if (result.count("dump-stat")) {
-    clc::dumpStat = true;
   }
 
   if (result.count("dump-to")) {

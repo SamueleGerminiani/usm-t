@@ -1,3 +1,4 @@
+#include "VCDtraceReader.hh"
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -36,9 +37,8 @@ EvalReportPtr
 runSemanticEquivalence(const usmt::UseCase &use_case,
                        const std::string expected_assertion_path);
 
-EvalReportPtr
-runHybrid(const usmt::UseCase &use_case,
-                const std::string expected_assertion_path);
+EvalReportPtr runHybrid(const usmt::UseCase &use_case,
+                        const std::string expected_assertion_path);
 
 EvalReportPtr
 runSyntacticSimilarity(const usmt::UseCase &use_case,
@@ -64,6 +64,11 @@ void evaluateWithFaultCoverage(
     const std::vector<harm::AssertionPtr> &selected,
     const harm::TracePtr &originalTrace, fault_coverage_t &fc_result);
 
+void evaluateWithSyntacticSimilarity(
+    SyntacticSimilarityReportPtr &report,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
+
 struct fault_coverage_t {
   ///maps the assertion to the faults they cover
   std::unordered_map<size_t, std::vector<size_t>> _aidToF;
@@ -71,11 +76,11 @@ struct fault_coverage_t {
   std::unordered_map<size_t, std::vector<size_t>> _fToAid;
   //list of faulty traces
   std::vector<std::string> _faultyTraceFiles;
-};
+  bool _findMinSubset = 1;
 
-void evaluateWithSyntacticSimilarity(
-    SyntacticSimilarityReportPtr &report,
-    const std::unordered_map<
-        std::string, std::vector<harm::AssertionPtr>> &assertions);
+  //if the trace is a vcd, the configuration
+  bool _vcd = 0;
+  harm::VCDTraceReaderConfig _vcd_config;
+};
 
 } // namespace usmt

@@ -4,7 +4,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "../../clustering/include/ClusteringConfig.hh"
 #include "Atom.hh"
 #include "Float.hh"
 #include "Int.hh"
@@ -51,10 +50,6 @@ private:
   double *_cachedd = nullptr;
   UInt *_cachedi = nullptr;
 
-public:
-  //FIXME: this should not be here
-  ///cluster configuration
-  harm::ClusteringConfig _clsConfig;
 };
 
 using NumericExpressionPtr = std::shared_ptr<NumericExpression>;

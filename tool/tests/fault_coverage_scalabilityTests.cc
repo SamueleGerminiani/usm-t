@@ -11,11 +11,12 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
 #include "TraceReader.hh"
+#include "VCDtraceReader.hh"
 #include "assertion_utils.hh"
 #include "globals.hh"
 #include "message.hh"
@@ -160,6 +161,7 @@ makeAssertionsFromTemplate(std::string _template,
   }
   return {ret, trace};
 }
+
 size_t test_with_parameters(std::string template_,
                             size_t number_of_assertions_to_make,
                             size_t number_of_faults,
@@ -185,14 +187,13 @@ size_t test_with_parameters(std::string template_,
 
   fault_coverage_t fc_result;
   for (size_t i = 0; i < number_of_faults; i++) {
-    TracePtr trace = generateMockTrueTrace(
-        max_number_of_variables, trace_length, force_uint);
+    TracePtr trace = generateMockTrueTrace(max_number_of_variables,
+                                           trace_length, force_uint);
     std::string trace_path =
         faulty_traces + "/faulty_" + std::to_string(i) + ".csv";
     dumpTraceAsCSV(trace, trace_path);
     fc_result._faultyTraceFiles.push_back(trace_path);
   }
-  clc::parserType = "csv";
 
   std::chrono ::steady_clock::time_point begin =
       std::chrono::steady_clock::now();
@@ -273,7 +274,8 @@ TEST(fault_coverage_scalabilityTests, fault_coverage_next) {
     std::filesystem::remove(dump_path);
   }
   std::ofstream file(dump_path);
-  file << "template,number_of_assertions_to_make,number_of_faults,force_uint,"
+  file << "template,number_of_assertions_to_make,number_of_faults,"
+          "force_uint,"
        << "time_spent\n";
   file.close();
 

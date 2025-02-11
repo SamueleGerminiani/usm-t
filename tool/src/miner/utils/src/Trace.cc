@@ -251,7 +251,8 @@ expression::ExpType Trace::getExpType(const std::string &name) {
 }
 
 void dumpTraceAsCSV(const TracePtr &trace,
-                    const std::string &filename) {
+                    const std::string &filename,
+                    const std::string &clk) {
 
   auto vars = trace->getDeclarations();
   std::ofstream file(filename);
@@ -264,7 +265,7 @@ void dumpTraceAsCSV(const TracePtr &trace,
 
   for (auto &v : vars) {
     //skip the clock
-    if (v.getName() == clc::clk) {
+    if (v.getName() == clk) {
       continue;
     }
     ss << varTypeToString(v.getType(), v.getSize()) << " "
@@ -279,7 +280,7 @@ void dumpTraceAsCSV(const TracePtr &trace,
   for (size_t i = 0; i < trace->getLength(); i++) {
     for (auto &v : vars) {
       //skip the clock
-      if (v.getName() == clc::clk) {
+      if (v.getName() == clk) {
         continue;
       }
       auto vn = v.getName();

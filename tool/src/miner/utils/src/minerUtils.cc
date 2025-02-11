@@ -5,9 +5,8 @@
 #include <unordered_map>
 
 #include "Automaton.hh"
-#include "ClsOp.hh"
-#include "Clustering.hh"
 #include "EdgeProposition.hh"
+#include "formula/temporal/temporal.hh"
 #include "Float.hh"
 #include "Int.hh"
 #include "VarDeclaration.hh"
@@ -20,24 +19,6 @@
 
 namespace harm {
 using namespace expression;
-
-std::ostream &operator<<(std::ostream &os, ClsOp op) {
-  switch (op) {
-  case ClsOp::Range:
-    os << "r";
-    break;
-  case ClsOp::E:
-    os << "e";
-    break;
-  case ClsOp::GE:
-    os << "ge";
-    break;
-  case ClsOp::LE:
-    os << "le";
-    break;
-  }
-  return os;
-}
 
 std::pair<ExpType, size_t>
 variableTypeFromString(const std::string &type, size_t size) {
@@ -166,31 +147,6 @@ size_t getTypeBase(const std::string &type) {
   return 10;
 }
 
-std::vector<PropositionPtr>
-genPropsThroughClustering(std::vector<size_t> &ivs,
-                          const NumericExpressionPtr &cn,
-                          bool inDTAlgo) {
-
-  std::vector<PropositionPtr> ret;
-
-  if (cn->getType().first == ExpType::Float) {
-    ret = runClustering<Float>(ivs, cn, inDTAlgo);
-  } else if (cn->getType().first == ExpType::SInt) {
-    ret = runClustering<SInt>(ivs, cn, inDTAlgo);
-  } else if (cn->getType().first == ExpType::UInt) {
-    ret = runClustering<UInt>(ivs, cn, inDTAlgo);
-  } else {
-    messageError("gebPropsThroughClustering: unknown numeric type "
-                 "for expression: '" +
-                 num2String(cn) + "'");
-  }
-
-  //  debug
-  //  for (auto &p : ret) {
-  //    std::cout << prop2String(*p)<< "\n";
-  //  }
-  return ret;
-}
 
 ///var declaration to cpp class
 VarDeclaration toVarDeclaration(std::string name, std::string type,

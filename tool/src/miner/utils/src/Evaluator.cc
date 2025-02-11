@@ -9,11 +9,7 @@ Evaluator::Evaluator(const TemporalExpressionPtr &formula,
     : _formula(formula), _trace(trace) {}
 
 EvaluatorPtr generateEvaluator(const TemporalExpressionPtr &formula,
-                               const TracePtr &trace,
-                               const std::string &evaluatorType) {
-
-  const std::string evaluatorType_toUse =
-      evaluatorType == "None" ? clc::evaluatorType : evaluatorType;
+                               const TracePtr &trace) {
 
   return generatePtr<AutomataBasedEvaluator>(formula, trace);
 }

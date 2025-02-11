@@ -4,6 +4,7 @@
 #include "TemplateImplication.hh"
 #include "Test.hh"
 #include "Trace.hh"
+#include "VCDtraceReader.hh"
 #include "assertion_utils.hh"
 #include "globals.hh"
 #include "misc.hh"
@@ -23,8 +24,8 @@ getCoverageSet(const fault_coverage_t &fc_result);
 
 EvalReportPtr runFaultCoverage(const UseCase &use_case,
                                const Comparator comp) {
-  const std::string MINED_ASSERTIONS_FILE =
-      getenv("MINED_ASSERTIONS_FILE");
+  const std::string MINED_SPECIFICATIONS_FILE =
+      getenv("MINED_SPECIFICATIONS_FILE");
 
   FaultCoverageReportPtr ret = generatePtr<FaultCoverageReport>();
 
@@ -35,7 +36,7 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
   std::vector<AssertionPtr> mined_assertions;
 
   std::string adapted_output_folder =
-      ph.work_path + ph.work_adapted + MINED_ASSERTIONS_FILE;
+      ph.work_path + ph.work_adapted + MINED_SPECIFICATIONS_FILE;
   auto mined_assertions_tmp =
       getAssertionsFromFile(adapted_output_folder, trace);
   mined_assertions.insert(mined_assertions.end(),
@@ -52,11 +53,15 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
       "." + comp.trace_type);
   ret->_totFaults = fc_result._faultyTraceFiles.size();
 
-  clc::clk = comp.clk;
-  clc::parserType = comp.trace_type;
-  clc::selectedScope = comp.scope;
-  clc::vcdRecursive = 1;
-  clc::findMinSubset = 1;
+  if (comp.trace_type == "vcd") {
+    VCDTraceReaderConfig vcd_config;
+    vcd_config._clk = comp.clk;
+    vcd_config._selectedScope = comp.scope;
+    vcd_config._vcdRecursive = 1;
+    fc_result._vcd = 1;
+    fc_result._vcd_config = vcd_config;
+  }
+  fc_result._findMinSubset = 1;
 
   evaluateWithFaultCoverage(mined_assertions, trace, fc_result);
   std::unordered_map<size_t, std::vector<size_t>> &_fToAid =
@@ -168,7 +173,15 @@ void evaluateWithFaultCoverage(
                fc_result._faultyTraceFiles[j] + " [" +
                std::to_string(j + 1) + "])");
 
-    auto ft = parseFaultyTrace(fc_result._faultyTraceFiles[j]);
+    TracePtr ft = nullptr;
+    if (fc_result._vcd) {
+      ft = parseFaultyVCDTrace(fc_result._faultyTraceFiles[j],
+                               fc_result._vcd_config);
+
+    } else {
+      ft = parseFaultyCSVTrace(fc_result._faultyTraceFiles[j]);
+    }
+
     size_t elaborated = 0;
     for (auto assertion : selected_copy) {
       //test if the assertion fails on the faulty trace
@@ -182,7 +195,7 @@ void evaluateWithFaultCoverage(
         _aidToF[assertion->_id].push_back(j);
         // store the fault that is covered by the assertion
         _fToAid[j].push_back(assertion->_id);
-        if (!clc::findMinSubset) {
+        if (fc_result._findMinSubset) {
           //stop search for this fault if you do not want the optimal covering set
           //fill the progress bar with the remaining assertions not elaborated
           progressBar.increment(0, selected_copy.size() - elaborated);

@@ -7,7 +7,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "DTLimits.hh"
 #include "formula/atom/Atom.hh"
 #include "temporalBaseListener.h"
 #include "temporalParser.h"
@@ -44,7 +43,6 @@ public:
   bool _useCache = 1;
 
   expression::TemporalExpressionPtr getTemporalExpression();
-  harm::DTOParam getDTOParam();
 
 private:
   std::string printErrorMessage();
@@ -82,8 +80,6 @@ private:
 
   ///keeps track of the number of instance propositions
   size_t instCount = 0;
-
-  harm::DTOParam _dto_param;
 
   ///contains the error messages to be issued on failure
   std::vector<std::string> _errorMessages;

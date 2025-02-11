@@ -1,5 +1,4 @@
 #include "formula/atom/NumericExpression.hh"
-#include "../../clustering/include/ClusteringConfig.hh"
 #include "formula/atom/Atom.hh"
 
 namespace expression {

@@ -73,17 +73,20 @@ struct Input {
     if (vcdExists()) {
       return std::get<0>(variants).paths;
     }
+    return {};
   }
   std::set<std::string> getCSVPaths() const {
     if (csvExists()) {
       return std::get<1>(variants).paths;
     }
+    return {};
   }
 
   std::set<std::string> getVerilogPaths() const {
     if (verilogExists()) {
       return std::get<2>(variants).paths;
     }
+    return {};
   }
 
   harm::TracePtr getTrace() const {

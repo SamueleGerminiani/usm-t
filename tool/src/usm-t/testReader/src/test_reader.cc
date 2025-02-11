@@ -140,11 +140,13 @@ Input parseInput(XmlNode *inputNode) {
 
   if (!allVCDTraces.empty()) {
     std::sort(allVCDTraces.begin(), allVCDTraces.end());
-    clc::clk = vcd_in.clk;
-    clc::selectedScope = vcd_in.scope;
-    clc::vcdRecursive = 0;
+    VCDTraceReaderConfig vcd_config;
+    vcd_config._clk = vcd_in.clk;
+    vcd_config._selectedScope = vcd_in.scope;
+    vcd_config._vcdRecursive = 0;
+
     TraceReaderPtr tr =
-        generatePtr<VCDtraceReader>(allVCDTraces, vcd_in.clk);
+        generatePtr<VCDtraceReader>(allVCDTraces, vcd_config);
     vcd_in.trace = tr->readTrace();
     for (auto trace : allVCDTraces) {
       vcd_in.paths.insert(trace);

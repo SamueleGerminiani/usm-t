@@ -136,7 +136,8 @@ using TracePtr = std::shared_ptr<Trace>;
 
 /// @brief Dumps the trace in a CSV file
 void dumpTraceAsCSV(const harm::TracePtr &trace,
-                    const std::string &filename);
+                    const std::string &filename,
+                    const std::string &clk = "");
 
 bool operator==(const TracePtr &t1, const TracePtr &t2);
 } // namespace harm
