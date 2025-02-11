@@ -29,4 +29,4 @@ SET(EXP_SRCS
 add_library(exp ${EXP_SRCS})
 target_link_libraries(exp ${Z3_LIBRARY})
 
-target_include_directories(exp PUBLIC include ../miner/utils/include/)
+target_include_directories(exp PUBLIC include ../miner/utils/include/ ${Z3_INCLUDE_DIRS})
