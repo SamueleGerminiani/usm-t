@@ -240,6 +240,11 @@ void evaluateWithFaultCoverage(
   //              << "   " << f << "\n";
   //  }
   //}
+  
+  //restore the original trace in all assertions
+  for (AssertionPtr &a : selected_copy) {
+    a->changeTrace(originalTrace);
+  }
 }
 
 std::vector<size_t>

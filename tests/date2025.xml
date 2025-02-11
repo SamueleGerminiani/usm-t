@@ -23,7 +23,7 @@
     <config type="run" path="date2025/run_miner_om.sh"/>
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export CLK="clock" SCOPE="test_bench::test_" CONFIG="optimize_match.xml"/>
+    <export MAX_THREADS="1" CLK="clock" SCOPE="test_bench::test_" CONFIG="optimize_match.xml"/>
   </usecase>
 
   <usecase id="harm_optimize_all">
@@ -54,6 +54,8 @@
     <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="200"/>
   </usecase>
 
+  <!--
+  -->
   <test name="date2025">
     <usecase id="harm_optimize_match"/>
     <usecase id="harm_optimize_all"/>

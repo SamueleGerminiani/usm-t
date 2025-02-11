@@ -65,43 +65,6 @@ parse(std::string formula, const harm::TracePtr &trace,
   return listener;
 }
 
-//harm::TemplateImplicationPtr parseTemplateImplication(
-//    std::string formula, const harm::TracePtr &trace,
-//    const harm::DTLimits &limits, bool useCache) {
-//
-//  auto listener = parse(formula, trace, useCache);
-//
-//  TemporalExpressionPtr te = listener->getTemporalExpression();
-//
-//  auto limits_copy = limits;
-//  limits_copy._dto_param = listener->getDTOParam();
-//  if (limits_copy._saveOffset &&
-//      !isSimple(getConsequent(te->getItems()[0]))) {
-//    limits_copy._saveOffset = false;
-//    messageWarning(
-//        "Offset disabled in template " +
-//        temp2String(te, Language::SpotLTL,
-//                    PrintMode::ShowOnlyPermuationPlaceholders) +
-//        ". Saving the offset is not reccomended in "
-//        "complex consequents");
-//  }
-//  if (limits_copy._saveOffset &&
-//      isMultipleMatch(getAntecedent(te->getItems()[0]))) {
-//    limits_copy._saveOffset = false;
-//    messageWarning(
-//        "Offset disabled in template " +
-//        temp2String(te, Language::SpotLTL,
-//                    PrintMode::ShowOnlyPermuationPlaceholders) +
-//        ". Saving the offset is not supported in "
-//        "templates with multiple matches in the antecedent");
-//  }
-//
-//  harm::TemplateImplicationPtr newTemp =
-//      generatePtr<harm::TemplateImplication>(te, trace, limits_copy);
-//  newTemp->setPhIds(listener->getPhToIdsDomain());
-//  return newTemp;
-//}
-
 TemporalExpressionPtr
 parseTemporalExpression(std::string formula,
                         const harm::TracePtr &trace) {

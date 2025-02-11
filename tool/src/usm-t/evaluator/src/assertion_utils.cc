@@ -116,10 +116,9 @@ TracePtr parseFaultyVCDTrace(const std::string &ftStr,
   return t;
 }
 
-static std::map<std::pair<std::string, std::string>, int> cache;
-
 int getNumberOfCommonVariables(const AssertionPtr &a1,
                                const AssertionPtr &a2) {
+  static std::map<std::pair<std::string, std::string>, int> cache;
   std::pair<std::string, std::string> key = {a1->toString(),
                                              a2->toString()};
 
