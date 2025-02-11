@@ -1,0 +1,7 @@
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/CMakeFiles/synthetic_circuit.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/CMakeFiles/edit_cache.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/CMakeFiles/rebuild_cache.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/src/cpptracer/CMakeFiles/cpptracer_test_datatypes.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/src/cpptracer/CMakeFiles/cpptracer_documentation.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/src/cpptracer/CMakeFiles/edit_cache.dir
+/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/src/cpptracer/CMakeFiles/rebuild_cache.dir

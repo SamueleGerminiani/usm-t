@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/CMakeFiles/doxygenawesome-populate"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/CMakeFiles/doxygenawesome-populate.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/CMakeFiles/doxygenawesome-populate-complete.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-build.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-configure.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-download.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-install.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-patch.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-test.rule"
+		},
+		{
+			"file" : "/home/magister/usm-t/tool/synthetic_gen/hif_sim/injected/build/_deps/doxygenawesome-subbuild/doxygenawesome-populate-prefix/src/doxygenawesome-populate-stamp/doxygenawesome-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"doxygenawesome-populate"
+		],
+		"name" : "doxygenawesome-populate"
+	}
+}

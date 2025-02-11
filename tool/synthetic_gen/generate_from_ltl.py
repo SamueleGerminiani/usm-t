@@ -117,6 +117,12 @@ def aigerToSv(design_aiger, specification):
         # Replace the old module declaration line with the new one
         lines[i] = new_module_decl + '\n'
 
+        # Add clock input and wire declarations if not already present because yosys in non deterministic
+        if 'input clock;' not in lines:
+            lines.insert(i + 1, 'input clock;\n')
+        if 'wire clock;' not in lines:
+            lines.insert(i + 2, 'wire clock;\n')
+
         # Write the modified lines back to the file
         with open(out_folder + output_file, 'w') as file:
             file.writelines(lines)
@@ -157,7 +163,7 @@ def synthesize_controller(specification, aiger_filename='top_module.aiger'):
 #Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
     #prefix of the top module 
-    top_module = 'module top_module(\n'
+    top_module = 'module top_module('
     top_module += 'clock,' 
     #all submodule inputs
     for spec in spec_list:
@@ -741,6 +747,25 @@ def populate_output_dir(dirpath):
             print(CERR +"Error:" + CEND + f"Failed to clean the output folder. {e}")
             exit(1)
 
+def generateCSV():
+    #get all the files in the traces folder
+    traces = [f for f in os.listdir(f"{out_folder}traces") if f.endswith(".vcd")]
+    #create the csv file
+    with open(f"{out_folder}traces.csv", 'w') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(['Trace', 'Faults'])
+        for trace in traces:
+            #parse the trace number
+            trace_number = re.search(r'\d+', trace).group()
+            #parse the number of faults
+            with open(f"{out_folder}traces/{trace}", 'r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    if line.startswith("$dumpvars"):
+                        faults = line.split(' ')[-1]
+                        break
+            csvwriter.writerow([trace_number, faults])
+
 def main():
     import xml.etree.ElementTree as ET
     #need this because of scopes
@@ -843,14 +868,28 @@ def main():
         print("\n")
     print(CSTP + "2."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
 
+    ###############################################################
+    ############### GENERATION AND SIMULATION STAGE ###############
+    ###############################################################  
     print(CSTP + "3."  + CEND + " Generating circuit from specification" + " \n")
     generate_circuit(merged_specification,spec_list, modules)
     print(CSTP + "3."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
+    
     print(CSTP +"4." + CEND + " Running HIFSuite" + " \n")
     run_hifsuite(merged_specification)
     print(CSTP + "4."  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
+    
+    if os.path.exists(f"{root}/tool/build/vcd2csv"):
+        print(CSTP +"4.5" + CEND + " Creating CSV traces" + " \n")
+        generateCSV()
+        print(CSTP + "4.5"  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
+    else:
+        print(CERR +"4.5" + CEND + " Skipping CSV traces creation")
+        print(CERR +"4.5" + CEND + " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n")
+    
     print(CSTP +"5." + CEND +" Populating selected output directory" + " \n")
     populate_output_dir(dirpath)
+    
     print(CSTP + "5."  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
     print(CSTP + "################# " + CEND + f"Procedure complete! All generated files can be found in {dirpath}" + CSTP + " #################"+ CEND + "\n\n")
 

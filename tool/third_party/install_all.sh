@@ -7,6 +7,8 @@ then
     bash install_z3.sh
     bash install_gedlib.sh
     bash install_boost.sh
+    bash install_hifsuite.sh 
+    bash install_os-cad.sh 
 else
     installPrefix="$1"
     bash install_antlr.sh "$installPrefix"
