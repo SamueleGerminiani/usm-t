@@ -24,9 +24,10 @@ public:
   */
   struct Node {
     enum class Type {
-      Accepting,
-      Rejecting,
-      Pending,
+      Accepting = 0,
+      StrongAccepting = 1,
+      Rejecting = 2,
+      StrongRejecting = 3,
     };
 
     Node(size_t id, Type type);

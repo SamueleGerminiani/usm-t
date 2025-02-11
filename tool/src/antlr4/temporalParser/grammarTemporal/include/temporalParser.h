@@ -20,18 +20,19 @@ bool canTakeThisNot(const std::string& unaryOp, const std::string& ph);
 class  temporalParser : public antlr4::Parser {
 public:
   enum {
-    PLACEHOLDER = 1, EVENTUALLY = 2, ALWAYS = 3, NEXT = 4, UNTIL = 5, RELEASE = 6, 
-    DOTS = 7, IMPL = 8, IMPLO = 9, IFF = 10, SEREIMPL = 11, SEREIMPLO = 12, 
-    ASS = 13, DELAY = 14, SCOL = 15, FIRST_MATCH = 16, TNOT = 17, TAND = 18, 
-    INTERSECT = 19, TOR = 20, BOOLEAN_CONSTANT = 21, BOOLEAN_VARIABLE = 22, 
-    INT_VARIABLE = 23, CONST_SUFFIX = 24, FLOAT_CONSTANT = 25, FLOAT_VARIABLE = 26, 
-    LCURLY = 27, RCURLY = 28, LSQUARED = 29, RSQUARED = 30, LROUND = 31, 
-    RROUND = 32, INSIDE = 33, FUNCTION = 34, SINTEGER = 35, UINTEGER = 36, 
-    FLOAT = 37, GCC_BINARY = 38, HEX = 39, VERILOG_BINARY = 40, FVL = 41, 
-    SINGLE_QUOTE = 42, PLUS = 43, MINUS = 44, TIMES = 45, DIV = 46, GT = 47, 
-    GE = 48, LT = 49, LE = 50, EQ = 51, NEQ = 52, BAND = 53, BOR = 54, BXOR = 55, 
-    NEG = 56, LSHIFT = 57, RSHIFT = 58, AND = 59, OR = 60, NOT = 61, COL = 62, 
-    DCOL = 63, DOLLAR = 64, RANGE = 65, CLS_TYPE = 66, WS = 67
+    PLACEHOLDER = 1, EVENTUALLY = 2, STRONG_EVENTUALLY = 3, ALWAYS = 4, 
+    STRONG_ALWAYS = 5, WEAK_NEXT = 6, STRONG_NEXT = 7, WEAK_UNTIL = 8, STRONG_UNTIL = 9, 
+    WEAK_RELEASE = 10, STRONG_RELEASE = 11, DOTS = 12, IMPL = 13, IMPLO = 14, 
+    IFF = 15, SEREIMPL = 16, SEREIMPLO = 17, ASS = 18, DELAY = 19, SCOL = 20, 
+    FIRST_MATCH = 21, TNOT = 22, TAND = 23, INTERSECT = 24, TOR = 25, BOOLEAN_CONSTANT = 26, 
+    BOOLEAN_VARIABLE = 27, INT_VARIABLE = 28, CONST_SUFFIX = 29, FLOAT_CONSTANT = 30, 
+    FLOAT_VARIABLE = 31, LCURLY = 32, RCURLY = 33, LSQUARED = 34, RSQUARED = 35, 
+    LROUND = 36, RROUND = 37, INSIDE = 38, FUNCTION = 39, SINTEGER = 40, 
+    UINTEGER = 41, FLOAT = 42, GCC_BINARY = 43, HEX = 44, VERILOG_BINARY = 45, 
+    FVL = 46, SINGLE_QUOTE = 47, PLUS = 48, MINUS = 49, TIMES = 50, DIV = 51, 
+    GT = 52, GE = 53, LT = 54, LE = 55, EQ = 56, NEQ = 57, BAND = 58, BOR = 59, 
+    BXOR = 60, NEG = 61, LSHIFT = 62, RSHIFT = 63, AND = 64, OR = 65, NOT = 66, 
+    COL = 67, DCOL = 68, DOLLAR = 69, RANGE = 70, CLS_TYPE = 71, WS = 72
   };
 
   enum {
@@ -61,7 +62,7 @@ public:
 
   // Definition
   bool isUnary(const std::string& token){
-  return token=="X" || token=="nexttime" || token=="F" || token=="G" || token=="always" || token=="eventually" || token=="!" || token=="not";
+  return token=="X" || token=="nexttime" || token=="F" || token=="G" || token=="always" || token=="s_always" || token=="eventually" || token=="s_eventually" || token=="!" || token=="not";
   }
   bool isSharedOperator(const std::string& token){
   return token=="and" || token=="&&" || token=="or" || token=="||" || token=="|";
@@ -177,18 +178,23 @@ public:
     antlr4::tree::TerminalNode *RROUND();
     antlr4::tree::TerminalNode *TNOT();
     antlr4::tree::TerminalNode *NOT();
-    antlr4::tree::TerminalNode *NEXT();
+    antlr4::tree::TerminalNode *WEAK_NEXT();
     antlr4::tree::TerminalNode *LSQUARED();
     antlr4::tree::TerminalNode *UINTEGER();
     antlr4::tree::TerminalNode *RSQUARED();
+    antlr4::tree::TerminalNode *STRONG_NEXT();
     antlr4::tree::TerminalNode *ALWAYS();
+    antlr4::tree::TerminalNode *STRONG_ALWAYS();
     antlr4::tree::TerminalNode *EVENTUALLY();
+    antlr4::tree::TerminalNode *STRONG_EVENTUALLY();
     Sere_implicationContext *sere_implication();
     SereContext *sere();
     antlr4::tree::TerminalNode *LCURLY();
     antlr4::tree::TerminalNode *RCURLY();
-    antlr4::tree::TerminalNode *UNTIL();
-    antlr4::tree::TerminalNode *RELEASE();
+    antlr4::tree::TerminalNode *WEAK_UNTIL();
+    antlr4::tree::TerminalNode *STRONG_UNTIL();
+    antlr4::tree::TerminalNode *WEAK_RELEASE();
+    antlr4::tree::TerminalNode *STRONG_RELEASE();
     antlr4::tree::TerminalNode *TAND();
     antlr4::tree::TerminalNode *AND();
     antlr4::tree::TerminalNode *TOR();

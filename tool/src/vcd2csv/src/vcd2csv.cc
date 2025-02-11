@@ -85,7 +85,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
   //vcd cases
   //vcd-ss or vcd-ss + vcd-r == 0 : get signals only in selected scope
   //vcd-ss + vcd-r = n with n>0 : get signals in selected scope and recursive with depth n
-  //vcd-ss + vcd-unroll = n with n>0 : get signals in selected scope and recursive with depth n and make a context for each scope
   if (result.count("vcd-ss")) {
     vcd_config._selectedScope = result["vcd-ss"].as<std::string>();
     vcd_config._vcdRecursive = 0;
@@ -93,21 +92,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
   if (result.count("vcd-r")) {
     vcd_config._vcdRecursive =
         safeStoull(result["vcd-r"].as<std::string>());
-  }
-
-  messageErrorIf(result.count("vcd-unroll") &&
-                     (result.count("vcd-r")),
-                 "Can not use 'vcd-unroll' with 'vcd-r'");
-
-  messageErrorIf(
-      result.count("vcd-unroll") && !result.count("generate-config"),
-      "Can not use 'vcd-unroll' without 'generate-config'");
-
-  if (result.count("vcd-unroll")) {
-    vcd_config._vcdUnroll =
-        safeStoull(result["vcd-unroll"].as<std::string>());
-    messageErrorIf(vcd_config._vcdUnroll == 0,
-                   "vcd-unroll must be greater than 0");
   }
 
   if (result.count("clk")) {

@@ -176,18 +176,19 @@ size_t test_with_parameters(std::string template_,
             << assertions_map["expected"].size() *
                    (assertions_map["mined"].size())
             << "\n";
-  auto start = std::chrono::high_resolution_clock::now();
   std::unordered_map<std::string, std::string> targetToRemap;
   auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
                                     assertions_map.at("mined"),
                                     targetToRemap);
+  auto start = std::chrono::high_resolution_clock::now();
+  evaluateWithHybrid(report, assertions_map);
   auto end = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::milliseconds>(end -
                                                                start)
       .count();
 }
 
-TEST(flattening_scalabilityTests, flattening_next) {
+TEST(hybrid_similarity_scalabilityTests, hybrid_similarity_next) {
 
   //clc::psilent = 1;
   clc::wsilent = 1;
@@ -220,37 +221,37 @@ TEST(flattening_scalabilityTests, flattening_next) {
       {"..##1..", 300, 100, false},
       {"..##1..", 400, 100, false},
       {"..##1..", 500, 100, false},
-      {"..##1..", 100, 100, true},
-      {"..##1..", 200, 100, true},
-      {"..##1..", 300, 100, true},
-      {"..##1..", 400, 100, true},
-      {"..##1..", 500, 100, true},
-      {"..##1..", 100, 200, true},
-      {"..##1..", 200, 200, true},
-      {"..##1..", 300, 200, true},
-      {"..##1..", 400, 200, true},
-      {"..##1..", 500, 200, true},
-      {"..##1..", 100, 300, true},
-      {"..##1..", 200, 300, true},
-      {"..##1..", 300, 300, true},
-      {"..##1..", 400, 300, true},
-      {"..##1..", 500, 300, true},
-      {"..##1..", 100, 400, true},
-      {"..##1..", 200, 400, true},
-      {"..##1..", 300, 400, true},
-      {"..##1..", 400, 400, true},
-      {"..##1..", 500, 400, true},
-      {"..##1..", 100, 500, true},
-      {"..##1..", 200, 500, true},
-      {"..##1..", 300, 500, true},
-      {"..##1..", 400, 500, true},
-      {"..##1..", 500, 500, true},
+  //    {"..##1..", 100, 100, true},
+  //    {"..##1..", 200, 100, true},
+  //    {"..##1..", 300, 100, true},
+  //    {"..##1..", 400, 100, true},
+  //    {"..##1..", 500, 100, true},
+  //    {"..##1..", 100, 200, true},
+  //    {"..##1..", 200, 200, true},
+  //    {"..##1..", 300, 200, true},
+  //    {"..##1..", 400, 200, true},
+  //    {"..##1..", 500, 200, true},
+  //    {"..##1..", 100, 300, true},
+  //    {"..##1..", 200, 300, true},
+  //    {"..##1..", 300, 300, true},
+  //    {"..##1..", 400, 300, true},
+  //    {"..##1..", 500, 300, true},
+  //    {"..##1..", 100, 400, true},
+  //    {"..##1..", 200, 400, true},
+  //    {"..##1..", 300, 400, true},
+  //    {"..##1..", 400, 400, true},
+  //    {"..##1..", 500, 400, true},
+  //    {"..##1..", 100, 500, true},
+  //    {"..##1..", 200, 500, true},
+  //    {"..##1..", 300, 500, true},
+  //    {"..##1..", 400, 500, true},
+  //    {"..##1..", 500, 500, true},
 
   };
   // clang-format on
 
   //dump to csv
-  std::string dump_path = "flattening_scalability.csv";
+  std::string dump_path = "hybrid_similarity_scalability.csv";
 
   //delete file if it exists
   if (std::filesystem::exists(dump_path)) {

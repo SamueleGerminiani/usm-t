@@ -283,8 +283,7 @@ static bool isBinaryRightAssociative(ope::temporalOpe op) {
                                                                      \
     bool putBrakets =                                                \
         (items.size() > 1 &&                                         \
-         hasHigherPrecedence(parent_op, ope::temporalOpe::NODE)) ||  \
-        ope::temporalOpe::NODE == ope::temporalOpe::PropertyAlways;  \
+         hasHigherPrecedence(parent_op, ope::temporalOpe::NODE));    \
                                                                      \
     if (items.size() > 1) {                                          \
       bool leftRequiresBrackets = false;                             \
@@ -319,11 +318,16 @@ static bool isBinaryRightAssociative(ope::temporalOpe op) {
       _ss << selCol(assert, chooseTemporalOpColor(                   \
                                 assert, ope::temporalOpe::NODE));    \
     } else {                                                         \
-      _ss << selCol(opeToString(ope::temporalOpe::NODE, _lang),      \
+      _ss << selCol(opeToString(ope::temporalOpe::NODE, _lang,       \
+                                o.isStrong()),                       \
                     chooseTemporalOpColor(                           \
-                        opeToString(ope::temporalOpe::NODE, _lang),  \
+                        opeToString(ope::temporalOpe::NODE, _lang,   \
+                                    o.isStrong()),                   \
                         ope::temporalOpe::NODE))                     \
           << " ";                                                    \
+      if (_lang != Language::SpotLTL && items.size() == 1) {         \
+        _ss << " ";                                                  \
+      }                                                              \
     }                                                                \
                                                                      \
     if (items.size() == 1 && putBrakets) {                           \
@@ -487,26 +491,44 @@ SERE_BINARY(SereIntersect)
 
 void RemapPrinterVisitor::visit(PropertyNext &o) {
   _temporal_ope_stack.push(ope::temporalOpe::PropertyNext);
-  _ss << selCol(opeToString(ope::PropertyNext, _lang),
-                TEMP(opeToString(ope::PropertyNext, _lang)));
-  if (o.getDelay() != 1) {
+  _ss << selCol(
+      opeToString(ope::PropertyNext, _lang, o.isStrong()),
+      TEMP(opeToString(ope::PropertyNext, _lang, o.isStrong())));
+  if (o.getDelay() != 1 ||
+      (o.isStrong() && _lang == Language::SpotLTL)) {
     _ss << selCol("[", TEMP("["));
-    _ss << selCol(std::to_string(o.getDelay()),
-                  TEMP(std::to_string(o.getDelay())));
-    _ss << selCol("]", TEMP("]"));
-    _ss << selCol("(", TEMP("(")) << " ";
+    if (o.getDelay() != 1) {
+      _ss << selCol(std::to_string(o.getDelay()),
+                    TEMP(std::to_string(o.getDelay())));
+    }
+    if (o.isStrong() && _lang == Language::SpotLTL) {
+      _ss << selCol("!]", TEMP("!]"));
+    } else {
+      _ss << selCol("]", TEMP("]"));
+    }
+
+    if (o.getDelay() != 1 && _lang == Language::SpotLTL) {
+      _ss << selCol("(", TEMP("("));
+    }
+  }
+  if (_lang != Language::SpotLTL) {
+    _ss << " ";
   }
   o.getItems()[0]->acceptVisitor(*this);
-  if (o.getDelay() != 1) {
-    _ss << " " << selCol(")", TEMP(")"));
+  if (o.getDelay() != 1 && _lang == Language::SpotLTL) {
+    _ss << selCol(")", TEMP(")"));
   }
   _temporal_ope_stack.pop();
 }
 
 void RemapPrinterVisitor::visit(PropertyImplication &o) {
+  auto parent_op = _temporal_ope_stack.top();
   _temporal_ope_stack.push(ope::temporalOpe::PropertyImplication);
-
   auto [open, close] = getSereBrackets();
+
+  bool putRoundBrakets =
+      hasHigherPrecedence(parent_op, ope::PropertyImplication);
+  _ss << (putRoundBrakets ? selCol("(", TEMP("(")) : "");
 
   if (o.isMMImplication() && isBooleanLayer(o.getItems()[0]) &&
       _lang != Language::SVA) {
@@ -528,6 +550,7 @@ void RemapPrinterVisitor::visit(PropertyImplication &o) {
   }
   _ss << selCol(" ", TIMPL(" "));
   o.getItems()[1]->acceptVisitor(*this);
+  _ss << (putRoundBrakets ? selCol(")", TEMP(")")) : "");
   _temporal_ope_stack.pop();
 }
 

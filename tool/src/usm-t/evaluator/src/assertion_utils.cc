@@ -32,10 +32,6 @@ AssertionPtr makeAssertion(const std::string &assertion_str,
   TemporalExpressionPtr te =
       hparser::parseTemporalExpression(assertion_str, trace);
   AssertionPtr new_ass = generatePtr<Assertion>(te);
-  //  new_ass->enableEvaluation(trace);
-  //  messageErrorIf(!new_ass->holdsOnTrace(),
-  //                 "Specification '" + assertion_str +
-  //                     "', does not hold on the input traces'");
   return new_ass;
 }
 

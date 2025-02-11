@@ -12,7 +12,7 @@ namespace usmt {
 using namespace harm;
 
 double computeHybridSimilarity(const SerializedAutomaton &sa1,
-                                     const SerializedAutomaton &sa2) {
+                               const SerializedAutomaton &sa2) {
 
   std::unordered_map<std::string, EdgeProposition *>
       edgeStrToProposition;
@@ -66,8 +66,10 @@ double computeHybridSimilarity(const SerializedAutomaton &sa1,
   //std::cout << "UP---------------->"<<upper_bound << "\n";
   //std::cout << "MAX:"<<std::max(sa1.getNumberEdges()+ sa1.getNumberNodes(), sa2.getNumberEdges() + sa2.getNumberNodes()) << "\n";
   double similarity =
-      1.f - (upper_bound /
-             (double)std::max(sa1.getNumberEdges() + sa1.getNumberNodes(), sa2.getNumberEdges() + sa2.getNumberNodes()));
+      1.f -
+      (upper_bound /
+       (double)std::max(sa1.getNumberEdges() + sa1.getNumberNodes(),
+                        sa2.getNumberEdges() + sa2.getNumberNodes()));
   return similarity;
 }
 
@@ -75,13 +77,18 @@ SerializedAutomaton serializeAutomaton(Automaton *aut) {
   SerializedAutomaton sa;
   for (const auto &[id, node] : aut->_idToNode) {
     int type = 0;
+
     if (node->_type == harm::Automaton::Node::Type::Accepting) {
       type = 1;
     } else if (node->_type ==
+               harm::Automaton::Node::Type::StrongAccepting) {
+      type = 2;
+    } else if (node->_type ==
+               harm::Automaton::Node::Type::StrongRejecting) {
+      type = -2;
+    } else if (node->_type ==
                harm::Automaton::Node::Type::Rejecting) {
       type = -1;
-    } else if (node->_type == harm::Automaton::Node::Type::Pending) {
-      type = 0;
     } else {
       messageError("Unknown node type");
     }

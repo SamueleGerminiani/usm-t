@@ -16,6 +16,9 @@
 #include "spot/twa/twagraph.hh"
 #include "spot/twaalgos/translate.hh"
 #include <spot/tl/formula.hh>
+#include <spot/tl/ltlf.hh>
+#include "spot/twaalgos/hoa.hh"
+#include "spot/twaalgos/remprop.hh"
 #include <spot/tl/parse.hh>
 #include <spot/tl/print.hh>
 #include <spot/twaalgos/isdet.hh>
@@ -82,8 +85,11 @@ bool AutomataBasedEvaluator::evaluateAutomaton(size_t start,
       // if "the current cn->_outEdges[i] is true at instant 'start'"
       if (edge->_prop->evaluate(start)) {
         if (edge->_toNode->_type ==
-            Automaton::Node::Type::Rejecting) {
+            Automaton::Node::Type::StrongRejecting) {
           return false;
+        } else if (edge->_toNode->_type ==
+                   Automaton::Node::Type::StrongAccepting) {
+          return true;
         }
 
         // go to the next state
@@ -93,6 +99,10 @@ bool AutomataBasedEvaluator::evaluateAutomaton(size_t start,
     }
     // each start we change state, start increases by 1
     start++;
+  }
+
+  if (clc::useFiniteSemantics) {
+    return cn->_type == Automaton::Node::Type::Accepting;
   }
 
   return true;
@@ -171,7 +181,6 @@ generateAutomatonFromString(const std::string &spotFormulaStr,
         generateDeterministicSpotAutomaton(spotFormula);
     //build the harm automaton
     return buildAutomatonFromSpot(spotAutomaton, ppack);
-    //std::cout << printAutomaton(_automaton) << "\n";
   }
 #else
   messageError("No automata generator library provided");
@@ -201,12 +210,17 @@ generateDeterministicSpotAutomaton(const spot::formula &formula) {
   }
 
   spot::translator trans;
-  trans.set_pref(spot::postprocessor::Deterministic);
-  auto aut = trans.run(formula);
-
-  spot::postprocessor post2;
-  post2.set_pref(spot::postprocessor::Complete);
-  aut = post2.run(aut);
+  trans.set_type(spot::postprocessor::BA);
+  trans.set_pref(spot::postprocessor::Deterministic |
+                 spot::postprocessor::Complete |
+                 spot::postprocessor::SBAcc);
+  std::shared_ptr<spot::twa_graph> aut;
+  if (clc::useFiniteSemantics) {
+    aut = trans.run(spot::from_ltlf(formula));
+    aut = spot::to_finite(aut);
+  } else {
+    aut = trans.run(formula);
+  }
 
   if (!spot::is_deterministic(aut)) {
     throw std::runtime_error(
@@ -263,10 +277,11 @@ Automaton *buildAutomatonFromSpot(spot::twa_graph_ptr &automata,
 
     if (hashToId.count(currState->hash()) == 0) {
       //create a link to retrieve the Node (only if it doesn't already exist)
+      //init as weak rejecting
       hashToId[currState->hash()] = stateCount++;
       retA->_idToNode[hashToId.at(currState->hash())] =
           new Automaton::Node(hashToId.at(currState->hash()),
-                              Automaton::Node::Type::Pending);
+                              Automaton::Node::Type::Rejecting);
     }
 
     // identify if the current state is a terminal state
@@ -274,18 +289,24 @@ Automaton *buildAutomatonFromSpot(spot::twa_graph_ptr &automata,
     if (it->first() && (it->dst()->hash() == currState->hash()) &&
         !it->next()) {
       if (automata->state_is_accepting(currState)) {
-        // acceptance state: the evaluation returns true
+        // strong acceptance state: the evaluation returns true
         retA->_idToNode.at(hashToId.at(currState->hash()))->_type =
-            Automaton::Node::Type::Accepting;
+            Automaton::Node::Type::StrongAccepting;
         retA->_accepting =
             retA->_idToNode.at(hashToId.at(currState->hash()));
       } else {
-        // rejecting state: the evaluation returns false
+        // strong rejecting state: the evaluation returns false
         retA->_idToNode.at(hashToId.at(currState->hash()))->_type =
-            Automaton::Node::Type::Rejecting;
+            Automaton::Node::Type::StrongRejecting;
         retA->_rejecting =
             retA->_idToNode.at(hashToId.at(currState->hash()));
       }
+    } else if (automata->state_is_accepting(currState)) {
+      // weak acceptance state
+      retA->_idToNode.at(hashToId.at(currState->hash()))->_type =
+          Automaton::Node::Type::Accepting;
+      retA->_accepting =
+          retA->_idToNode.at(hashToId.at(currState->hash()));
     }
     delete it;
 
@@ -304,10 +325,11 @@ Automaton *buildAutomatonFromSpot(spot::twa_graph_ptr &automata,
 
       if (hashToId.count(s->dst()->hash()) == 0) {
         //Again: create a link to retrieve the Node (only if it doesn't exist already)
+        //init as weak rejecting
         hashToId[s->dst()->hash()] = stateCount++;
         retA->_idToNode[hashToId.at(s->dst()->hash())] =
             new Automaton::Node(hashToId.at(s->dst()->hash()),
-                                Automaton::Node::Type::Pending);
+                                Automaton::Node::Type::Rejecting);
       }
       // add the custom edge to the custom node
       EdgeProposition *newEdgeProp =

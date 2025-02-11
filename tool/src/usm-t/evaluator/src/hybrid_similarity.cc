@@ -60,7 +60,7 @@ void evaluateWithHybrid(
     try {
       aut = generateAutomatonFromString(sea, ppack);
     } catch (const std::exception &e) {
-      messageWarning("(Edit distance) ignoring specification: " +
+      messageWarning("(Hybrid similarity) ignoring specification: " +
                      std::string(e.what()));
       continue;
     }
@@ -72,7 +72,7 @@ void evaluateWithHybrid(
     try {
       aut = generateAutomatonFromString(sma, ppack);
     } catch (const std::exception &e) {
-      messageWarning("(Edit distance) ignoring specification: " +
+      messageWarning("(Hybrid similarity) ignoring specification: " +
                      std::string(e.what()));
       continue;
     }
@@ -81,7 +81,7 @@ void evaluateWithHybrid(
 
   //Compute the similarity between each expected and mined automaton
   progresscpp::ParallelProgressBar pb;
-  pb.addInstance(0, "Computing Edit Distance Similarity...",
+  pb.addInstance(0, "Computing Hybrid Similarity...",
                  expectedToSAutomaton.size(), 70);
 
   for (const auto &[ea, ea_sa] : expectedToSAutomaton) {
@@ -101,7 +101,6 @@ void evaluateWithHybrid(
       if (ea_assertionStr == ma_assertionStr) {
         similarity = 1.f;
       } else {
-        //Edit distance
         similarity = computeHybridSimilarity(ea_sa, ma_sa);
       }
 

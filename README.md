@@ -32,6 +32,11 @@ Currently, we support only Linux with gcc and clang (C++17) and cmake 3.14+.
 ```
 sudo apt-get install -y uuid-dev pkg-config
 ```
+* Enter the tool directory
+
+```
+cd tool
+```
 
 * Install all third party dependencies. These will be compiled from source but will not affect your system, as all dependencies are installed in the third_party directory.
 

@@ -11,6 +11,7 @@ size_t maxThreads = std::thread::hardware_concurrency();
 Language outputLang = Language::SpotLTL;
 bool svaAssert = false;
 std::string dumpPath = "";
+bool useFiniteSemantics = false;
 
 //logging
 bool silent = false;

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Language.hh"
 #include "commandLineParser.hh"
 #include "globals.hh"
 #include "message.hh"
@@ -61,6 +62,30 @@ void parseCommandLineArguments(int argc, char *args[]) {
             " threads at most");
 
     clc::maxThreads = nt;
+  }
+
+  if (result.count("ltlf")) {
+    clc::useFiniteSemantics = true;
+  }
+  if (result.count("sva")) {
+    messageErrorIf(
+        result.count("spotltl") || result.count("psl"),
+        "sva and spotltl/psl options are mutually exclusive");
+    clc::outputLang = Language::SVA;
+  }
+
+  if (result.count("psl")) {
+    messageErrorIf(
+        result.count("spotltl") || result.count("sva"),
+        "psl and spotltl/sva options are mutually exclusive");
+    clc::outputLang = Language::PSL;
+  }
+
+  if (result.count("spotltl")) {
+    messageErrorIf(
+        result.count("psl") || result.count("sva"),
+        "spotltl and psl/sva options are mutually exclusive");
+    clc::outputLang = Language::SpotLTL;
   }
 
   if (result.count("silent")) {

@@ -77,7 +77,8 @@ enum ope : int {
 };
 
 inline std::string opeToString(temporalOpe o,
-                               Language lang = Language::Unset) {
+                               Language lang = Language::Unset,
+                               bool strong = false) {
   lang = (lang == Language::Unset) ? clc::outputLang : lang;
   switch (o) {
   case PropertyAlways:
@@ -88,7 +89,11 @@ inline std::string opeToString(temporalOpe o,
     case Language::PSL:
       return "always";
     case Language::SVA:
-      return "always";
+      if (strong) {
+        return "s_always";
+      } else {
+        return "always";
+      }
     default:
       messageError("Unset language");
     }
@@ -100,7 +105,11 @@ inline std::string opeToString(temporalOpe o,
     case Language::PSL:
       return "eventually";
     case Language::SVA:
-      return "eventually";
+      if (strong) {
+        return "s_eventually";
+      } else {
+        return "eventually";
+      }
     default:
       messageError("Unset language");
     }
@@ -112,7 +121,11 @@ inline std::string opeToString(temporalOpe o,
     case Language::PSL:
       return "next";
     case Language::SVA:
-      return "nexttime";
+      if (strong) {
+        return "s_nexttime";
+      } else {
+        return "nexttime";
+      }
     default:
       messageError("Unset language");
     }
@@ -120,11 +133,19 @@ inline std::string opeToString(temporalOpe o,
   case PropertyUntil:
     switch (lang) {
     case Language::SpotLTL:
-      return "U";
+      if (strong) {
+        return "U";
+      } else {
+        return "W";
+      }
     case Language::PSL:
       return "until";
     case Language::SVA:
-      return "until";
+      if (strong) {
+        return "s_until";
+      } else {
+        return "until";
+      }
     default:
       messageError("Unset language");
     }
@@ -132,7 +153,11 @@ inline std::string opeToString(temporalOpe o,
   case PropertyRelease:
     switch (lang) {
     case Language::SpotLTL:
-      return "R";
+      if (strong) {
+        return "M";
+      } else {
+        return "R";
+      }
     case Language::PSL:
       messageError("Release operator not supported in PSL");
     case Language::SVA:
@@ -341,8 +366,6 @@ inline std::string opeToString(ope o) {
 inline int opeToPrecedenceClass(temporalOpe o) {
 
   switch (o) {
-  case PropertyAlways:
-    return -1;
 
   case SereConsecutiveRep:
     return 0;
@@ -355,6 +378,8 @@ inline int opeToPrecedenceClass(temporalOpe o) {
   case SereFirstMatch:
     return 0;
 
+  case PropertyAlways:
+    return 0;
   case PropertyEventually:
     return 0;
   case PropertyNot:

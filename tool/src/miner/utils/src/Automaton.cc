@@ -43,7 +43,8 @@ std::string printAutomaton(const Automaton *aut) {
     auto currState = fringe.back();
     fringe.pop_back();
     std::string nodeStyle = "shape=circle";
-    if (currState->_type == Automaton::Node::Type::Accepting) {
+    if (currState->_type == Automaton::Node::Type::Accepting ||
+        currState->_type == Automaton::Node::Type::StrongAccepting) {
       nodeStyle = "shape=doublecircle";
     }
     ret += std::to_string(currState->_id) +

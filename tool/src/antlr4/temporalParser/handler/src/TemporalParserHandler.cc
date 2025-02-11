@@ -141,32 +141,54 @@ void TemporalParserHandler::exitTformula(
     }
   }
 
-  if (ctx->tformula().size() == 1 && ctx->NEXT() != nullptr) {
+  if (ctx->tformula().size() == 1 &&
+      (ctx->WEAK_NEXT() != nullptr ||
+       ctx->STRONG_NEXT() != nullptr)) {
+    bool isStrong =
+        ctx->STRONG_NEXT() != nullptr || ctx->NOT() != nullptr;
     TemporalExpressionPtr exp = _tsubFormulas.top();
     _tsubFormulas.pop();
     size_t delay = ctx->UINTEGER() != nullptr
                        ? safeStoull(ctx->UINTEGER()->getText())
                        : 1;
-    _tsubFormulas.push(generatePtr<PropertyNext>(exp, delay));
+    PropertyNextPtr pn = generatePtr<PropertyNext>(exp, delay);
+    if (isStrong) {
+      pn->setStrongVersion();
+    }
+    _tsubFormulas.push(pn);
 
     return;
   }
 
-  if (ctx->tformula().size() == 2 && ctx->UNTIL() != nullptr) {
+  if (ctx->tformula().size() == 2 &&
+      (ctx->WEAK_UNTIL() != nullptr ||
+       ctx->STRONG_UNTIL() != nullptr)) {
     TemporalExpressionPtr right = _tsubFormulas.top();
     _tsubFormulas.pop();
     TemporalExpressionPtr left = _tsubFormulas.top();
     _tsubFormulas.pop();
-    _tsubFormulas.push(generatePtr<PropertyUntil>({left, right}));
+    PropertyUntilPtr pu = generatePtr<PropertyUntil>({left, right});
+    if (ctx->STRONG_UNTIL() != nullptr) {
+      pu->setStrongVersion();
+    }
+    _tsubFormulas.push(pu);
     return;
   }
 
-  if (ctx->tformula().size() == 2 && ctx->RELEASE() != nullptr) {
+  if (ctx->tformula().size() == 2 &&
+      (ctx->WEAK_RELEASE() != nullptr ||
+       ctx->STRONG_RELEASE() != nullptr)) {
     TemporalExpressionPtr right = _tsubFormulas.top();
     _tsubFormulas.pop();
     TemporalExpressionPtr left = _tsubFormulas.top();
     _tsubFormulas.pop();
-    _tsubFormulas.push(generatePtr<PropertyRelease>({left, right}));
+    PropertyReleasePtr pr =
+        generatePtr<PropertyRelease>({left, right});
+    if (ctx->STRONG_RELEASE() != nullptr) {
+      pr->setStrongVersion();
+    }
+    _tsubFormulas.push(pr);
+
     return;
   }
 
@@ -178,16 +200,28 @@ void TemporalParserHandler::exitTformula(
     return;
   }
 
-  if (ctx->tformula().size() == 1 && ctx->EVENTUALLY() != nullptr) {
+  if (ctx->tformula().size() == 1 &&
+      (ctx->EVENTUALLY() != nullptr ||
+       ctx->STRONG_EVENTUALLY() != nullptr)) {
     TemporalExpressionPtr right = _tsubFormulas.top();
     _tsubFormulas.pop();
-    _tsubFormulas.push(generatePtr<PropertyEventually>(right));
+    PropertyEventuallyPtr pe = generatePtr<PropertyEventually>(right);
+    if (ctx->STRONG_EVENTUALLY() != nullptr) {
+      pe->setStrongVersion();
+    }
+    _tsubFormulas.push(pe);
     return;
   }
-  if (ctx->tformula().size() == 1 && ctx->ALWAYS() != nullptr) {
+
+  if (ctx->tformula().size() == 1 &&
+      (ctx->ALWAYS() != nullptr || ctx->STRONG_ALWAYS() != nullptr)) {
     TemporalExpressionPtr right = _tsubFormulas.top();
     _tsubFormulas.pop();
-    _tsubFormulas.push(generatePtr<PropertyAlways>(right));
+    PropertyAlwaysPtr pa = generatePtr<PropertyAlways>(right);
+    if (ctx->STRONG_ALWAYS() != nullptr) {
+      pa->setStrongVersion();
+    }
+    _tsubFormulas.push(pa);
     return;
   }
 }

@@ -67,7 +67,7 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
-    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="10"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="50"/>
   </usecase>
 
   <usecase id="goldminer_usecase_1">
@@ -101,10 +101,10 @@
     - They will appear in the summary report in alphabetical order
     -->
     <usecase id="harm_usecase_1_bool"/>
-    <external id="manually_defined"/>
     <usecase id="texada_usecase_1"/> 
     <usecase id="goldminer_usecase_1"/>
     <usecase id="samples2ltl_usecase_1"/>
+    <external id="manually_defined"/>
 
 
     <!--

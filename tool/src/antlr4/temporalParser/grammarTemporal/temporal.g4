@@ -12,7 +12,7 @@ bool canTakeThisNot(const std::string& unaryOp, const std::string& ph);
 @parser::members {
 // Definition
 bool isUnary(const std::string& token){
-return token=="X" || token=="nexttime" || token=="F" || token=="G" || token=="always" || token=="eventually" || token=="!" || token=="not";
+return token=="X" || token=="nexttime" || token=="F" || token=="G" || token=="always" || token=="s_always" || token=="eventually" || token=="s_eventually" || token=="!" || token=="not";
 }
 bool isSharedOperator(const std::string& token){
 return token=="and" || token=="&&" || token=="or" || token=="||" || token=="|";
@@ -58,10 +58,11 @@ booleanLayer: LROUND booleanLayer RROUND
 tformula: booleanLayer
         | LROUND tformula RROUND 
         | <assoc=right> {canTakeThisNot(_input->LT(1)->getText(),_input->LT(2)->getText())}? (TNOT|NOT) tformula 
-    	| <assoc=right> NEXT LSQUARED? UINTEGER? RSQUARED? tformula
-    	| <assoc=right> ALWAYS tformula 
-    	| <assoc=right> EVENTUALLY tformula 
-    	| <assoc=right> tformula (UNTIL|RELEASE) tformula
+    	| <assoc=right> WEAK_NEXT LSQUARED? UINTEGER? NOT? RSQUARED? tformula
+    	| <assoc=right> STRONG_NEXT LSQUARED? UINTEGER? RSQUARED? tformula
+    	| <assoc=right> (ALWAYS|STRONG_ALWAYS) tformula 
+    	| <assoc=right> (EVENTUALLY|STRONG_EVENTUALLY) tformula 
+    	| <assoc=right> tformula (WEAK_UNTIL|STRONG_UNTIL|WEAK_RELEASE|STRONG_RELEASE) tformula
      	| tformula (TAND|AND) tformula 
     	| tformula (TOR|OR|BOR) tformula 
         | <assoc=right> tformula (IMPLO|IMPL) tformula
@@ -81,20 +82,40 @@ EVENTUALLY
     : 'F' | 'eventually'
     ;
 
+STRONG_EVENTUALLY
+    : 's_eventually'
+    ;
+
 ALWAYS
     : 'G' | 'always'
     ;
 
-NEXT
+STRONG_ALWAYS
+    : 's_always'
+    ;
+
+WEAK_NEXT
     : 'X' | 'nexttime' | 'next'
     ;
 
-UNTIL
-    : 'W' | 'until' | 'U'
+STRONG_NEXT
+    : 's_nexttime'
     ;
 
-RELEASE
+WEAK_UNTIL
+    : 'W' | 'until' 
+    ;
+
+STRONG_UNTIL
+    : 's_until' | 'U'
+    ;
+
+WEAK_RELEASE
     : 'R'
+    ;
+
+STRONG_RELEASE
+    : 'M'
     ;
 
 DOTS

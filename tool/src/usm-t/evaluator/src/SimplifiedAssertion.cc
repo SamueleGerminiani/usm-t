@@ -19,7 +19,7 @@ void remapTargets(
         &all_rtarget_toProposition) {
 
   progresscpp::ParallelProgressBar pb;
-  pb.addInstance(0, "Flattening specifications",
+  pb.addInstance(0, "Simplifying specifications",
                  all_rtarget_toProposition.size(), 70);
 
   //find semantically equivalent propositions
@@ -150,21 +150,22 @@ getSimplifiedAssertions(
 
   //retrieve flattened expected assertions
   for (const auto &a : expected_assertions) {
-   // messageErrorIf(
-   //     !isPropertyAlways(a->_formula),
-   //     "Expecting a safety assertion starting with G, got '" +
-   //         a->toString() + "'");
-    auto flattened_str = temp2RemapString(a->_formula, targetToRemap,
+    // messageErrorIf(
+    //     !isPropertyAlways(a->_formula),
+    //     "Expecting a safety assertion starting with G, got '" +
+    //         a->toString() + "'");
+    auto flattened_str =
+        temp2RemapString(a->_formula, targetToRemap,
                          Language::SpotLTL, PrintMode::ShowAll);
     ret["expected"].push_back({a, flattened_str});
   }
 
   //retrieve flattened mined assertions
   for (const auto &a : mined_assertions) {
-   // messageErrorIf(
-   //     !isPropertyAlways(a->_formula),
-   //     "Expecting a safety assertion starting with G, got '" +
-   //         a->toString() + "'");
+    // messageErrorIf(
+    //     !isPropertyAlways(a->_formula),
+    //     "Expecting a safety assertion starting with G, got '" +
+    //         a->toString() + "'");
     auto flattened_str =
         temp2RemapString(a->_formula, targetToRemap,
                          Language::SpotLTL, PrintMode::ShowAll);

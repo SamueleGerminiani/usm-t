@@ -24,9 +24,14 @@ public:
 
   ope::temporalOpe getOperator() override { return _op; }
 
+  void setStrongVersion() { _strong = true; }
+  bool isStrong() { return _strong; }
+
 private:
   /// The operator associated with this property.
   const ope::temporalOpe _op = Operator;
+  /// If true, the strong version of the property is used.
+  bool _strong = false;
 };
 
 using PropertyAlways =

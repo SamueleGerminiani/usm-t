@@ -8,18 +8,13 @@ enum class Language;
 
 // command line config
 namespace clc {
+///--ltlf
+extern bool useFiniteSemantics;
 ///--test
 extern std::string testFile;
-///--sva, --psl, --spotltl
-extern Language outputLang;
-///--sva-assert
-extern bool svaAssert;
-///--dump-trace-as-csv
-extern std::string dumpTraceAsCSV;
-///--max-threads
-extern size_t maxThreads;
 ///--dump-to
 extern std::string dumpPath;
+
 ///--silent
 extern bool silent;
 ///--wilent
@@ -28,5 +23,12 @@ extern bool wsilent;
 extern bool isilent;
 ///--psilent
 extern bool psilent;
+
+///--max-threads
+extern size_t maxThreads;
+///--sva, --psl, --spotltl
+extern Language outputLang;
+///--sva-assert
+extern bool svaAssert;
 } // namespace clc
 
