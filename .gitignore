@@ -21,6 +21,7 @@ tool/syntetic_gen/scripts/dotToSv.py
 tool/syntetic_gen/verilator_tests/obj_dir
 tool/syntetic_gen/temp/*
 tool/third_party/spot
+tool/third_party/ltlsynt
 tool/third_party/antlr4
 tool/third_party/boost
 tool/third_party/z3

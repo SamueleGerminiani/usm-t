@@ -97,7 +97,9 @@ cd tool/build
 ```
 
 #### Run the sample example
+```
 ./usm-t --test ../../tests/arb.xml
+```
 
 ## The configuration file
 

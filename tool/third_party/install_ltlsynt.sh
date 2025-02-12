@@ -10,18 +10,17 @@ fi
 
 if [ $# -eq 0 ]
 then
-    installPrefix="$(pwd)/spot"
-    mkdir spot
+    installPrefix="$(pwd)/ltlsynt"
+    mkdir ltlsynt
 else
     installPrefix="$1"
 fi
 
-
-wget --no-check-certificate http://www.lrde.epita.fr/dload/spot/spot-2.12.2.tar.gz
-tar -xvf spot-2.12.2.tar.gz && rm spot-2.12.2.tar.gz
-cd spot-2.12.2
+wget --no-check-certificate http://www.lrde.epita.fr/dload/spot/spot-2.9.7.tar.gz
+tar -xvf spot-2.9.7.tar.gz && rm spot-2.9.7.tar.gz
+cd spot-2.9.7
 ./configure --disable-python --prefix "$installPrefix"
 make -j"$NThreads"
 make install
 cd ../
-rm -rf spot-2.12.2
+rm -rf spot-2.9.7
