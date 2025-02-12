@@ -11,6 +11,11 @@ class Trace;
 using TracePtr = std::shared_ptr<Trace>;
 } // namespace harm
 
+namespace rapidxml {
+template <class Ch> class xml_node;
+using XmlNode = rapidxml::xml_node<char>;
+} // namespace rapidxml
+
 namespace usmt {
 
 struct TraceInput {
@@ -107,6 +112,7 @@ struct Input {
   std::string id;
   std::set<std::string> selected_type;
   std::string dest_dir;
+  rapidxml::XmlNode *xml_input;
 };
 
 struct Config {
@@ -138,6 +144,7 @@ struct UseCase {
   //used only in external use cases
   std::string external_spec_file_path;
 
+  rapidxml::XmlNode *xml_usecase;
 };
 
 struct Comparator {
@@ -154,5 +161,7 @@ struct Test {
   std::vector<Comparator> comparators;
   std::string mode;
   std::string name;
+
+  rapidxml::XmlNode *xml_test;
 };
 } // namespace usmt

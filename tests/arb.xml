@@ -93,7 +93,7 @@
   <!--
   - Define the test to run
   -->
-  <test name="arb2_test_1">
+  <test name="arb2_all_goals">
 
 
     <!--

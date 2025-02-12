@@ -73,6 +73,7 @@ void initPathHandler(UseCase &us) {
   ret.work_input = "input/";
   ret.work_output = "output/";
   ret.work_eval = "evaluation/";
+  ret.work_test_config_standalone = "config_standalone/";
   ret.work_original_input = "original_input/";
   ret.work_adapted = "adapted/";
 
@@ -96,6 +97,10 @@ void initPathHandler(UseCase &us) {
                                                       ret.work_eval),
                  "error while creating directory '" + ret.work_path +
                      ret.work_eval + "'");
+  messageErrorIf(!std::filesystem::create_directories(ret.work_path +
+                                                      ret.work_test_config_standalone),
+                 "error while creating directory '" + ret.work_path +
+                     ret.work_test_config_standalone + "'");
 
   if (!external) {
     //container

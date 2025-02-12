@@ -7,6 +7,7 @@
 #include "globals.hh"
 #include "message.hh"
 #include "misc.hh"
+#include "rapidxml.hh"
 #include "xmlUtils.hh"
 #include <filesystem>
 #include <memory>
@@ -24,11 +25,12 @@ std::vector<Test> parseTests(XmlNode *root);
 std::vector<Test> readTestFile(const std::string &filename) {
 
   try {
-    rapidxml::file<> xmlFile(filename.c_str());
-    rapidxml::xml_document<> doc;
-    doc.parse<0>(xmlFile.data());
+    rapidxml::file<> *xmlFile =
+        new rapidxml::file<>(filename.c_str());
+    rapidxml::xml_document<> *doc = new rapidxml::xml_document<>();
+    doc->parse<0>(xmlFile->data());
 
-    XmlNode *root = doc.first_node("usm-t");
+    XmlNode *root = doc->first_node("usm-t");
     if (root) {
       return parseTests(root);
     } else {
@@ -282,6 +284,7 @@ Input parseInput(XmlNode *inputNode) {
                        id + "'");
   }
   Input ret;
+  ret.xml_input = inputNode;
   ret.variants = std::make_tuple(vcd_in, csv_in, verilog_in);
   ret.id = id;
   return ret;
@@ -382,6 +385,7 @@ UseCase parseExternal(
     XmlNode *externalNode,
     const std::unordered_map<std::string, Input> &idToInput) {
   UseCase usecase;
+  usecase.xml_usecase = externalNode;
   usecase.usecase_id = getAttributeValue(externalNode, "id", "");
   messageErrorIf(usecase.usecase_id.empty(),
                  "Usecase id cannot be empty");
@@ -424,6 +428,7 @@ UseCase parseUseCase(
     const std::unordered_map<std::string, Input> &idToInput) {
   // Parse usecase
   UseCase usecase;
+  usecase.xml_usecase = usecaseNode;
   usecase.usecase_id = getAttributeValue(usecaseNode, "id", "");
   messageErrorIf(usecase.usecase_id.empty(),
                  "Usecase id cannot be empty");
@@ -536,6 +541,7 @@ std::vector<Test> parseTests(XmlNode *root) {
 
   for (auto testNode : testNodes) {
     Test test;
+    test.xml_test = testNode;
     test.name = getAttributeValue(testNode, "name", "");
     //test.mode = getAttributeValue(testNode, "mode", "");
     //messageErrorIf(test.name.empty() || test.mode.empty(),

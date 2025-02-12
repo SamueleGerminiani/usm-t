@@ -19,9 +19,9 @@ options.add_options()
 ("test", ".xml containing the usm-t test suite", cxxopts::value<std::string>(), "<FILE>")
 ( "dump-to", "dump summary report to file", cxxopts::value<std::string>(), "<DIRECTORY>")
 ( "ltlf", "enable evaluation of specifications with finite semantics (default false)")
-( "sva", " output assertions in SystemVerilog Assertion format")
-( "psl", " output assertions in PSL format")
-( "spotltl", " output assertions in spotLTL format")
+( "sva", "output assertions in SystemVerilog Assertion format")
+( "psl", "output assertions in PSL format")
+( "spotltl", "output assertions in spotLTL format")
 ( "silent", "disable all outputs")
 ("wsilent", "disable all warnings")
 ( "isilent", "disable all infos")
@@ -84,10 +84,12 @@ options.add_options()
 
     if (((result.count("vcd") == 1 || result.count("vcd-dir") == 1) &&
          result.count("clk") == 0) ||
-        (result.count("vcd") == 0 && result.count("vcd-dir") == 0) || result.count("dump-to") == 0) {
+        (result.count("vcd") == 0 && result.count("vcd-dir") == 0) ||
+        result.count("dump-to") == 0) {
       std::cout << "Usage:\n";
-      std::cout << "vcd2csv [--vcd <vcdFile> | --vcd-dir "
-                   "<dirPath>] --clk <clk> [<OptionalArguments...>]\n";
+      std::cout
+          << "vcd2csv [--vcd <vcdFile> | --vcd-dir "
+             "<dirPath>] --clk <clk> [<OptionalArguments...>]\n";
       exit(0);
     }
 

@@ -8,14 +8,15 @@
 #include "test_reader.hh"
 #include "usmt_evaluator.hh"
 #include "ustm_core.hh"
+#include "xmlUtils.hh"
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <iomanip>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <vector>
-#include <map>
 
 namespace usmt {
 
@@ -137,6 +138,65 @@ serializeForDocker(std::set<ExportedVariable> &exportedVariables) {
   ret += "\"";
 
   return ret;
+}
+void dumpConfigStandalone(const UseCase &uc, const Test &test,
+                          std::string dump_file) {
+  std::ofstream file(dump_file);
+
+  file << "<usm-t>\n";
+  file << rapidxml::xmlNodeToString(uc.input.xml_input);
+  file << rapidxml::xmlNodeToString(uc.xml_usecase);
+  file << "  <test";
+  std::map<std::string, std::string> allAttributes =
+      getAllAttributes(test.xml_test);
+  if (!allAttributes.empty()) {
+    for (auto attr : allAttributes) {
+      file << " " << attr.first << "=\"" << attr.second << "\"";
+    }
+  }
+  file << ">\n";
+  rapidxml::XmlNodeList usecaseNodes;
+  getNodesFromName(test.xml_test, "usecase", usecaseNodes);
+  auto found_us = std::find_if(
+      usecaseNodes.begin(), usecaseNodes.end(),
+      [&uc](rapidxml::xml_node<> *n) {
+        return getAttributeValue(n, "id", "") == uc.usecase_id;
+      });
+  if (found_us != usecaseNodes.end()) {
+    file << "  " << rapidxml::xmlNodeToString(*found_us);
+  }
+
+  rapidxml::XmlNodeList externalNodes;
+  getNodesFromName(test.xml_test, "external", externalNodes);
+  found_us = std::find_if(externalNodes.begin(), externalNodes.end(),
+                          [&uc](rapidxml::xml_node<> *n) {
+                            return getAttributeValue(n, "id", "") ==
+                                   uc.usecase_id;
+                          });
+  if (found_us != externalNodes.end()) {
+    file << "  " << rapidxml::xmlNodeToString(*found_us);
+  }
+
+  rapidxml::XmlNodeList compareNodes;
+  getNodesFromName(test.xml_test, "compare", compareNodes);
+  for (auto compareNode : compareNodes) {
+    file << "  " << rapidxml::xmlNodeToString(compareNode);
+  }
+
+  rapidxml::XmlNodeList expectedNodes;
+  getNodesFromName(test.xml_test, "expected", expectedNodes);
+  for (auto expectedNode : expectedNodes) {
+    file << "  " << rapidxml::xmlNodeToString(expectedNode);
+  }
+
+  file << "  </test>\n";
+  file << "</usm-t>\n";
+  file.close();
+
+  messageErrorIf(
+      std::filesystem::exists(dump_file) == false,
+      "Could not dump the standalone configuration file '" +
+          dump_file + "'");
 }
 
 void run() {
@@ -267,7 +327,8 @@ void run() {
         messageInfo("External use case " + use_case.usecase_id);
         messageErrorIf(getenv("MINED_SPECIFICATIONS_FILE") == nullptr,
                        "MINED_SPECIFICATIONS_FILE is not set");
-        std::string mined_file_name = getenv("MINED_SPECIFICATIONS_FILE");
+        std::string mined_file_name =
+            getenv("MINED_SPECIFICATIONS_FILE");
         //copy the external spec file to the output folder
         std::filesystem::copy(ph.external_spec_file_path,
                               ph.work_path + ph.work_output +
@@ -288,6 +349,16 @@ void run() {
         er->dumpTo(ph.work_path + ph.work_eval);
         useCaseToEvalReports[use_case.usecase_id].push_back(er);
       }
+
+      //DUMP THE CONFIG STANDALONE-------------------------
+      dumpConfigStandalone(use_case, test,
+                           ph.work_path +
+                               ph.work_test_config_standalone +
+                               "config.xml");
+      std::cout << ph.work_path + ph.work_test_config_standalone +
+                       "config.xml"
+                << "\n";
+
     } //end of use cases
 
     //report to best use case

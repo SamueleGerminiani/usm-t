@@ -16,6 +16,7 @@ public:
   std::string work_input = "";
   std::string work_output = "";
   std::string work_eval = "";
+  std::string work_test_config_standalone = "";
   std::string work_adapted = "";
   std::string work_original_input = "";
   std::string work_path = "";
