@@ -610,7 +610,7 @@ def run_hifsuite(specification):
 
     #copy the trace file to the output_folder
     try:
-        subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}", shell=True, check=True)
+        subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}traces/vcd", shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to copy trace file to {out_folder}. {e}")
         exit(1)
@@ -618,7 +618,7 @@ def run_hifsuite(specification):
     #clean up the hif_sim folder
     if not debug:
         try:
-            subprocess.run(f"rm -rf {hif_tb_prefix}injected {hif_tb_prefix}traces {hif_tb_prefix}rtl {hif_tb_prefix}*.xml" , shell=True, check=True)
+            subprocess.run(f"rm -rf {hif_tb_prefix}injected {hif_tb_prefix}rtl {hif_tb_prefix}*.xml" , shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to clean up the simulation directory. {e}")
             exit(1)
@@ -734,7 +734,7 @@ def populate_output_dir(dirpath):
         print(CERR +"Error:" + CEND + f"Failed to move specifications.txt to {dirpath}/specs. {e}")
         exit(1)
     try:
-        subprocess.run(f"mv {out_folder}*.vcd {dirpath}/traces/", shell=True, check=True)
+        subprocess.run(f"mv {out_folder}/traces {dirpath}", shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to move traces to {dirpath}/traces. {e}")
         exit(1)
@@ -748,23 +748,12 @@ def populate_output_dir(dirpath):
             exit(1)
 
 def generateCSV():
-    #get all the files in the traces folder
-    traces = [f for f in os.listdir(f"{out_folder}traces") if f.endswith(".vcd")]
-    #create the csv file
-    with open(f"{out_folder}traces.csv", 'w') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(['Trace', 'Faults'])
-        for trace in traces:
-            #parse the trace number
-            trace_number = re.search(r'\d+', trace).group()
-            #parse the number of faults
-            with open(f"{out_folder}traces/{trace}", 'r') as file:
-                lines = file.readlines()
-                for line in lines:
-                    if line.startswith("$dumpvars"):
-                        faults = line.split(' ')[-1]
-                        break
-            csvwriter.writerow([trace_number, faults])
+    #create the csv traces from vcd traces
+    try:
+        subprocess.run(f"{root}/tool/build/vcd2csv --vcd-dir {out_folder}traces/vcd --clk clock --vcd-ss \"top_module_bench::top_module_\" --dump-to {out_folder}traces/csv",stdout=subprocess.DEVNULL if not debug else None,stderr=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to convert vcd to csv. {e}")
+        exit(1)
 
 def main():
     import xml.etree.ElementTree as ET
@@ -802,6 +791,8 @@ def main():
     if not os.path.exists(out_folder):
         try:
             subprocess.run(f"mkdir -p {out_folder}", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/traces/vcd", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/traces/csv", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to create directory {out_folder}. errno: {e.returncode}")
             exit(1)
@@ -811,6 +802,12 @@ def main():
             subprocess.run(f"rm -rf {out_folder}*", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to clean directory {out_folder}. errno: {e.returncode}")
+            exit(1)
+        try:
+            subprocess.run(f"mkdir -p {out_folder}/traces/vcd", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/traces/csv", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to create directory {out_folder}. errno: {e.returncode}")
             exit(1)
     try:
         subprocess.run(f'touch {out_folder}/specifications.txt', shell=True, check=True)
@@ -891,7 +888,7 @@ def main():
     populate_output_dir(dirpath)
     
     print(CSTP + "5."  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
-    print(CSTP + "################# " + CEND + f"Procedure complete! All generated files can be found in {dirpath}" + CSTP + " #################"+ CEND + "\n\n")
+    print(CSTP + "#################" + CEND + f" Procedure complete! All generated files can be found in {dirpath} " + CSTP + "#################"+ CEND + "\n\n")
 
 
 if __name__ == "__main__":

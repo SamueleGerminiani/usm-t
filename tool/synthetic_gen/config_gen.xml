@@ -3,6 +3,6 @@
     <template ins="a" outs="c" text="G(..&amp;&amp;.. |=&gt; ..&amp;&amp;..)"/>
 
     
-    <parameter ntemplates="2" nant="2" ncon="1" nspec="3" parallel='1' debug='1' outdir='./final_design'/>
+    <parameter ntemplates="2" nant="2" ncon="1" nspec="3" parallel='1' debug='0' outdir='./final_design'/>
 </sygen>
 
