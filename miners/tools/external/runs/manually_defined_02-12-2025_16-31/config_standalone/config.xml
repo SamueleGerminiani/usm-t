@@ -1,0 +1,15 @@
+<usm-t>
+  <input id="0">
+    <vcd clk="clk" path="arb2/traces/bool/golden.vcd" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv path="arb2/traces/bool/golden.csv"/>
+    <verilog path="arb2/design_bool/arb2_bool.v"/>
+  </input>
+  <usecase id="harm_usecase_1_numeric">
+    <miner name="harm"/>
+    <input id="2" type="csv"/>
+    <config path="config1_numeric/generic.xml" type="support"/>
+    <config path="config1_numeric/run_miner.sh" type="run"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+  </usecase>
+</usm-t>

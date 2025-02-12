@@ -1,0 +1,2 @@
+Fault covered, Covered %,  Min Covering Size, Min Covering Set
+5, 62.5, 3, ["G((state && req1 && !req2) -> gnt1)"; "G((!state && req1) -> gnt1)"; "G((state && req2) -> gnt2)"]

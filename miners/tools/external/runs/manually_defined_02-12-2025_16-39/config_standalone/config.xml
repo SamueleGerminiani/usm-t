@@ -1,0 +1,12 @@
+<usm-t>
+  <input id="0">
+    <vcd clk="clk" path="arb2/traces/bool/golden.vcd" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv path="arb2/traces/bool/golden.csv"/>
+    <verilog path="arb2/design_bool/arb2_bool.v"/>
+  </input>
+  <external id="manually_defined">
+    <external_specifications path="input/arb2/external/manually_defined.txt"/>
+    <input id="0" type="vcd"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+  </external>
+</usm-t>
