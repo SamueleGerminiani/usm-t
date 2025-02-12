@@ -1,4 +1,0 @@
-Expected, CoveredWith, Similar
-G((!state && req1) -> gnt1), G((!state && req1) -> gnt1), None 
-G((state && req2) -> gnt2), G((state && req2) -> gnt2), None 
-G((state && req1 && !req2) -> gnt1), G((state && req1 && !req2) -> gnt1), None 
