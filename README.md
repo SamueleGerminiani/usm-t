@@ -102,7 +102,7 @@ cd tool/build
 ```
 
 #### Run the sample example
-./usm-t --test ../../tests/arb.xml
+./usm-t --test ../../tests/arb.xml --dump-to .
 
 ## The configuration file
 
@@ -168,6 +168,10 @@ The configuration file in XML format specifies inputs and use cases for testing 
 
 - Variables exported here can be used in the script to run the miner. The variables are passed as environment variables to the docker container running the miner.
 
+```xml
+ <docker image="samger/harm:latest"/>  
+```
+- The image to use for the docker container running the miner. The image must be available in the local machine.
 
 ```xml
 <external id="manually_defined">

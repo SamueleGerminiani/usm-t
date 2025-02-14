@@ -50,6 +50,9 @@
     Variables exported here can be used in the script to run the miner. The variables are passed as environment variables to the docker container running the miner.
     -->
     <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
+    <!--
+      The image to use for the docker container running the miner. The image must be available in the local machine.
+    -->
     <docker image="samger/harm:latest"/>  
   </usecase>
 
