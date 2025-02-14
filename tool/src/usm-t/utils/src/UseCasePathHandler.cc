@@ -104,8 +104,7 @@ void initPathHandler(UseCase &us) {
 
   if (!external) {
     //container
-    ret.run_container_path =
-        ret.tools_path + us.miner_name + "/docker/run_container.sh";
+    ret.run_container_path = ret.tools_path + "/run_docker_container.sh";
     messageErrorIf(!std::filesystem::exists(ret.run_container_path),
                    "Run container script '" + ret.run_container_path +
                        "' not found");

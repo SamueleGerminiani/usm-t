@@ -33,6 +33,12 @@ if [ ! -f "$in_path" ]; then
   exit 1
 fi
 
+# Ensure the substitutions file exists
+if [ ! -f "$substitutions_file" ]; then
+  echo "Error: Substitutions file '$substitutions_file' not found."
+  exit 1
+fi
+
 # Hardcoded replacements
 declare -A replacements=(
   ["\s"]=""  # Remove all spaces
@@ -59,4 +65,3 @@ do
     # Use sed to replace the text in the output file
     sed -i "s/$from/$to/g" "$out_path"
 done < "$substitutions_file"
-

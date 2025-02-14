@@ -300,6 +300,7 @@ void run() {
         //RUN THE MINER---------------------------------------
         std::string run_container_command = "";
         run_container_command = "bash " + ph.run_container_path;
+        run_container_command += " " + use_case.docker_image;
         //add the shared input and output paths
         run_container_command += " " + ph.work_path + ph.work_input;
         run_container_command += " " + ph.work_path + ph.work_output;
@@ -355,9 +356,8 @@ void run() {
                            ph.work_path +
                                ph.work_test_config_standalone +
                                "config.xml");
-      std::cout << ph.work_path + ph.work_test_config_standalone +
-                       "config.xml"
-                << "\n";
+      messageInfo("Dumping standalone test to '" + ph.work_path +
+                  ph.work_test_config_standalone + "config.xml'");
 
     } //end of use cases
 

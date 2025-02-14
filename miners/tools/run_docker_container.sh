@@ -1,7 +1,8 @@
-input_mount_volume=$1
-output_mount_volume=$2
-command_to_run_the_miner=$3
-xml_exported_vars=$4
+docker_image_name=$1
+input_mount_volume=$2
+output_mount_volume=$3
+command_to_run_the_miner=$4
+xml_exported_vars=$5
 
 docker run \
 --cpus $MAX_N_CORES \
@@ -9,5 +10,5 @@ docker run \
 -u root --rm -it \
 -v $input_mount_volume:/input:rw \
 -v $output_mount_volume:/output:rw \
-samger/harm:latest \
+$docker_image_name \
 $command_to_run_the_miner

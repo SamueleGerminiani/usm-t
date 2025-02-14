@@ -484,6 +484,17 @@ UseCase parseUseCase(
     }
   }
 
+  std::vector<rapidxml::xml_node<> *> dockerNodes;
+  getNodesFromName(usecaseNode, "docker", dockerNodes);
+  messageErrorIf(
+      dockerNodes.size() != 1,
+      "There should be exactly one docker tag in usecase '" +
+          usecase.usecase_id + "'");
+  usecase.docker_image =
+      getAttributeValue(dockerNodes[0], "image", "");
+  messageErrorIf(usecase.docker_image.empty(),
+                 "docker image cannot be empty in usecase '" +
+                     usecase.usecase_id + "'");
   //debug
   //if (!usecase.exports.empty()) {
   //  //print the exports

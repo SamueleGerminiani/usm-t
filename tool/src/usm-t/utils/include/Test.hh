@@ -145,6 +145,7 @@ struct UseCase {
   std::string external_spec_file_path;
 
   rapidxml::XmlNode *xml_usecase;
+  std::string docker_image = "";
 };
 
 struct Comparator {

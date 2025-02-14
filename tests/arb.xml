@@ -50,6 +50,7 @@
     Variables exported here can be used in the script to run the miner. The variables are passed as environment variables to the docker container running the miner.
     -->
     <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
+    <docker image="samger/harm:latest"/>  
   </usecase>
 
   <usecase id="texada_usecase_1">
@@ -59,6 +60,7 @@
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt"/>
+    <docker image="samger/texada:latest"/>  
   </usecase>
 
   <usecase id="samples2ltl_usecase_1">
@@ -67,7 +69,8 @@
     <config type="run" path="config1/run_miner.sh"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
-    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="50"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="10"/>
+    <docker image="samger/samples2ltl:latest"/>  
   </usecase>
 
   <usecase id="goldminer_usecase_1">
@@ -78,6 +81,7 @@
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="goldminer_to_spotltl/run.sh"/>
     <export VCD_FILE="golden.vcd" CLK="clk" TOP_MODULE="arb2" />
+    <docker image="samger/goldminer2:latest"/>  
   </usecase>
 
   <!--
@@ -101,11 +105,10 @@
     - They will appear in the summary report in alphabetical order
     -->
     <usecase id="harm_usecase_1_bool"/>
-    <usecase id="texada_usecase_1"/> 
     <usecase id="goldminer_usecase_1"/>
+    <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
     <external id="manually_defined"/>
-
 
     <!--
       - The path is relative to $USMT_ROOT/
@@ -142,6 +145,8 @@
     <config type="run" path="config1_numeric/run_miner.sh"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="numeric/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
+    <docker image="samger/harm:latest"/>  
   </usecase>
 
   <!--

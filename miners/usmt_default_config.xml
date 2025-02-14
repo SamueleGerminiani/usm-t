@@ -6,6 +6,7 @@
     <config type="support" path="?"/>
     <config type="run" path="?"/>
     <export MAX_THREADS="1" CONFIG="?" VCD_DIR="?" CLK="clk" VCD_SS="?"/>
+    <docker image="samger/harm:latest"/>  
   </miner>   
 
   <miner name="texada">
@@ -13,6 +14,7 @@
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt"/>
+    <docker image="samger/texada:latest"/>  
   </miner>
 
   <miner id="samples2ltl">
@@ -20,6 +22,7 @@
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="?"/>
+    <docker image="samger/samples2ltl:latest"/>  
   </miner>
 
   <miner id="goldminer">
@@ -28,6 +31,7 @@
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="goldminer_to_spotltl/run.sh"/>
     <export VCD_FILE="?" CLK="?" TOP_MODULE="?" />
+    <docker image="samger/goldminer2:latest"/>  
   </miner>
 
   <test name="?">
