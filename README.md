@@ -14,6 +14,8 @@
 
 [The configuration file](#the-configuration-file)
 
+[Generating synthetic benchmarks](#generating-synthetic-benchmarks)
+
 [Optional arguments](#optional-arguments)
 
 [Citations](#citations)
@@ -226,7 +228,10 @@ The configuration file in XML format specifies inputs and use cases for testing 
 ```
 
 - List of evaluation strategies to use
-- They will appear in the summary report in the same order as in this xml
+- They will appear in the summary report in the same order as in this XML
+
+## Generating synthetic benchmarks
+See tool/synthetic_gen/README.md
 
 ## Citations
 
