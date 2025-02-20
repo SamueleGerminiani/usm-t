@@ -102,7 +102,10 @@ cd tool/build
 ```
 
 #### Run the sample example
-./usm-t --test ../../tests/arb.xml --dump-to .
+
+```
+./usm-t --test ../../tests/arb2.xml --dump-to .
+```
 
 ## The configuration file
 
