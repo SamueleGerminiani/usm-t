@@ -292,7 +292,7 @@ Input parseInput(XmlNode *inputNode) {
 
 void parseConfigs(XmlNode *configNode, std::vector<Config> &configs) {
   XmlNodeList configNodes;
-  getNodesFromName(configNode, "config", configNodes);
+  getNodesFromName(configNode, "configuration", configNodes);
   for (auto cfgNode : configNodes) {
     Config config;
     config.type = getAttributeValue(cfgNode, "type", "");

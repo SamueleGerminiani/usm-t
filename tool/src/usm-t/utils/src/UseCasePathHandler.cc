@@ -61,7 +61,7 @@ void initPathHandler(UseCase &us) {
                        ret.configurations_path + "'");
   }
 
-  //--work folder
+  //work folder
   ret.work_path = ret.miner_path + "runs/" + us.usecase_id + "_" +
                   getCurrentDateTime() + "/";
   //check if the work folder exists

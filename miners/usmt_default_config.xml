@@ -1,16 +1,16 @@
-<usmt_default_config>
+<usmt_default_configuration>
 
   <miner name="harm">
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
-    <config type="support" path="?"/>
-    <config type="run" path="?"/>
+    <configuration type="support" path="?"/>
+    <configuration type="run" path="?"/>
     <export MAX_THREADS="1" CONFIG="?" VCD_DIR="?" CLK="clk" VCD_SS="?"/>
     <docker image="samger/harm:latest"/>  
   </miner>   
 
   <miner name="texada">
-    <config type="run" path="?"/>
+    <configuration type="run" path="?"/>
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt"/>
@@ -18,7 +18,7 @@
   </miner>
 
   <miner id="samples2ltl">
-    <config type="run" path="?"/>
+    <configuration type="run" path="?"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="?"/>
@@ -26,8 +26,8 @@
   </miner>
 
   <miner id="goldminer">
-    <config type="support" path="?"/>
-    <config type="run" path="?"/>
+    <configuration type="support" path="?"/>
+    <configuration type="run" path="?"/>
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="goldminer_to_spotltl/run.sh"/>
     <export VCD_FILE="?" CLK="?" TOP_MODULE="?" />
@@ -51,4 +51,4 @@
     <compare with_strategy="time_to_mine"/>
   </test>
 
-</usmt_default_config>
+</usmt_default_configuration>

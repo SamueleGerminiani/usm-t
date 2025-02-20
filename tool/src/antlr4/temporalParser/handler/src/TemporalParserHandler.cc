@@ -70,20 +70,21 @@ void TemporalParserHandler::exitSere_implication(
   TemporalExpressionPtr left = _tsubFormulas.top();
   _tsubFormulas.pop();
 
-  messageErrorIf(
+  messageWarningIf(
       clc::outputLang == Language::SVA &&
           (!isSere(left) && !isBooleanLayer(left)),
-      "SystemVerilog requires the antecedent of an "
+      "SystemVerilog output language detected, SVA requires the "
+      "antecedent of an "
       "implication to be a "
       "SERE, '" +
           temp2String(left, clc::outputLang,
                       PrintMode::ShowOnlyPermuationPlaceholders) +
           "' is not a SERE.\n"
-          "Change the output language to PSL or SpotLTL to "
-          "allow this.\n" +
+          "The semantics of the generated assertions might change "
+          "once they are printed, leading to hard-to-understand "
+          "errors. Do not ignore this.\n" +
           printErrorMessage());
 
-  //sere
   _tsubFormulas.push(generatePtr<PropertyImplication>(
       left, right, true,
       (ctx->SEREIMPLO() != nullptr) ? true : false));
@@ -122,12 +123,14 @@ void TemporalParserHandler::exitTformula(
     _tsubFormulas.pop();
     TemporalExpressionPtr left = _tsubFormulas.top();
     _tsubFormulas.pop();
-    messageErrorIf(
+    messageWarningIf(
         clc::outputLang == Language::SVA &&
             (ctx->IMPL() != nullptr || ctx->IMPLO() != nullptr),
-        "SystemVerilog implications requires to use |-> or |=>\n"
-        "Change the output language to PSL or SpotLTL to "
-        "allow the use of -> or =>\n" +
+        "SystemVerilog output language detected, SystemVerilog "
+        "implications requires to use |-> or |=>\n"
+        "The semantics of the generated assertions might change once "
+        "they are printed, leading to hard-to-understand errors. Do "
+        "not ignore this.\n" +
             printErrorMessage());
 
     //property
