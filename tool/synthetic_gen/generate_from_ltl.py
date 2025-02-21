@@ -831,7 +831,7 @@ def main():
         #TODO: this works only for multiple instances of the same template, if we get multiple templates we need to share assnumbs between them or just ignore it and have numtemplates*numassertions specifications
         for j, num in enumerate(range(1, assnumbs + 1), start=1):
             #expand special templates
-            if(specification['formula'].find('..##1..') or specification['formula'].find('..&&..')):
+            if '..##1..' in specification['formula'] or '..&&..' in specification['formula']:
                 if debug:
                     print(CDBG+"DEBUG_MSG"+CEND)
                     print(f"Expanding template")  
@@ -849,7 +849,7 @@ def main():
             # Write expanded formulas to a file
             with open(out_folder + 'specifications.txt', 'a') as file:
             #    file.write(f"Expanded formula {j} for template {i}:\n")
-                file.write(f"{expanded_formula['formula']}\n\n")
+                file.write(f"{expanded_formula['formula']}\n")
 
             #if module subdivision is enabled
             if(modules):

@@ -2,7 +2,7 @@
 |---|---|---|
 | Where is the output? add --output option (or similar to specify the output directory) |  | output directory is specified in the config, otherwise is default to "./synthetic_gen_output" |
 | Separate the faulty and golden traces in the output directory (see the arb2 input) |  |  |
-| Remove empty lines in expected specificatins |  |  |
+| Remove empty lines in expected specificatins | Fixed |  |
 | Length of traces input parameter missing |  |  |
 | Remove the configuration file, there are too few parameters to justify it, use command line arguments instead. Also use command line arguments to specify the templates (is this a good idea?) |  |  |
 | Add tests for most combinations of input parameters, including the different templates |  |  |
