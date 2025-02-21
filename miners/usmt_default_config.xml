@@ -1,54 +1,66 @@
-<usmt_default_configuration>
+<usm-t>
+  <input id="0">
+    <vcd path="<GOLDEN_VCD_FILE>" clk="<CLK>" rst="<RST>" scope="<VCD_SCOPE>"/>
+    <verilog_dir path="<VERILOG_DIR>"/>
+    <csv path="<CSV_FILE>"/>
+  </input>
 
-  <miner name="harm">
-    <input_adaptor path="csv_to_texada_log/run.sh"/>
-    <output_adaptor path="spin_to_spotltl/run.sh"/>
-    <configuration type="support" path="?"/>
-    <configuration type="run" path="?"/>
-    <export MAX_THREADS="1" CONFIG="?" VCD_DIR="?" CLK="clk" VCD_SS="?"/>
+  <usecase id="harm_default">
+    <miner name="harm"/>
+    <input id="0" type="vcd"/>
+    <configuration type="support" path="<HARM_CONFIGURATION>"/>
+    <configuration type="run" path="<HARM_RUN>"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CLK="<CLK>" SCOPE="<VCD_SCOPE>" CONFIG="<HARM_CONFIGURATION>"/>
     <docker image="samger/harm:latest"/>  
-  </miner>   
+  </usecase>
 
-  <miner name="texada">
-    <configuration type="run" path="?"/>
+  <usecase id="texada_default">
+    <miner name="texada"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="<TEXADA_RUN>"/>
     <input_adaptor path="csv_to_texada_log/run.sh"/>
     <output_adaptor path="spin_to_spotltl/run.sh"/>
     <export LOG_FILE="all_traces.txt"/>
     <docker image="samger/texada:latest"/>  
-  </miner>
+  </usecase>
 
-  <miner id="samples2ltl">
-    <configuration type="run" path="?"/>
+  <usecase id="samples2ltl_default">
+    <miner name="samples2ltl"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="<SAMPLES2LTL_RUN>"/>
     <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
     <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
-    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="?"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="100"/>
     <docker image="samger/samples2ltl:latest"/>  
-  </miner>
+  </usecase>
 
-  <miner id="goldminer">
-    <configuration type="support" path="?"/>
-    <configuration type="run" path="?"/>
+  <usecase id="goldminer_usecase_best">
+    <miner name="goldminer"/>
+    <input id="0" type="vcd,verilog"/>
+    <configuration type="support" path="<GOLDMINER_CONFIGURATION>"/>
+    <configuration type="run" path="<GOLDMINER_RUN>"/>
     <input_adaptor path="vcd_to_vcd/run.sh"/>
     <output_adaptor path="goldminer_to_spotltl/run.sh"/>
-    <export VCD_FILE="?" CLK="?" TOP_MODULE="?" />
+    <export VCD_FILE="<GOLDEN_VCD_FILE>" CLK="<CLK>" TOP_MODULE="<TOP_MODULE>"/>
     <docker image="samger/goldminer2:latest"/>  
-  </miner>
+  </usecase>
 
-  <test name="?">
-    <usecase id="?"/>
-    <usecase id="?"/>
-    <usecase id="?"/>
-    <usecase id="?"/>
+  <test name="<TEST_NAME>">
+    <usecase id="harm_default"/>
+    <usecase id="texada_default"/>
+    <usecase id="samples2ltl_default"/>
+    <usecase id="goldminer_default"/>
 
-
-    <expected path="?"/>
-
+    <expected path="<EXPECTED_FILE>"/>
     <compare with_strategy="n_mined"/>
     <compare with_strategy="syntactic_similarity"/>
     <compare with_strategy="semantic_equivalence"/>
     <compare with_strategy="hybrid_similarity"/>
-    <compare with_strategy="fault_coverage" faulty_traces="?" trace_type="?" />
+    <compare with_strategy="fault_coverage" faulty_traces="<FAULTY_VCD_DIR>" trace_type="vcd" clk="<CLK>" scope="<VCD_SCOPE>"/>
     <compare with_strategy="time_to_mine"/>
   </test>
 
-</usmt_default_configuration>
+</usm-t>
+
