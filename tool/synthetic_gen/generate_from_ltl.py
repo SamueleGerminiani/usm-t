@@ -1,3 +1,4 @@
+import re
 import subprocess
 import os
 import random
@@ -22,54 +23,88 @@ CSTP = '\033[42m'
 CEND = '\033[0m'
 
 #This needs to be changed to adapt to all the possible templates
-def expand_spec(specification, lenght, assnumb):
+#G(ant -> con)
+#G(..##N.. -> ..##M..)
+#G(..&&.. -> ..&&..)
+#G(..#N&.. -> ..#M&..)
+#G(..&&.. -> ..&&.. U ..&&..)
+#G(..&&.. -> F ..&&..)
+#numprops is a pair of max numprops in the antecedent and max number of propositions in the consequent
+def expand_spec(specification, numprops, assnumb):
     formula = specification['formula'] 
-    #first proposition is a, second is b and so on
-    # + { is needed beacause we are using SERE syntax 
-    ant_seq = "{" +  chr(97) + "_" + str(assnumb)
-    con_seq = "{" + chr(97 + (lenght[0])) + "_" + str(assnumb)
-    #initialize the inputs and outputs with the base propositions
-    ins = "a_" + str(assnumb)
-    outs = chr(97 + lenght[0]) + "_" + str(assnumb)
+    # Find all occurrences of '..&&..' or '..##N..' in the formula
+    #Need to use regex because the placeholders can have arbitrary numbers
+    placeholder_positions = {}
+    match = re.search(r'\(([^)]*)\)', formula)
+    formula_reduced = match.group(1) if match else formula
+    formula_parts = formula_reduced.split(' ')
+    implication_index = 0
+    #find placeholders in the formula and store their positions
+    for i, part in enumerate(formula_parts):
+        if re.fullmatch(r'..&&..', part) or re.fullmatch(r"..##\d+..", part) or re.fullmatch(r'..#\d+&..', part):
+            placeholder_positions[i] = part
+        if '>' in part:    
+            implication_index = i
+    if placeholder_positions == {}:
+        print(CERR +"Error:" + CEND + "No placeholders found in the formula. Please use '..&&..', '..##N..' or '..#N&..' as placeholders.")
+        exit(1)
 
-    if '..&&..' in formula:
-        #expand the antecedent
-        for i in range(1, lenght[0]):
-            ant_base = chr(97 + i)  # 97 is the ASCII value for 'a'
-            ins = ins + ',' + ant_base + "_" + str(assnumb)
-            ant_seq = ant_seq + " & " + ant_base + "_" + str(assnumb)
-        #expand the consequent
-        for i in range(lenght[0] + 1, lenght[1]+lenght[0]):
-            con_base = chr(97 + i)  # 97 is the ASCII value for 'a'
-            outs = outs + ',' + con_base + "_" + str(assnumb)
-            con_seq = con_seq + " & " + con_base + "_" + str(assnumb)
-        #close the sequence with } for SERE syntax
-        ant_seq = ant_seq + "}"
-        con_seq = con_seq + "}" 
-        # Replace only the first instance of '..&&..'
-        formula = formula.replace('..&&..', ant_seq,1)
-        # Replace the second instance of '..&&..'
-        formula = formula.replace('..&&..', con_seq)
-        
-    if '..##1..' in formula:
-        #expand the antecedent
-        for i in range(1, lenght[0]):
-            ant_base = chr(97 + i)  # 97 is the ASCII value for 'a'
-            ins = ins + ',' + ant_base + "_" + str(assnumb)
-            ant_seq = ant_seq + " ##1 " + ant_base + "_" + str(assnumb)
-        #expand the consequent
-        for i in range(lenght[0] + 1, lenght[1]+lenght[0]):
-            con_base = chr(97 + i)  # 97 is the ASCII value for 'a'
-            outs = outs + ',' + con_base + "_" + str(assnumb)
-            con_seq = con_seq + " ##1 " + con_base + "_" + str(assnumb)
+    # Expand the placeholders in the formula
+    # If we have two placeholders we will have only one antecedent and consequent sequence
+    # If we have three placeholders we will have two consequent sequences
+    ins = ""
+    outs = "" 
+    prop_seq = {}
+    
+    #97 because we start from 'a' in ASCII
+    current_prop = 97
+    for pos, ph in placeholder_positions.items():
+        match ph:
+            case '..&&..':
+                prop_seq[pos] = "{"
+                for i in range(0, numprops[0]):
+                    prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " & "
+                    if implication_index > pos:
+                        ins += chr(current_prop + i) + "_" + str(assnumb) + ","
+                    else:
+                        outs += chr(current_prop + i) + "_" + str(assnumb) + ","
+                prop_seq[pos] = prop_seq[pos][:-2] + "}"
+                current_prop += i + 1
+                
+            case ph if re.fullmatch(r'..##\d+..', ph):
+                # Extract the number between "##" and ".."
+                number = ph[4:-2]
+                prop_seq[pos] = "{"
+                for i in range(0, numprops[0]):
+                    prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " ##" + number + " "
+                    if implication_index > pos:
+                        ins += chr(current_prop + i) + "_" + str(assnumb) + ","
+                    else:
+                        outs += chr(current_prop + i) + "_" + str(assnumb) + ","
+                prop_seq[pos] = prop_seq[pos][:-4] + "}" 
+                current_prop += i + 1
 
-        #close the sequence with } for SERE syntax
-        ant_seq = ant_seq + "}"
-        con_seq = con_seq + "}" 
-        # Replace '..##1..' in the antecedent
-        formula = formula.replace('..##1..', ant_seq,1)
-        # Replace '..##1..' in the consequent
-        formula = formula.replace('..##1..',con_seq)
+            case ph if re.fullmatch(r'..#\d+&..', ph):
+                # Extract the number between "#" and "&"
+                number = ph[3:-3]
+                prop_seq[pos] = "{"
+                for i in range(0, numprops[0]):
+                    prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " ##" + number + " & "
+                    if implication_index > pos:
+                        ins += chr(current_prop + i) + "_" + str(assnumb) + ","
+                    else:
+                        outs += chr(current_prop + i) + "_" + str(assnumb) + ","
+                prop_seq[pos] = prop_seq[pos][:-6] + "}"
+                current_prop += i + 1
+            case _:
+                pass
+
+    ins = ins[:-1]            
+    outs = outs[:-1]
+    #replace the placeholders in the formula
+    for pos, ph in placeholder_positions.items():
+        formula_parts[pos] = prop_seq[pos]
+    formula = "G(" + ' '.join(formula_parts) + ")"
     #return the expanded formula
     ret_spec = {}
     ret_spec['formula'] = formula
@@ -79,6 +114,64 @@ def expand_spec(specification, lenght, assnumb):
         print(CDBG+"DEBUG_MSG"+CEND)
         print(f"Expanded formula: {ret_spec['formula']}")
     return ret_spec
+
+# def expand_spec(specification, lenght, assnumb):
+#     formula = specification['formula'] 
+#     #first proposition is a, second is b and so on
+#     # + { is needed beacause we are using SERE syntax 
+#     ant_seq = "{" +  chr(97) + "_" + str(assnumb)
+#     con_seq = "{" + chr(97 + (lenght[0])) + "_" + str(assnumb)
+#     #initialize the inputs and outputs with the base propositions
+#     ins = "a_" + str(assnumb)
+#     outs = chr(97 + lenght[0]) + "_" + str(assnumb)
+
+#     if '..&&..' in formula:
+#         #expand the antecedent
+#         for i in range(1, lenght[0]):
+#             ant_base = chr(97 + i)  # 97 is the ASCII value for 'a'
+#             ins = ins + ',' + ant_base + "_" + str(assnumb)
+#             ant_seq = ant_seq + " & " + ant_base + "_" + str(assnumb)
+#         #expand the consequent
+#         for i in range(lenght[0] + 1, lenght[1]+lenght[0]):
+#             con_base = chr(97 + i)  # 97 is the ASCII value for 'a'
+#             outs = outs + ',' + con_base + "_" + str(assnumb)
+#             con_seq = con_seq + " & " + con_base + "_" + str(assnumb)
+#         #close the sequence with } for SERE syntax
+#         ant_seq = ant_seq + "}"
+#         con_seq = con_seq + "}" 
+#         # Replace only the first instance of '..&&..'
+#         formula = formula.replace('..&&..', ant_seq,1)
+#         # Replace the second instance of '..&&..'
+#         formula = formula.replace('..&&..', con_seq)
+        
+#     if '..##1..' in formula:
+#         #expand the antecedent
+#         for i in range(1, lenght[0]):
+#             ant_base = chr(97 + i)  # 97 is the ASCII value for 'a'
+#             ins = ins + ',' + ant_base + "_" + str(assnumb)
+#             ant_seq = ant_seq + " ##1 " + ant_base + "_" + str(assnumb)
+#         #expand the consequent
+#         for i in range(lenght[0] + 1, lenght[1]+lenght[0]):
+#             con_base = chr(97 + i)  # 97 is the ASCII value for 'a'
+#             outs = outs + ',' + con_base + "_" + str(assnumb)
+#             con_seq = con_seq + " ##1 " + con_base + "_" + str(assnumb)
+
+#         #close the sequence with } for SERE syntax
+#         ant_seq = ant_seq + "}"
+#         con_seq = con_seq + "}" 
+#         # Replace '..##1..' in the antecedent
+#         formula = formula.replace('..##1..', ant_seq,1)
+#         # Replace '..##1..' in the consequent
+#         formula = formula.replace('..##1..',con_seq)
+#     #return the expanded formula
+#     ret_spec = {}
+#     ret_spec['formula'] = formula
+#     ret_spec['inputs'] = ins
+#     ret_spec['outputs'] = outs
+#     if debug:
+#         print(CDBG+"DEBUG_MSG"+CEND)
+#         print(f"Expanded formula: {ret_spec['formula']}")
+#     return ret_spec
 
 #Converts an AIGER file to a SystemVerilog file using Yosys
 #design_aiger: the name of the AIGER file to convert
@@ -779,7 +872,10 @@ def main():
     debug = args.debug == 1
     clk_name = args.clk
     dirpath = args.outdir
+    args.templates = args.templates.replace('"', '')
     templates = args.templates.split(',')
+   
+    templates = [template.replace('"', '') for template in templates]
 
     print(CSTP + "1." + CEND + "     " + CSTP + "Complete!" + CEND + " \n")
     print(CSTP + "2." + CEND + " Creating LTL specifications" + " \n")
@@ -830,7 +926,7 @@ def main():
         #TODO: this works only for multiple instances of the same template, if we get multiple templates we need to share assnumbs between them or just ignore it and have numtemplates*numassertions specifications
         for j, num in enumerate(range(1, assnumbs + 1), start=1):
             #expand special templates
-            if '..##1..' in specification['formula'] or '..&&..' in specification['formula']:
+            if '..' in specification['formula']:
                 if debug:
                     print(CDBG+"DEBUG_MSG"+CEND)
                     print(f"Expanding template")
