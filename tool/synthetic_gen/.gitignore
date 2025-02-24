@@ -8,3 +8,4 @@ hif_sim/injected/src/muffin
 hif_sim/injected/src/*.cpp
 hif_sim/injected/CMakeLists.txt
 hif_sim/traces
+synthetic_gen_output
