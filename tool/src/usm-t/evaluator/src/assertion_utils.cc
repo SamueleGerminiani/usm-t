@@ -80,9 +80,9 @@ std::vector<std::string>
 recoverTracesInDirectory(const std::string &path,
                          const std::string &extension) {
   messageErrorIf(!std::filesystem::exists(path),
-                 "Could not find '" + path + "'");
+                 "Recover traces: Could not find '" + path + "'");
   messageErrorIf(!std::filesystem::is_directory(path),
-                 "Not a directory: '" + path + "'");
+                 "Recover traces: Not a directory: '" + path + "'");
   std::vector<std::string> ret;
   for (const auto &entry :
        std::filesystem::directory_iterator(path)) {
@@ -91,6 +91,11 @@ recoverTracesInDirectory(const std::string &path,
       ret.push_back(entry.path().u8string());
     }
   }
+
+  messageErrorIf(
+      ret.empty(),
+      "Recover traces: could not find any traces in directory '" +
+          path + "'");
   return ret;
 }
 

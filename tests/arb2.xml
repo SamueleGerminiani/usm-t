@@ -9,8 +9,8 @@
       - Source designs are not checked for equivalence
       - clk and scope are mandatory when using vcd, the scope is the hierachical path from the top module separated with ::
     -->
-    <vcd path="arb2/traces/bool/golden.vcd" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
-    <csv path="arb2/traces/bool/golden.csv"/>
+    <vcd path="arb2/traces/bool/vcd/golden.vcd" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv path="arb2/traces/bool/csv/golden.csv"/>
     <verilog path="arb2/design_bool/arb2_bool.v"/>
   </input>
 
@@ -128,7 +128,7 @@
     <compare with_strategy="syntactic_similarity"/>
     <compare with_strategy="semantic_equivalence"/>
     <compare with_strategy="hybrid_similarity"/>
-    <compare with_strategy="fault_coverage" faulty_traces="input/arb2/faulty_traces/" trace_type="csv" />
+    <compare with_strategy="fault_coverage" faulty_traces="input/arb2/faulty_traces/csv/" trace_type="csv" />
     <compare with_strategy="time_to_mine"/>
   </test>
 
@@ -137,7 +137,7 @@
   -->
 
   <input id="2">
-    <csv path="arb2/traces/numeric/golden.csv"/>
+    <csv path="arb2/traces/numeric/csv/golden.csv"/>
     <verilog path="arb2/design_bool/arb2_bool.v"/>
   </input>
 
