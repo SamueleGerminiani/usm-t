@@ -11,6 +11,7 @@ ltlsynt_prefix = root + '/tool/third_party/spot/bin/'
 hif_tb_prefix = root + '/tool/synthetic_gen/hif_sim/'
 out_folder = root + '/tool/synthetic_gen/temp/'
 debug = False
+clk_name = "clock"
 #debug color
 CDBG = '\033[43m'
 #error color
@@ -83,10 +84,10 @@ def expand_spec(specification, lenght, assnumb):
 #design_aiger: the name of the AIGER file to convert
 #specification: the specification dictionary containing the inputs and outputs. Needed to fix yosys nonsense
 def aigerToSv(design_aiger, specification):
+    global clk_name
     input_file = design_aiger
     output_file = design_aiger.replace('.aiger', '.v')
     module_name = design_aiger.replace('.aiger', '')
-    clk_name = 'clock'
     yosys_command = f"yosys -p 'read_aiger  -module_name {module_name} -clk_name {clk_name} {out_folder}{input_file}; write_verilog {out_folder}{output_file}'"
     try:    
         subprocess.run(yosys_command, stdout=subprocess.DEVNULL, shell=True, check=True)
@@ -110,7 +111,7 @@ def aigerToSv(design_aiger, specification):
         module_name = parts[0]
 
         # Separate the clock, inputs, and outputs to create an ordered module port list
-        new_ports = ['clock'] + inputs.split(',') + outputs.split(',')
+        new_ports = [clk_name] + inputs.split(',') + outputs.split(',')
 
         # Create the new module declaration line
         new_module_decl = module_name + '(' + ', '.join(new_ports) + ');'
@@ -119,10 +120,10 @@ def aigerToSv(design_aiger, specification):
         lines[i] = new_module_decl + '\n'
 
         # Add clock input and wire declarations if not already present because yosys in non deterministic
-        if 'input clock;' not in lines:
-            lines.insert(i + 1, 'input clock;\n')
-        if 'wire clock;' not in lines:
-            lines.insert(i + 2, 'wire clock;\n')
+        if f'input {clk_name};' not in lines:
+            lines.insert(i + 1, f'input {clk_name};\n')
+        if f'wire {clk_name};' not in lines:
+            lines.insert(i + 2, f'wire {clk_name};\n')
 
         # Write the modified lines back to the file
         with open(out_folder + output_file, 'w') as file:
@@ -163,9 +164,10 @@ def synthesize_controller(specification, aiger_filename='top_module.aiger'):
 
 #Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
+    global clk_name
     #prefix of the top module 
     top_module = 'module top_module('
-    top_module += 'clock,' 
+    top_module += f'{clk_name},' 
     #all submodule inputs
     for spec in spec_list:
         top_module += spec['inputs'] + ','
@@ -176,7 +178,7 @@ def generate_top_module(spec_list):
         else:
             top_module += spec['outputs'] + ');\n'
     #start input declaration
-    top_module +='input clock,'
+    top_module +=f'input {clk_name},'
     for spec in spec_list:
         if(spec_list.index(spec) != len(spec_list) - 1):
             top_module += spec['inputs'] + ','
@@ -192,7 +194,7 @@ def generate_top_module(spec_list):
 
     # instantiate the submodules
     for spec in spec_list:
-        top_module += 'spec' + str(spec_list.index(spec)) + ' spec_sbm' + str(spec_list.index(spec)) + '(' + ".clock(clock), "
+        top_module += 'spec' + str(spec_list.index(spec)) + ' spec_sbm' + str(spec_list.index(spec)) + '(' + f".{clk_name}({clk_name}), "
         for input_signal in spec['inputs'].split(','):
             top_module += f".{input_signal}({input_signal}), "
         for output_signal in spec['outputs'].split(','):
@@ -230,6 +232,7 @@ def generate_circuit(specification,spec_list, modules):
 
 #Generate testbench for HIFSuite
 def generate_testbench(specification):
+    global clk_name
     #Get input and outputs
     inputs = specification.get('inputs', '').split(',')
     outputs = specification.get('outputs', '').split(',')
@@ -272,7 +275,7 @@ def generate_testbench(specification):
 
     #################################################
     #we need to this to dump as a wire 1 bit long
-    dump_string = "static std::vector<bool> vcd_clock = {0};\n "
+    dump_string = f"static std::vector<bool> vcd_{clk_name}"+"= {0};\n "
     zero = '{0}'
     for signal in inputs:
         dump_string += f"static std::vector<bool> vcd_{signal} = {zero};\n"
@@ -288,7 +291,7 @@ def generate_testbench(specification):
     #################################################
     #initVCDTrace function creation
     init_vcd_trace_string = "cpptracer::Tracer initVCDTrace(const std::string& name) {\n cpptracer::Tracer tracer(name, timeStep,\"top_module_bench\");\n tracer.addScope(\"top_module_\");\n\n"
-    init_vcd_trace_string += "tracer.addTrace(vcd_clock, \"clock\");\n"
+    init_vcd_trace_string += f"tracer.addTrace(vcd_{clk_name}, \"{clk_name}\");\n"
     for signal in inputs:
         init_vcd_trace_string += f"tracer.addTrace(vcd_{signal}, \"{signal}\");\n"
     for signal in outputs:
@@ -299,7 +302,7 @@ def generate_testbench(specification):
 
     #################################################
     #updateVCDTrace function creation
-    update_vcd_trace_string = "void updateVCDVariables(const top_module::top_module_iostruct& in) {\n vcd_clock[0] = in.clock;\n"
+    update_vcd_trace_string = "void updateVCDVariables(const top_module::top_module_iostruct& in) {\n"+ f"vcd_{clk_name}[0] = in." + f"{clk_name};\n"
     for signal in inputs:
         update_vcd_trace_string += f"vcd_{signal}[0] = in.{signal};\n"
     for signal in outputs:
@@ -336,7 +339,7 @@ def generate_testbench(specification):
           int32_t cycles_number = 0;
           size_t traceLength = 1000 * 2;  // 1000 positive and 1000 negative edges
 
-          bool clock_0 = 0;
+          bool """ + f"{clk_name}"+"""_0 = 0;
 
           printf("Simulate golden \\n");
 
@@ -347,7 +350,7 @@ def generate_testbench(specification):
 
           // in case of a rst
           top_module::top_module_iostruct in_rst_on;
-          in_rst_on.clock = clock_0;
+          """ + f"in_rst_on.{clk_name} = {clk_name}_0;\n" + """
           top_module_instance.simulate(&in_rst_on, cycles_number);
 
           srand(0);
@@ -355,12 +358,12 @@ def generate_testbench(specification):
           top_module::top_module_iostruct in;
 
           for (size_t k = 0; k < traceLength; ++k) {
-            clock_0 = !clock_0;
+        """ +    f"{clk_name}_0 = !{clk_name}_0;" + """
 
-            in.clock = clock_0;
+        """ +  f"in.{clk_name} = {clk_name}_0;" + """
 
             // in
-            if (!clock_0) {
+        """ +  f" if (!{clk_name}_0)" + """ { 
               setRandomInputs(in);
             }
 
@@ -405,20 +408,20 @@ def generate_testbench(specification):
               printf("Simulating fault number '%ld:%ld'\\n", muffin::instance_number,
                      muffin::fault_number);
           
-              clock_0 = 0;
+            """ + f"{clk_name}_0 = 0;" + """
               top_module::top_module_iostruct in_rst_on;
-              in_rst_on.clock = clock_0;
+            """ + f"in_rst_on.{clk_name} = {clk_name}_0;" + """
               top_module_instance.simulate(&in_rst_on, cycles_number);
               top_module_instance.initialize();
           
               top_module::top_module_iostruct in;
               bool faultFound = 0;
               for (size_t k = 0; k < traceLength; ++k) {
-                clock_0 = !clock_0;
+                """ + f"{clk_name}"+"""_0 = !""" + f"{clk_name}"+"""_0;
           
-                in.clock = clock_0;
+            """ + f"in.{clk_name} = {clk_name}_0;" + """
                 // in
-                if (!clock_0) {
+                if (!""" + f"{clk_name}"+"""_0) {
                   setInputsFromTraceSample(in, golden_trace[k]);
                 }
                 top_module_instance.simulate(&in, cycles_number);
@@ -426,7 +429,7 @@ def generate_testbench(specification):
                 faulty_trace.push_back(in);
           
                 // get the output
-                if (clock_0) {
+                if (""" + f"{clk_name}"+"""_0) {
                   if (!checkOutput(golden_trace[k], in)) {
                     faultFound = 1;
                   }
@@ -657,7 +660,7 @@ def generate_injectable_design():
         print(CERR +"Error:" + CEND + f"Failed to run a2tool. {e}")
         exit(1)
     
-    muffin_command = f"muffin {hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock clock --toplevel top_module --output {hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
+    muffin_command = f"muffin {hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {clk_name} --toplevel top_module --output {hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
     if debug:
         print(CDBG+"DEBUG_MSG"+CEND)
         print(f"Running command: {muffin_command} \n")
@@ -732,19 +735,16 @@ def populate_output_dir(dirpath):
             exit(1)
 
 def generateCSV():
+    global clk_name
     #create the csv traces from vcd traces
     try:
-        subprocess.run(f"{root}/tool/build/vcd2csv --vcd-dir {out_folder}faulty_traces/vcd --clk clock --vcd-ss \"top_module_bench::top_module_\" --dump-to {out_folder}faulty_traces/csv",stdout=subprocess.DEVNULL if not debug else None,stderr=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+        subprocess.run(f"{root}/tool/build/vcd2csv --vcd-dir {out_folder}faulty_traces/vcd --clk {clk_name} --vcd-ss \"top_module_bench::top_module_\" --dump-to {out_folder}faulty_traces/csv",stdout=subprocess.DEVNULL if not debug else None,stderr=subprocess.DEVNULL if not debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to convert vcd to csv. {e}")
         exit(1)
 
 def main():
     #input parameters
-    #if len(sys.argv) != 2:
-    #    print("Usage: python generate_from_ltl.py <config_file>")
-    #    exit(1)
-
     parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
     #number of propositions in the antecedent
     parser.add_argument('--nant', type=int, required=True, help='Number of antecedent propositions')
@@ -754,6 +754,8 @@ def main():
     parser.add_argument('--nspec', type=int, required=True, help='Number of specification per template ')
     #submodule generation procedure
     parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
+    #optional clock name 
+    parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
     #debug flag
     parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
     #output directory
@@ -766,6 +768,7 @@ def main():
         sys.exit(1)
     
     global debug 
+    global clk_name
 
     args = parser.parse_args()
     ant_props = args.nant
@@ -774,6 +777,7 @@ def main():
     assnumbs = args.nspec
     modules = args.parallel == 1
     debug = args.debug == 1
+    clk_name = args.clk
     dirpath = args.outdir
     templates = args.templates.split(',')
 
