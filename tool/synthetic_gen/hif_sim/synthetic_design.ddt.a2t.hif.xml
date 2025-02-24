@@ -1,0 +1,1731 @@
+<SYSTEM formatVersion="5.0" generationDate="15:10:43:624470" languageId="CPP" name="system" release="" revisionNumber="" tool="A2T">
+	<LIBRARYDEFS>
+		<LIBRARYDEF clinkage="false" languageId="CPP" name="hif_verilog_standard" standard="true"/>
+	</LIBRARYDEFS>
+	<DESIGNUNITS>
+		<DESIGNUNIT name="top_module">
+			<VIEW filename="" languageId="CPP" name="behav" standard="false">
+				<ENTITY name="Entity"/>
+				<CONTENTS name="Architecture">
+					<DECLARATIONS>
+						<VARIABLE instance="true" name="c_1_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="c_0_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="b_1_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="a_1_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="b_0_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="a_0_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="clock_old" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<TYPEDEF external="false" name="top_module_iostruct" opaque="true" standard="false">
+							<TYPE>
+								<RECORD constexpr="false" packed="false" typeVariant="NATIVE_TYPE" union="false">
+									<FIELD direction="IN" name="clock">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="IN" name="a_0">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="IN" name="b_0">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="IN" name="a_1">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="IN" name="b_1">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="OUT" name="c_0">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="OUT" name="d_0">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="OUT" name="c_1">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+									<FIELD direction="OUT" name="d_1">
+										<TYPE>
+											<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+										</TYPE>
+										<VALUE>
+											<BOOLVAL value="false">
+												<TYPE>
+													<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+												</TYPE>
+											</BOOLVAL>
+										</VALUE>
+									</FIELD>
+								</RECORD>
+							</TYPE>
+						</TYPEDEF>
+						<VARIABLE instance="true" name="hif_a2t_data" standard="false">
+							<TYPE>
+								<TYPEREFERENCE name="top_module_iostruct" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<RECORDVALUE>
+									<ALTS>
+										<RECORDVALUEALT name="clock">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="a_0">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="b_0">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="a_1">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="b_1">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="c_0">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="d_0">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="c_1">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+										<RECORDVALUEALT name="d_1">
+											<VALUE>
+												<BOOLVAL value="false">
+													<TYPE>
+														<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+													</TYPE>
+												</BOOLVAL>
+											</VALUE>
+										</RECORDVALUEALT>
+									</ALTS>
+								</RECORDVALUE>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__00_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__01_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__02_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__03_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__04_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__05_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__06_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__07_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm0__08_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__00_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__01_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__02_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__03_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__04_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__05_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__06_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__07_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="spec_sbm1__08_" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<PROCEDURE kind="INSTANCE" name="hif_cone_spec_sbm0__01_" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="hif_cone" standard="false">
+								<STATES>
+									<STATE atomic="false" name="hif_cone" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__02_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="c_0_old"/>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="17"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="17"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__03_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="b_0">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm0__02_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__06_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="b_0">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="c_0_old"/>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="20"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="20"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__07_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="a_0">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm0__06_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__04_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="a_0">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm0__03_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__08_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm0__07_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__05_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm0__04_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__00_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm0__05_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="17"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm0__08_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="22"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="22"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="22"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__01_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm0__00_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="18"/>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="hif_cone_spec_sbm1__01_" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="hif_cone" standard="false">
+								<STATES>
+									<STATE atomic="false" name="hif_cone" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__02_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="c_1_old"/>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="17"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="17"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__06_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="b_1">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="c_1_old"/>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="20"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="20"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__03_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="b_1">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm1__02_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__07_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="a_1">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm1__06_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__04_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<FIELDREFERENCE fieldName="a_1">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm1__03_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="21"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__08_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm1__07_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__05_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm1__04_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__00_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="&amp;&amp;">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm1__05_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="17"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<VALUE2>
+															<IDENTIFIER name="spec_sbm1__08_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="22"/>
+															</IDENTIFIER>
+														</VALUE2>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="22"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="22"/>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__01_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="12"/>
+													</IDENTIFIER>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="!">
+														<VALUE1>
+															<IDENTIFIER name="spec_sbm1__00_">
+																<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+															</IDENTIFIER>
+														</VALUE1>
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="18"/>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<FUNCTION kind="INSTANCE" name="__hif_constructor" standard="false">
+							<TYPE>
+								<VIEWREFERENCE name="behav" typeVariant="NATIVE_TYPE" unitName="top_module"/>
+							</TYPE>
+						</FUNCTION>
+						<PROCEDURE kind="INSTANCE" name="__hif_destructor" standard="false"/>
+						<VARIABLE instance="true" name="process_in_queue" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="flag_c_1" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="flag_c_0" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<VARIABLE instance="true" name="flag_pos_clock" standard="false">
+							<TYPE>
+								<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+							</TYPE>
+							<VALUE>
+								<BOOLVAL value="false">
+									<TYPE>
+										<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+								</BOOLVAL>
+							</VALUE>
+						</VARIABLE>
+						<PROCEDURE kind="INSTANCE" name="globact_process" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="globact_process" standard="false">
+								<STATES>
+									<STATE atomic="false" name="globact_process" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<IDENTIFIER name="c_1_old"/>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="15"/>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="globact_process_0" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="globact_process_0" standard="false">
+								<STATES>
+									<STATE atomic="false" name="globact_process_0" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<IDENTIFIER name="c_0_old"/>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="15"/>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="spec_sbm0_process_spec_sbm1_process_0" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="spec_sbm0_process_spec_sbm1_process_0" standard="false">
+								<STATES>
+									<STATE atomic="false" name="spec_sbm0_process_spec_sbm1_process_0" priority="0">
+										<ACTIONS>
+											<PCALL name="hif_cone_spec_sbm0__01_"/>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<IDENTIFIER name="spec_sbm0__01_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="11"/>
+													</IDENTIFIER>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec0.v" line_number="11"/>
+											</ASSIGN>
+											<PCALL name="hif_cone_spec_sbm1__01_"/>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<IDENTIFIER name="spec_sbm1__01_">
+														<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="11"/>
+													</IDENTIFIER>
+												</RIGHTHANDSIDE>
+												<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/spec1.v" line_number="11"/>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="update_input_queue" standard="false">
+							<PARAMETERS>
+								<PARAMETER direction="NONE" name="synch_phase">
+									<TYPE>
+										<BOOLEAN constexpr="false" typeVariant="NATIVE_TYPE"/>
+									</TYPE>
+									<VALUE>
+										<BOOLVAL value="true">
+											<TYPE>
+												<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+											</TYPE>
+										</BOOLVAL>
+									</VALUE>
+								</PARAMETER>
+							</PARAMETERS>
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="update_input_queue" standard="false">
+								<STATES>
+									<STATE atomic="false" name="update_input_queue" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="process_in_queue"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<BOOLVAL value="false">
+														<TYPE>
+															<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+														</TYPE>
+													</BOOLVAL>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<EXPRESSION operator="!==">
+															<VALUE1>
+																<FIELDREFERENCE fieldName="clock">
+																	<PREFIX>
+																		<IDENTIFIER name="hif_a2t_data"/>
+																	</PREFIX>
+																</FIELDREFERENCE>
+															</VALUE1>
+															<VALUE2>
+																<IDENTIFIER name="clock_old"/>
+															</VALUE2>
+														</EXPRESSION>
+													</CONDITION>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="clock_old"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<FIELDREFERENCE fieldName="clock">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+													<IF>
+														<ALT>
+															<CONDITION>
+																<EXPRESSION operator="===">
+																	<VALUE1>
+																		<FIELDREFERENCE fieldName="clock">
+																			<PREFIX>
+																				<IDENTIFIER name="hif_a2t_data"/>
+																			</PREFIX>
+																		</FIELDREFERENCE>
+																	</VALUE1>
+																	<VALUE2>
+																		<BOOLVAL value="true">
+																			<TYPE>
+																				<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																			</TYPE>
+																		</BOOLVAL>
+																	</VALUE2>
+																</EXPRESSION>
+															</CONDITION>
+															<ASSIGN>
+																<LEFTHANDSIDE>
+																	<IDENTIFIER name="flag_pos_clock"/>
+																</LEFTHANDSIDE>
+																<RIGHTHANDSIDE>
+																	<BOOLVAL value="true">
+																		<TYPE>
+																			<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																		</TYPE>
+																	</BOOLVAL>
+																</RIGHTHANDSIDE>
+															</ASSIGN>
+														</ALT>
+														<DEFAULTS>
+															<ASSIGN>
+																<LEFTHANDSIDE>
+																	<IDENTIFIER name="flag_pos_clock"/>
+																</LEFTHANDSIDE>
+																<RIGHTHANDSIDE>
+																	<BOOLVAL value="false">
+																		<TYPE>
+																			<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																		</TYPE>
+																	</BOOLVAL>
+																</RIGHTHANDSIDE>
+															</ASSIGN>
+														</DEFAULTS>
+													</IF>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="process_in_queue"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="true">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</ALT>
+												<DEFAULTS>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="flag_pos_clock"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="false">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</DEFAULTS>
+											</IF>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="a_0_old"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="b_0_old"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="a_1_old"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="b_1_old"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="update_event_queue" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="update_event_queue" standard="false">
+								<STATES>
+									<STATE atomic="false" name="update_event_queue" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="process_in_queue"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<BOOLVAL value="false">
+														<TYPE>
+															<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+														</TYPE>
+													</BOOLVAL>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<EXPRESSION operator="!==">
+															<VALUE1>
+																<FIELDREFERENCE fieldName="c_0">
+																	<PREFIX>
+																		<IDENTIFIER name="hif_a2t_data"/>
+																	</PREFIX>
+																</FIELDREFERENCE>
+															</VALUE1>
+															<VALUE2>
+																<IDENTIFIER name="c_0_old"/>
+															</VALUE2>
+														</EXPRESSION>
+													</CONDITION>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="c_0_old"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<FIELDREFERENCE fieldName="c_0">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="flag_c_0"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="true">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="process_in_queue"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="true">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</ALT>
+												<DEFAULTS>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="flag_c_0"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="false">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</DEFAULTS>
+											</IF>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<EXPRESSION operator="!==">
+															<VALUE1>
+																<FIELDREFERENCE fieldName="c_1">
+																	<PREFIX>
+																		<IDENTIFIER name="hif_a2t_data"/>
+																	</PREFIX>
+																</FIELDREFERENCE>
+															</VALUE1>
+															<VALUE2>
+																<IDENTIFIER name="c_1_old"/>
+															</VALUE2>
+														</EXPRESSION>
+													</CONDITION>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="c_1_old"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<FIELDREFERENCE fieldName="c_1">
+																<PREFIX>
+																	<IDENTIFIER name="hif_a2t_data"/>
+																</PREFIX>
+															</FIELDREFERENCE>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="flag_c_1"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="true">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="process_in_queue"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="true">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</ALT>
+												<DEFAULTS>
+													<ASSIGN>
+														<LEFTHANDSIDE>
+															<IDENTIFIER name="flag_c_1"/>
+														</LEFTHANDSIDE>
+														<RIGHTHANDSIDE>
+															<BOOLVAL value="false">
+																<TYPE>
+																	<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+																</TYPE>
+															</BOOLVAL>
+														</RIGHTHANDSIDE>
+													</ASSIGN>
+												</DEFAULTS>
+											</IF>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="flag_elaboration" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="flag_elaboration" standard="false">
+								<STATES>
+									<STATE atomic="false" name="flag_elaboration" priority="0">
+										<ACTIONS>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<IDENTIFIER name="flag_c_1"/>
+													</CONDITION>
+													<PCALL name="globact_process"/>
+												</ALT>
+											</IF>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<IDENTIFIER name="flag_c_0"/>
+													</CONDITION>
+													<PCALL name="globact_process_0"/>
+												</ALT>
+											</IF>
+											<IF>
+												<ALT>
+													<CONDITION>
+														<IDENTIFIER name="flag_pos_clock"/>
+													</CONDITION>
+													<PCALL name="spec_sbm0_process_spec_sbm1_process_0"/>
+												</ALT>
+											</IF>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="synch_elaboration" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="synch_elaboration" standard="false">
+								<STATES>
+									<STATE atomic="false" name="synch_elaboration" priority="0">
+										<ACTIONS>
+											<PCALL name="update_input_queue">
+												<PARAMETERASSIGN direction="NONE" name="synch_phase">
+													<VALUE>
+														<BOOLVAL value="true">
+															<TYPE>
+																<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+															</TYPE>
+														</BOOLVAL>
+													</VALUE>
+												</PARAMETERASSIGN>
+											</PCALL>
+											<PCALL name="flag_elaboration"/>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="flag_pos_clock"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<BOOLVAL value="false">
+														<TYPE>
+															<BOOLEAN constexpr="true" typeVariant="NATIVE_TYPE"/>
+														</TYPE>
+													</BOOLVAL>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<PCALL name="update_event_queue"/>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="simulate" standard="false">
+							<PARAMETERS>
+								<PARAMETER direction="NONE" name="io_exchange">
+									<TYPE>
+										<POINTER typeVariant="NATIVE_TYPE">
+											<TYPEREFERENCE name="top_module_iostruct" typeVariant="NATIVE_TYPE"/>
+										</POINTER>
+									</TYPE>
+								</PARAMETER>
+								<PARAMETER direction="NONE" name="cycles_number">
+									<TYPE>
+										<REFERENCE typeVariant="NATIVE_TYPE">
+											<INTEGER constexpr="true" signed="true" typeVariant="NATIVE_TYPE">
+												<SPAN direction="DOWNTO">
+													<LEFTBOUND>
+														<INTVAL value="31"/>
+													</LEFTBOUND>
+													<RIGHTBOUND>
+														<INTVAL value="0"/>
+													</RIGHTBOUND>
+												</SPAN>
+											</INTEGER>
+										</REFERENCE>
+									</TYPE>
+								</PARAMETER>
+							</PARAMETERS>
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="simulate" standard="false">
+								<STATES>
+									<STATE atomic="false" name="simulate" priority="0">
+										<ACTIONS>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="clock">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="clock">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_0">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_0">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="a_1">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="b_1">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<IDENTIFIER name="cycles_number"/>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<EXPRESSION operator="+">
+														<VALUE1>
+															<IDENTIFIER name="cycles_number"/>
+														</VALUE1>
+														<VALUE2>
+															<INTVAL value="1">
+																<TYPE>
+																	<INTEGER constexpr="true" signed="true" typeVariant="NATIVE_TYPE">
+																		<SPAN direction="DOWNTO">
+																			<LEFTBOUND>
+																				<INTVAL value="31"/>
+																			</LEFTBOUND>
+																			<RIGHTBOUND>
+																				<INTVAL value="0"/>
+																			</RIGHTBOUND>
+																		</SPAN>
+																	</INTEGER>
+																</TYPE>
+															</INTVAL>
+														</VALUE2>
+													</EXPRESSION>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<PCALL name="synch_elaboration"/>
+											<WHILE doWhile="false" name="">
+												<CONDITION>
+													<IDENTIFIER name="process_in_queue"/>
+												</CONDITION>
+												<ACTIONS>
+													<PCALL name="flag_elaboration"/>
+													<PCALL name="update_event_queue"/>
+												</ACTIONS>
+											</WHILE>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_0">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_0">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_0">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_1">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="c_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+											<ASSIGN>
+												<LEFTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_1">
+														<PREFIX>
+															<IDENTIFIER name="io_exchange"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</LEFTHANDSIDE>
+												<RIGHTHANDSIDE>
+													<FIELDREFERENCE fieldName="d_1">
+														<PREFIX>
+															<IDENTIFIER name="hif_a2t_data"/>
+														</PREFIX>
+													</FIELDREFERENCE>
+												</RIGHTHANDSIDE>
+											</ASSIGN>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="start_of_simulation" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="start_of_simulation" standard="false">
+								<STATES>
+									<STATE atomic="false" name="start_of_simulation" priority="0">
+										<ACTIONS>
+											<PCALL name="globact_process"/>
+											<PCALL name="globact_process_0"/>
+											<PCALL name="spec_sbm0_process_spec_sbm1_process_0"/>
+											<PCALL name="update_event_queue"/>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="initialize" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="initialize" standard="false">
+								<STATES>
+									<STATE atomic="false" name="initialize" priority="0">
+										<ACTIONS>
+											<PCALL name="start_of_simulation"/>
+										</ACTIONS>
+									</STATE>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+						<PROCEDURE kind="INSTANCE" name="finalize" standard="false">
+							<STATETABLE dontinitialize="false" entryStateName="" flavour="HDL" name="finalize" standard="false">
+								<STATES>
+									<STATE atomic="false" name="finalize" priority="0"/>
+								</STATES>
+							</STATETABLE>
+						</PROCEDURE>
+					</DECLARATIONS>
+				</CONTENTS>
+				<CODE_INFO column_number="0" file="/home/magister/usm-t/tool/synthetic_gen/hif_sim/rtl/top_module.v" line_number="7"/>
+			</VIEW>
+		</DESIGNUNIT>
+	</DESIGNUNITS>
+</SYSTEM>

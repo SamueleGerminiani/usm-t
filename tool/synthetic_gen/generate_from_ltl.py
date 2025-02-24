@@ -3,6 +3,7 @@ import os
 import random
 import copy 
 import sys
+import argparse
 
 root = os.environ["USMT_ROOT"]
 yosis_prefix = root + '/tool/third_party/oss-cad-suite/bin/'
@@ -19,7 +20,7 @@ CSTP = '\033[42m'
 #terminal color reset
 CEND = '\033[0m'
 
-
+#This needs to be changed to adapt to all the possible templates
 def expand_spec(specification, lenght, assnumb):
     formula = specification['formula'] 
     #first proposition is a, second is b and so on
@@ -610,7 +611,7 @@ def run_hifsuite(specification):
 
     #copy the trace file to the output_folder
     try:
-        subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}traces/vcd", shell=True, check=True)
+        subprocess.run(f"cp {hif_tb_prefix}/injected/traces/*.vcd {out_folder}faulty_traces/vcd", shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to copy trace file to {out_folder}. {e}")
         exit(1)
@@ -691,12 +692,14 @@ def generate_injectable_design():
 
 #Support function that moves the generated files to the designated output folder
 def populate_output_dir(dirpath):
+
     #if the directories do not exist create it
     if not os.path.exists(dirpath):
         try:
             subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
-            subprocess.run(f"mkdir -p {dirpath}/specs", shell=True, check=True)
+            subprocess.run(f"mkdir -p {dirpath}/expected", shell=True, check=True)
             subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
+            subprocess.run(f"mkdir -p {dirpath}/faulty_traces", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}. errno: {e.returncode}")
             exit(1)
@@ -708,11 +711,11 @@ def populate_output_dir(dirpath):
                 print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/design. errno: {e.returncode}")
                 exit(1)
 
-        if not os.path.exists(dirpath + '/specs'):
+        if not os.path.exists(dirpath + '/expected'):
             try:
-                subprocess.run(f"mkdir -p {dirpath}/specs", shell=True, check=True)
+                subprocess.run(f"mkdir -p {dirpath}/expected", shell=True, check=True)
             except subprocess.CalledProcessError as e:
-                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/specs. errno: {e.returncode}")
+                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/expected. errno: {e.returncode}")
                 exit(1)
 
         if not os.path.exists(dirpath + '/traces'):
@@ -720,6 +723,13 @@ def populate_output_dir(dirpath):
                 subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
             except subprocess.CalledProcessError as e:
                 print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/traces. errno: {e.returncode}")
+                exit(1)
+                
+        if not os.path.exists(dirpath + '/faulty_traces'):
+            try:
+                subprocess.run(f"mkdir -p {dirpath}/faulty_traces", shell=True, check=True)
+            except subprocess.CalledProcessError as e:
+                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/faulty_traces. errno: {e.returncode}")
                 exit(1)
 
     #populate every subdirectory
@@ -729,14 +739,19 @@ def populate_output_dir(dirpath):
         print(CERR +"Error:" + CEND + f"Failed to move files to {dirpath}/design. {e}")
         exit(1)
     try:
-        subprocess.run(f"mv {out_folder}specifications.txt {dirpath}/specs/", shell=True, check=True)
+        subprocess.run(f"mv {out_folder}specifications.txt {dirpath}/expected/", shell=True, check=True)
     except  subprocess.CalledProcessError as e:
-        print(CERR +"Error:" + CEND + f"Failed to move specifications.txt to {dirpath}/specs. {e}")
+        print(CERR +"Error:" + CEND + f"Failed to move specifications.txt to {dirpath}/expected. {e}")
         exit(1)
     try:
         subprocess.run(f"mv {out_folder}/traces {dirpath}", shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to move traces to {dirpath}/traces. {e}")
+        exit(1)
+    try:
+        subprocess.run(f"mv {out_folder}/faulty_traces {dirpath}", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to move faulty_traces to {dirpath}/faulty_traces. {e}")
         exit(1)
 
     #clean the output folder
@@ -750,41 +765,51 @@ def populate_output_dir(dirpath):
 def generateCSV():
     #create the csv traces from vcd traces
     try:
-        subprocess.run(f"{root}/tool/build/vcd2csv --vcd-dir {out_folder}traces/vcd --clk clock --vcd-ss \"top_module_bench::top_module_\" --dump-to {out_folder}traces/csv",stdout=subprocess.DEVNULL if not debug else None,stderr=subprocess.DEVNULL if not debug else None, shell=True, check=True)
+        subprocess.run(f"{root}/tool/build/vcd2csv --vcd-dir {out_folder}faulty_traces/vcd --clk clock --vcd-ss \"top_module_bench::top_module_\" --dump-to {out_folder}faulty_traces/csv",stdout=subprocess.DEVNULL if not debug else None,stderr=subprocess.DEVNULL if not debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(CERR +"Error:" + CEND + f"Failed to convert vcd to csv. {e}")
         exit(1)
 
 def main():
-    import xml.etree.ElementTree as ET
-    #need this because of scopes
+    #input parameters
+    #if len(sys.argv) != 2:
+    #    print("Usage: python generate_from_ltl.py <config_file>")
+    #    exit(1)
+
+    parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
+    #number of propositions in the antecedent
+    parser.add_argument('--nant', type=int, required=True, help='Number of antecedent propositions')
+    #number of propositions in the consequent
+    parser.add_argument('--ncon', type=int, required=True, help='Number of consequent propositions')
+    #total number of specifications of the design
+    parser.add_argument('--nspec', type=int, required=True, help='Number of specification per template ')
+    #submodule generation procedure
+    parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
+    #debug flag
+    parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
+    #output directory
+    parser.add_argument('--outdir', type=str, default='./synthetic_gen_output', help='Output directory')
+    #template string
+    parser.add_argument('--templates', type=str, required=True, help='List of template files')
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    
     global debug 
 
-    #input parameters
-    if len(sys.argv) != 2:
-        print("Usage: python generate_from_ltl.py <config_file>")
-        exit(1)
-    config_file = sys.argv[1]
-    config_tree = ET.parse(config_file)
-    config_root = config_tree.getroot()
-
-    print(CSTP + "1." + CEND + " Parsing configuration file" + " \n")
-
-    template_number = int(config_root.find('parameter').attrib['ntemplates'])
-    ant_props = int(config_root.find('parameter').attrib['nant'])
-    con_props = int(config_root.find('parameter').attrib['ncon'])
+    args = parser.parse_args()
+    ant_props = args.nant
+    con_props = args.ncon
     numprops = (ant_props, con_props)
-    assnumbs = int(config_root.find('parameter').attrib['nspec'])
-    modules = config_root.find('parameter').attrib['parallel'] == "1"
-    templates = config_root.findall('template')
-    debug = config_root.find('parameter').attrib['debug'] == "1"
-    if 'outdir' in config_root.find('parameter').attrib:
-        dirpath = config_root.find('parameter').attrib['outdir']
-    else:
-        dirpath = './synthetic_gen_output'
+    assnumbs = args.nspec
+    modules = args.parallel == 1
+    debug = args.debug == 1
+    dirpath = args.outdir
+    templates = args.templates.split(',')
 
-    print(CSTP + "1."  + CEND + "     " + CSTP + "Complete!" + CEND +  " \n")
-    print(CSTP + "2."  + CEND + " Creating LTL specifications" + " \n")
+    print(CSTP + "1." + CEND + "     " + CSTP + "Complete!" + CEND + " \n")
+    print(CSTP + "2." + CEND + " Creating LTL specifications" + " \n")
 
     merged_specification = {}
     #check if the output folder exists and create it if needed
@@ -793,6 +818,8 @@ def main():
             subprocess.run(f"mkdir -p {out_folder}", shell=True, check=True)
             subprocess.run(f"mkdir -p {out_folder}/traces/vcd", shell=True, check=True)
             subprocess.run(f"mkdir -p {out_folder}/traces/csv", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/faulty_traces/vcd", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/faulty_traces/csv", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to create directory {out_folder}. errno: {e.returncode}")
             exit(1)
@@ -806,6 +833,8 @@ def main():
         try:
             subprocess.run(f"mkdir -p {out_folder}/traces/vcd", shell=True, check=True)
             subprocess.run(f"mkdir -p {out_folder}/traces/csv", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/faulty_traces/vcd", shell=True, check=True)
+            subprocess.run(f"mkdir -p {out_folder}/faulty_traces/csv", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to create directory {out_folder}. errno: {e.returncode}")
             exit(1)
@@ -817,27 +846,29 @@ def main():
     #This is used to count the global number of specifications thata has been generated so far
     specounter = 0
 
-    #randomly select template_number templates
-    random_templates = random.sample(templates, template_number)
     #This will be used in case of module subdivision
     spec_list = []
     #iterate over the selected templates to expand them and merge them
-    for i, template in enumerate(random_templates, start=1):
+    for i, template in enumerate(templates, start=1):
         specification = {}
-        specification['formula'] = template.attrib['text']
-        specification['inputs'] = template.attrib['ins']
-        specification['outputs'] = template.attrib['outs']
-        
+        #Get the template string
+        specification['formula'] = template
+      
         #TODO: this works only for multiple instances of the same template, if we get multiple templates we need to share assnumbs between them or just ignore it and have numtemplates*numassertions specifications
         for j, num in enumerate(range(1, assnumbs + 1), start=1):
             #expand special templates
             if '..##1..' in specification['formula'] or '..&&..' in specification['formula']:
                 if debug:
                     print(CDBG+"DEBUG_MSG"+CEND)
-                    print(f"Expanding template")  
+                    print(f"Expanding template")
+
+                specification['inputs'] = ""
+                specification['outputs'] = "" 
                 expanded_formula = expand_spec(specification,numprops,specounter)
             else: 
-                expanded_formula = specification
+                print(CERR +"Error:" + CEND + f"Template {i} not recognized. Please use '..##1..' or '..&&..' in the template string")   
+                exit(1)
+
             # update merged_specification structure
             if(merged_specification.get('formula') == None):
                 merged_specification = expanded_formula
@@ -858,6 +889,7 @@ def main():
                 
             #update the global spec counter    
             specounter += 1
+
     if debug:
         print(CDBG+"DEBUG_MSG"+CEND)
         print("Merged specification:")
@@ -879,6 +911,13 @@ def main():
     if os.path.exists(f"{root}/tool/build/vcd2csv"):
         print(CSTP +"4.5" + CEND + " Creating CSV traces" + " \n")
         generateCSV()
+
+        try:
+            subprocess.run(f"mv {out_folder}/faulty_traces/csv/golden.csv {out_folder}/faulty_traces/csv/", shell=True, check=True)
+            subprocess.run(f"mv {out_folder}/faulty_traces/vcd/golden.vcd {out_folder}/faulty_traces/vcd/", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to move golden traces to {out_folder}/traces. {e}")
+
         print(CSTP + "4.5"  + CEND +"     " + CSTP + "Complete!" + CEND +  " \n")
     else:
         print(CERR +"4.5" + CEND + " Skipping CSV traces creation")
