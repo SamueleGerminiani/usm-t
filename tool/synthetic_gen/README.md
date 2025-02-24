@@ -6,16 +6,15 @@ This project allows to generate automatically a verilog implementation starting 
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-- [Features](#features)
-- [Contributing](#contributing)
+- [Arguments](#Arguments)
 - [Contact](#contact)
 
 ## Installation
-The requirements for the usage of generate_from_ltl.py are the following:
-    - Python (at least 3.10)
-    - ltlsynt (see ../third_party/spot_install.sh)
-    - yosys (see ../third_party/install_os-cad.sh)
-    - hif_suite (see ../third_party/install_hifsuite.sh)
+The requirements for the usage of generate_from_ltl.py are the following:    
+- Python (at least 3.10)
+- ltlsynt (see ../third_party/install_ltlsynt.sh)
+- yosys (see ../third_party/install_os-cad.sh)
+- hif_suite (see ../third_party/install_hifsuite.sh)
 
 To use correctly the gen script ltlsynt, yosys and hif binaries need to be added to the $PATH, you can do it using the env setup script in this repository as follows:
 ```bash
@@ -23,9 +22,13 @@ To use correctly the gen script ltlsynt, yosys and hif binaries need to be added
 cd path/to/usm-t_root
 
 # set the PATH to the necessary tools
-source env-setup.sh
-
+source scripts/setupEnvironment.sh
 ```
+
+**[OPTIONAL] CSV TRACES GENERATION**
+
+It is possible to also generate execution traces in the .csv format (default is only .vcd traces).
+To enable this functionality "vcd2csv" needs to be compiled using the USM-T compilation procedure (see ../../README.md)
 
 ## Usage
 To run the generation of verilog designs simply use the following command from the "tool/syntetic_gen" folder: 
@@ -35,40 +38,35 @@ To run the generation of verilog designs simply use the following command from t
 python generate_from_ltl.py config_file.xml
 ```
 
-## Expanding the template library
+## Arguments
+The program generates a verilog design based on templates provided in input.
 
-The program generates a verilog design based on templates contained in the config.xml file provided as input. If you wish to add a new template to the generation script you can modify the configuration file as you please.
+You can see all the cmd line options by running:
 
-The configuration file provides as the parameters necessary for the automatic syntesys and simulation of a design.
-Here is an example of an accepted input file:
-
-```xml
-<sygen>
-    <template ins="a" outs="c" text="G(..##1.. |=&gt; ..##1..)"/>
-    <template ins="a" outs="c" text="G(..&amp;&amp;.. |=&gt; ..&amp;&amp;..)"/>
-    <template ins="ant" outs="con" text="G( ant |=&gt; con)"/>
-    
-    <parameter ntemplates="2" nant="2" ncon="1" nspec="3" parallel='1' />
-</sygen>
-
+```bash
+python generate_from_ltl -h
 ```
 
-The configuration file contains two main elements:
+Here is a brief explanation of the program inputs:
+- **[Optional] h**: Prints the terminal help message
+- **nant**: number of proposition that will be used for expanding the antecedent
+- **ncon**: number of propositions that will be used for expanding the consequent
+- **nspec**: number of specification that will be used to generate the design
+- **parallel**: boolean value (0 or 1). If set to 1 each specification will be used to generate a standalone module. If set to 0 a single monolitic module will be generated
+- **[Optional] clk**: String that can be used to specify a custom clock name 
+- **debug**: bolean value. If 1 enable debug features
+- **[Optional] outdir**: path to the directory for the generated files. If not specified the default directory is ".synthetic_gen_output"
+- **templates**: String that contains a list of templates
 
-1. A list of templates that can be extended indefinitely by the user. Each template need to contain a list of input and output signals and the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
-
-    Note that, special operations as **..&&..** and **..##1..** will be expanded by the generate_from_ltl.py program as:
+    ## About templates: 
+    A list of templates that can be specified by the user as a string. Each template need represents the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
+    
+    Note that, special operators such as **..&&..**, **..##N..** and **..#1&..** will be expanded as:
     -  **..&&..** : prop0 & prop1 & prop2 & ...
-    -  **..##1..** : prop0 ##1 prop1 ##1 prop2 ##1 ...
-
-2. A unique definition of parameters to configure the generation:
-    - **ntemplates**:number of templates that will be used in the **generation**. If this value is less that the number of specified templates, they will be chosen randomly from the available ones 
-    - **nant**: number of proposition that will be used for expanding the antecedent
-    - **ncon**: number of propositions that will be used for expanding the consequent
-    - **nspec**: number of specification that will be used to generate the design
-    - **parallel**: boolean value (0 or 1). If set to 1 each specification will be used to generate a standalone module. If set to 0 a single monolitic module will be generated
-    - **debug**: bolean value. If 1 enable debug features
-    - **[Optional] outdir**: path to the directory for the generated files. If not specified the default directory is ".synthetic_gen_output".
+    -  **..##N..** : prop0 ##N prop1 ##N prop2 ##N ...
+    -  **..#N&..** : prop0 ##N & prop1 ##N & prop2 ##N & ...
+    
+    <sub><sup>Where "N" is an integer specified by the user</sup></sub>
 
 ## Contact
 Main contributor: Daniele Nicoletti - daniele.nicoletti@univr.it
