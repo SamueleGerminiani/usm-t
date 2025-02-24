@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -rdynamic CMakeFiles/synthetic_circuit.dir/src/main.cpp.o CMakeFiles/synthetic_circuit.dir/src/top_module.cpp.o CMakeFiles/synthetic_circuit.dir/src/hif_globals.cpp.o CMakeFiles/synthetic_circuit.dir/src/muffin/muffin_dataTypes.cpp.o CMakeFiles/synthetic_circuit.dir/src/muffin/FaultNode.cpp.o -o synthetic_circuit 

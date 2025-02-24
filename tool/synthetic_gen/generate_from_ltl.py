@@ -378,15 +378,6 @@ def generate_testbench(specification):
           std::cout << "Number of faults: " << top_module_instance.hif_fault_node.number
                     << "\\n";
 
-          std::cout << "N instances: " << muffin::hif_global_instance_counter << "\\n";
-          std::cout << "N faults top_module: " << top_module_instance.hif_fault_node.number << "\\n";
-          std::cout << "N faults spec0: "
-                    << top_module_instance.spec_sbm0.hif_fault_node.number << "\\n";
-          std::cout << "N faults spec1: "
-                    << top_module_instance.spec_sbm1.hif_fault_node.number << "\\n";
-          std::cout << "N faults spec2: "
-                    << top_module_instance.spec_sbm2.hif_fault_node.number << "\\n";
-
           std::vector<size_t> instanceToNumberOfFaults;
           """
     
@@ -693,44 +684,22 @@ def generate_injectable_design():
 #Support function that moves the generated files to the designated output folder
 def populate_output_dir(dirpath):
 
-    #if the directories do not exist create it
-    if not os.path.exists(dirpath):
-        try:
-            subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
-            subprocess.run(f"mkdir -p {dirpath}/expected", shell=True, check=True)
-            subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
-            subprocess.run(f"mkdir -p {dirpath}/faulty_traces", shell=True, check=True)
-        except subprocess.CalledProcessError as e:
-            print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}. errno: {e.returncode}")
-            exit(1)
-    else:
-        if not os.path.exists(dirpath + '/design'):
-            try:
-                subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/design. errno: {e.returncode}")
-                exit(1)
-
-        if not os.path.exists(dirpath + '/expected'):
-            try:
-                subprocess.run(f"mkdir -p {dirpath}/expected", shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/expected. errno: {e.returncode}")
-                exit(1)
-
-        if not os.path.exists(dirpath + '/traces'):
-            try:
-                subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/traces. errno: {e.returncode}")
-                exit(1)
-                
-        if not os.path.exists(dirpath + '/faulty_traces'):
-            try:
-                subprocess.run(f"mkdir -p {dirpath}/faulty_traces", shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}/faulty_traces. errno: {e.returncode}")
-                exit(1)
+    #if the directories exist erase it 
+    if os.path.exists(dirpath):
+       try:
+        subprocess.run(f"rm -rf {dirpath}", shell=True, check=True)
+       except subprocess.CalledProcessError as e:
+            print(CERR +"Error:" + CEND + f"Failed to remove directory {dirpath}. errno: {e.returncode}")
+            exit(1) 
+    #Create output folder
+    try:
+        subprocess.run(f"mkdir -p {dirpath}/design", shell=True, check=True)
+        subprocess.run(f"mkdir -p {dirpath}/expected", shell=True, check=True)
+        subprocess.run(f"mkdir -p {dirpath}/traces", shell=True, check=True)
+        subprocess.run(f"mkdir -p {dirpath}/faulty_traces", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(CERR +"Error:" + CEND + f"Failed to create directory {dirpath}. errno: {e.returncode}")
+        exit(1)
 
     #populate every subdirectory
     try:
@@ -913,8 +882,8 @@ def main():
         generateCSV()
 
         try:
-            subprocess.run(f"mv {out_folder}/faulty_traces/csv/golden.csv {out_folder}/faulty_traces/csv/", shell=True, check=True)
-            subprocess.run(f"mv {out_folder}/faulty_traces/vcd/golden.vcd {out_folder}/faulty_traces/vcd/", shell=True, check=True)
+            subprocess.run(f"mv {out_folder}faulty_traces/csv/golden.csv {out_folder}traces/csv/", shell=True, check=True)
+            subprocess.run(f"mv {out_folder}faulty_traces/vcd/golden.vcd {out_folder}traces/vcd/", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(CERR +"Error:" + CEND + f"Failed to move golden traces to {out_folder}/traces. {e}")
 
