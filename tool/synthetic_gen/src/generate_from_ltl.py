@@ -49,10 +49,15 @@ def expand_spec(specification, numprops, assnumb):
     #97 because we start from 'a' in ASCII
     current_prop = 97
     for pos, ph in placeholder_positions.items():
+        # Select the sequence length based on the position of the placeholder (ant or cons)
+        if implication_index > pos:
+            seq_len_selector = 0
+        else:
+            seq_len_selector = 1
         match ph:
             case '..&&..':
                 prop_seq[pos] = "{"
-                for i in range(0, numprops[0]):
+                for i in range(0, numprops[seq_len_selector]):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " & "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
@@ -65,7 +70,7 @@ def expand_spec(specification, numprops, assnumb):
                 # Extract the number between "##" and ".."
                 number = ph[4:-2]
                 prop_seq[pos] = "{"
-                for i in range(0, numprops[0]):
+                for i in range(0, numprops[seq_len_selector]):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " ##" + number + " "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
@@ -79,13 +84,13 @@ def expand_spec(specification, numprops, assnumb):
                 number = ph[3:-3]
                 prop_seq[pos] = "{"
                 operators = ["&", "##"+str(number)]
-                for i in range(0, numprops[0]):
+                for i in range(0, numprops[seq_len_selector]):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " " + operators[i % 2] + " "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
                     else:
                         outs += chr(current_prop + i) + "_" + str(assnumb) + ","
-                if numprops[0] % 2 == 0:
+                if i % 2 == 1:
                     prop_seq[pos] = prop_seq[pos][:-4] + "}"
                 else:
                     prop_seq[pos] = prop_seq[pos][:-2] + "}"
@@ -109,69 +114,24 @@ def expand_spec(specification, numprops, assnumb):
         print(f"Expanded formula: {ret_spec['formula']}")
     return ret_spec
 
-def main():
-    global debug 
-    global clk_name
-    global tracelenght
-
-    print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
-    #input parameters
-    parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
-    #number of propositions in the antecedent
-    parser.add_argument('--nant', type=int, required=True, help='Number of antecedent propositions')
-    #number of propositions in the consequent
-    parser.add_argument('--ncon', type=int, required=True, help='Number of consequent propositions')
-    #total number of specifications of the design
-    parser.add_argument('--nspec', type=int, required=True, help='Number of specification per template ')
-    #submodule generation procedure
-    parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
-    #optional clock name 
-    parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
-    #debug flag
-    parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
-    #output directory
-    parser.add_argument('--outdir', type=str, default='./synthetic_gen_output', help='Output directory')
-    #template string
-    parser.add_argument('--templates', type=str, required=True, help='List of template files')
-    #trace lenght
-    parser.add_argument('--tracelenght', type=int, default=1000, help='Trace lenght')
-
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    args = parser.parse_args()
-    ant_props = args.nant
-    con_props = args.ncon
-    numprops = (ant_props, con_props)
-    assnumbs = args.nspec
-    modules = args.parallel == 1
-    debug = args.debug == 1
-    clk_name = args.clk
-    dirpath = args.outdir
-    args.templates = args.templates.replace('"', '')
-    templates = args.templates.split(',')
-    tracelenght = args.tracelenght
-    templates = [template.replace('"', '') for template in templates]
-
-    print(globals.CSTP + "1." + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND + " \n")
-    print(globals.CSTP + "2." + globals.CEND + " Creating LTL specifications" + " \n")
-
-    dir_utils.create_outfolder()
-
+#This function creates the specifications from the templates
+def create_specification(template_list,modules):
     merged_specification = {}
-    #This is used to count the global number of specifications thata has been generated so far
-    specounter = 0
     #This will be used in case of module subdivision
     spec_list = []
-    #iterate over the selected templates to expand them and merge them
-    for i, template in enumerate(templates, start=1):
+    #This is used to count the global number of specifications thata has been generated so far
+    specounter = 0
+
+    #iterate over the templates to expand them and merge them
+    for i, template in enumerate(template_list, start=0):
         specification = {}
         #Get the template string
-        specification['formula'] = template
-      
+        specification['formula'] = template['formula']
+        #Get the number of propositions in the antecedent and consequent
+        numprops = (int(template['nant']), int(template['ncon']))
+
         #TODO: this works only for multiple instances of the same template, if we get multiple templates we need to share assnumbs between them or just ignore it and have numtemplates*numassertions specifications
-        for j, num in enumerate(range(1, assnumbs + 1), start=1):
+        for j, num in enumerate(range(1, template['nspec'] + 1), start=1):
             #expand special templates
             if '..' in specification['formula']:
                 if debug:
@@ -205,12 +165,78 @@ def main():
                 
             #update the global spec counter    
             specounter += 1
-
     if debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print("Merged specification:")
         print(merged_specification)
         print("\n")
+    return merged_specification, spec_list
+
+def main():
+    global debug 
+    global clk_name
+    global tracelenght
+
+    print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
+    #input parameters
+    parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
+    #number of propositions in the antecedent
+    #parser.add_argument('--nant', type=int, required=True, help='Number of antecedent propositions')
+    #number of propositions in the consequent
+    #parser.add_argument('--ncon', type=int, required=True, help='Number of consequent propositions')
+    #total number of specifications of the design
+    #parser.add_argument('--nspec', type=int, required=True, help='Number of specification per template ')
+    #submodule generation procedure
+    parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
+    #optional clock name 
+    parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
+    #debug flag
+    parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
+    #output directory
+    parser.add_argument('--outdir', type=str, default='./synthetic_gen_output', help='Output directory')
+    #template string formatted in this way "{template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};..."
+    parser.add_argument('--templates', type=str, required=True, help='List of template files')
+    #trace lenght
+    parser.add_argument('--tracelenght', type=int, default=1000, help='Trace lenght')
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    args = parser.parse_args()
+    #ant_props = args.nant
+    #con_props = args.ncon
+    #numprops = (ant_props, con_props)
+    #assnumbs = args.nspec
+    modules = args.parallel == 1
+    debug = args.debug == 1
+    clk_name = args.clk
+    dirpath = args.outdir
+    templates = args.templates.replace('"', '').split(';')
+    tracelenght = args.tracelenght
+   
+    template_list = []
+    specification = {}
+    #parse the template string
+    for template in templates:
+        #remove external brackets and split template into parts
+        temp = template.strip()[1:-1].split(',')
+        #split on commas and populate specifications fields accordingly
+        specification["formula"] = temp[0]
+        specification["nant"] = int(temp[1])
+        specification["ncon"] = int(temp[2])
+        specification["nspec"] = int(temp[3])
+        specification["overlap"] = int(temp[4])
+        template_list.append(copy.deepcopy(specification))
+
+    print(globals.CSTP + "1." + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND + " \n")
+    print(globals.CSTP + "2." + globals.CEND + " Creating LTL specifications" + " \n")
+    
+    #create the output directory
+    dir_utils.create_outfolder()
+
+    #create the specifications
+    merged_specification, spec_list = create_specification(template_list,modules)
 
     print(globals.CSTP + "2."  + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
     ###############################################################

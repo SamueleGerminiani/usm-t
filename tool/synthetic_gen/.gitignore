@@ -9,3 +9,5 @@ hif_sim/injected/src/*.cpp
 hif_sim/injected/CMakeLists.txt
 hif_sim/traces
 synthetic_gen_output
+gmon.out 
+src/__pycache__
