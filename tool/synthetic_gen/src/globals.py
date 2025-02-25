@@ -1,0 +1,19 @@
+import os
+
+root = os.environ["USMT_ROOT"]
+yosis_prefix = root + '/tool/third_party/oss-cad-suite/bin/'
+ltlsynt_prefix = root + '/tool/third_party/spot/bin/'
+hif_tb_prefix = root + '/tool/synthetic_gen/hif_sim/'
+out_folder = root + '/tool/synthetic_gen/temp/'
+debug = False
+clk_name = "clock"
+tracelenght = 1000
+
+#debug color
+CDBG = '\033[43m'
+#error color
+CERR = '\033[41m'
+#procedure step color
+CSTP = '\033[42m'
+#terminal color reset
+CEND = '\033[0m'
