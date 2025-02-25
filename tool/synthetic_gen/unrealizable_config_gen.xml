@@ -1,6 +1,0 @@
-<sygen>
-    <template ins="a" outs="b" text="G(a |=&gt; Xb)"/>
-    
-    <parameter ntemplates="1" nant="2" ncon="1" nspec="3" parallel='1' debug='1' outdir='./final_design'/>
-</sygen>
-

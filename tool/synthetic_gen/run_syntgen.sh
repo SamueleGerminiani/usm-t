@@ -1,1 +1,1 @@
-python generate_from_ltl.py --nant 2 --ncon 2 --nspec 2 --parallel 1 --clk clk --debug 0 --templates " G(..&&.. |=> F ..&&..)"
+python generate_from_ltl.py --nant 3 --ncon 3 --nspec 1 --parallel 1 --clk clk --debug 0 --templates " G(..#3&.. |=> F ..#3&..), G(..&&.. |=> F ..&&..)"

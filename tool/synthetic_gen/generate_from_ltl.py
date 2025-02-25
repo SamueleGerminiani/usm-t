@@ -88,13 +88,17 @@ def expand_spec(specification, numprops, assnumb):
                 # Extract the number between "#" and "&"
                 number = ph[3:-3]
                 prop_seq[pos] = "{"
+                operators = ["&", "##"+str(number)]
                 for i in range(0, numprops[0]):
-                    prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " ##" + number + " & "
+                    prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " " + operators[i % 2] + " "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
                     else:
                         outs += chr(current_prop + i) + "_" + str(assnumb) + ","
-                prop_seq[pos] = prop_seq[pos][:-6] + "}"
+                if numprops[0] % 2 == 0:
+                    prop_seq[pos] = prop_seq[pos][:-4] + "}"
+                else:
+                    prop_seq[pos] = prop_seq[pos][:-2] + "}"
                 current_prop += i + 1
             case _:
                 pass
