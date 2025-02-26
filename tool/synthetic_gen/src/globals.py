@@ -13,6 +13,8 @@ tracelenght = 1000
 CDBG = '\033[43m'
 #error color
 CERR = '\033[41m'
+#warning color
+CWRN = '\033[208m'
 #procedure step color
 CSTP = '\033[42m'
 #terminal color reset

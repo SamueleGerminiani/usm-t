@@ -25,32 +25,27 @@ def generate_circuit(specification,spec_list, modules):
 #Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
     global clk_name
+
     #prefix of the top module 
     top_module = 'module top_module('
     top_module += f'{globals.clk_name},' 
     #all submodule inputs
+    inputs_tmp = []
+    outs_tmp = []
     for spec in spec_list:
-        top_module += spec['inputs'] + ','
+        inputs_tmp.extend(spec['inputs'].split(','))    
     #all submodule outputs
+    top_module += ",".join(set(inputs_tmp)) + ','
     for spec in spec_list:
-        if(spec_list.index(spec) != len(spec_list) - 1):
-            top_module += spec['outputs'] + ','
-        else:
-            top_module += spec['outputs'] + ');\n'
+        outs_tmp.extend(spec['outputs'].split(','))    
+    top_module += ",".join(set(outs_tmp)) + ');\n'
+
     #start input declaration
     top_module +=f'input {globals.clk_name},'
-    for spec in spec_list:
-        if(spec_list.index(spec) != len(spec_list) - 1):
-            top_module += spec['inputs'] + ','
-        else:
-            top_module += spec['inputs'] + ';\n'
+    top_module += ",".join(set(inputs_tmp)) + ';\n'
     #start output declaration
     top_module +='output '
-    for spec in spec_list:
-        if(spec_list.index(spec) != len(spec_list) - 1):
-            top_module += spec['outputs'] + ','
-        else:
-            top_module += spec['outputs'] + ';\n'
+    top_module += ",".join(set(outs_tmp)) + ';\n'
 
     # instantiate the submodules
     for spec in spec_list:

@@ -127,6 +127,8 @@ def create_specification(template_list,modules):
         specification = {}
         #Get the template string
         specification['formula'] = template['formula']
+        #Get the overlap value  
+        specification['overlap'] = template['overlap']
         #Get the number of propositions in the antecedent and consequent
         numprops = (int(template['nant']), int(template['ncon']))
 
@@ -152,25 +154,100 @@ def create_specification(template_list,modules):
                 merged_specification['formula'] = expanded_formula['formula'] + ' & ' + merged_specification.get('formula', '')
                 merged_specification['inputs'] = ','.join(set(merged_specification.get('inputs', '').split(',') + expanded_formula['inputs'].split(',')))
                 merged_specification['outputs'] = ','.join(set(merged_specification.get('outputs', '').split(',') + expanded_formula['outputs'].split(',')))
-    
+
+            #for each iteration add the expanded formula to the list
+            spec_list.append(copy.deepcopy(expanded_formula))
+                
+            overlap_spec(spec_list,merged_specification,template['overlap'])
+
             # Write expanded formulas to a file
             with open(globals.out_folder + 'specifications.txt', 'a') as file:
             #    file.write(f"Expanded formula {j} for template {i}:\n")
                 file.write(f"{expanded_formula['formula']}\n")
 
-            #if module subdivision is enabled
-            if(modules):
-                #for each iteration add the expanded formula to the list
-                spec_list.append(copy.deepcopy(expanded_formula))
-                
             #update the global spec counter    
             specounter += 1
+
     if debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print("Merged specification:")
         print(merged_specification)
         print("\n")
     return merged_specification, spec_list
+
+#This function is used to overlap the specifications
+#spec_list is the list of specifications
+#first is the index of the first specification from this template
+#Since we are using the same template we know the overlap value is the same 
+def overlap_spec(spec_list,merged_specification,overlap):
+    #if there is only one specification we don't need to overlap
+    if len(spec_list)-1 == 0:
+        return
+    current_spec = spec_list[len(spec_list) - 1]
+    #get current spec formula
+    current_spec_overlapped = current_spec['formula']
+    #get current spec inputs and outputs
+    current_spec_inputs = current_spec['inputs'].split(',')
+    current_spec_outputs = current_spec['outputs'].split(',')
+
+    #Divide the overlap value by 2 to gen an equal overlap on both sides
+    overlap_ant = (overlap // 2) + (overlap % 2)
+    overlap_con = overlap // 2
+
+    #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
+    if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
+        print(globals.CWRN + "Warning:" + globals.CEND + "Overlap value is greater than the number of inputs and outputs. Adjusting overlap value to match the number of inputs and outputs")
+        overlap_ant = len(current_spec_inputs)
+        overlap_con = len(current_spec_outputs)
+
+    #get all inputs and outputs
+    inputs_globals = merged_specification['inputs'].split(',')
+    outputs_globals = merged_specification['outputs'].split(',')
+    inputs_globals_copy = copy.deepcopy(inputs_globals)
+    outputs_globals_copy = copy.deepcopy(outputs_globals)
+
+    #remove current spec inputs and outputs from the merged specification
+    for inp in current_spec['inputs'].split(','):
+        inputs_globals.remove(inp)
+    for out in current_spec['outputs'].split(','):
+        outputs_globals.remove(out)
+
+    #select overlap_ant random samples from inputs and outputs
+    antecedent_prop_overlapped = random.sample(inputs_globals, overlap_ant)
+    consequent_prop_overlapped = random.sample(outputs_globals, overlap_con)
+
+    #select overlap_ant/con random samples from current spec inputs and outputs
+    antecedent_prop = random.sample(current_spec_inputs, overlap_ant)
+    consequent_prop = random.sample(current_spec_outputs, overlap_con)
+
+    #substitute the selected inputs and outputs with the current spec inputs and outputs
+    for i in range(0, overlap_ant):
+        current_spec_inputs[current_spec_inputs.index(antecedent_prop[i])] = antecedent_prop_overlapped[i]
+    for i in range(0, overlap_con):
+        current_spec_outputs[current_spec_outputs.index(consequent_prop[i])] = consequent_prop_overlapped[i]
+    #subtitute also in the formula
+    for i in range(0, overlap_ant):
+        current_spec_overlapped = current_spec_overlapped.replace(antecedent_prop[i],antecedent_prop_overlapped[i])
+    for i in range(0, overlap_con):
+        current_spec_overlapped = current_spec_overlapped.replace(consequent_prop[i],consequent_prop_overlapped[i])
+
+    #Remove the subtituted inputs and outputs from the merged inputs and outputs
+    for inp in antecedent_prop:
+        inputs_globals_copy.remove(inp)
+    for out in consequent_prop:
+        outputs_globals_copy.remove(out)    
+
+
+
+    #update the merged specification
+    merged_specification['formula'] = merged_specification['formula'].replace(current_spec['formula'], current_spec_overlapped)
+    merged_specification['inputs'] = ','.join(inputs_globals_copy)
+    merged_specification['outputs'] = ','.join(outputs_globals_copy)
+
+    #update the current spec inputs and outputs
+    current_spec['inputs'] = ','.join(current_spec_inputs)
+    current_spec['outputs'] = ','.join(current_spec_outputs)
+    current_spec['formula'] = current_spec_overlapped
 
 def main():
     global debug 
@@ -180,13 +257,7 @@ def main():
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
     #input parameters
     parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
-    #number of propositions in the antecedent
-    #parser.add_argument('--nant', type=int, required=True, help='Number of antecedent propositions')
-    #number of propositions in the consequent
-    #parser.add_argument('--ncon', type=int, required=True, help='Number of consequent propositions')
-    #total number of specifications of the design
-    #parser.add_argument('--nspec', type=int, required=True, help='Number of specification per template ')
-    #submodule generation procedure
+    #submodules flag
     parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
     #optional clock name 
     parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
@@ -204,10 +275,6 @@ def main():
         sys.exit(1)
 
     args = parser.parse_args()
-    #ant_props = args.nant
-    #con_props = args.ncon
-    #numprops = (ant_props, con_props)
-    #assnumbs = args.nspec
     modules = args.parallel == 1
     debug = args.debug == 1
     clk_name = args.clk
@@ -216,9 +283,9 @@ def main():
     tracelenght = args.tracelenght
    
     template_list = []
-    specification = {}
     #parse the template string
     for template in templates:
+        specification = {}
         #remove external brackets and split template into parts
         temp = template.strip()[1:-1].split(',')
         #split on commas and populate specifications fields accordingly
@@ -246,14 +313,13 @@ def main():
     rtl_utils.generate_circuit(merged_specification,spec_list, modules)
     print(globals.CSTP + "3."  + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
     
-    print(globals.CSTP +"4." + globals.CEND + " Running HIFSuite" + " \n")
+    print(globals.CSTP + "4." + globals.CEND + " Running HIFSuite" + " \n")
     hif_utils.run_hifsuite(merged_specification)
     print(globals.CSTP + "4."  + globals.CEND +"     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
     
     if os.path.exists(f"{globals.root}/tool/build/vcd2csv"):
         print(globals.CSTP +"4.5" + globals.CEND + " Creating CSV traces" + " \n")
         dir_utils.generateCSV()
-
         try:
             subprocess.run(f"mv {globals.out_folder}faulty_traces/csv/golden.csv {globals.out_folder}traces/csv/", shell=True, check=True)
             subprocess.run(f"mv {globals.out_folder}faulty_traces/vcd/golden.vcd {globals.out_folder}traces/vcd/", shell=True, check=True)
