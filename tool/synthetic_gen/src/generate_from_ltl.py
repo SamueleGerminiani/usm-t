@@ -191,8 +191,9 @@ def overlap_spec(spec_list,merged_specification,overlap):
     current_spec_outputs = current_spec['outputs'].split(',')
 
     #Divide the overlap value by 2 to gen an equal overlap on both sides
-    overlap_ant = (overlap // 2) + (overlap % 2)
-    overlap_con = overlap // 2
+    #Arbitrarily assign the extra overlap to the consequent side
+    overlap_ant = (overlap // 2)
+    overlap_con = overlap // 2+ (overlap % 2)
 
     #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
     if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
@@ -336,6 +337,9 @@ def main():
     
     print(globals.CSTP + "5."  + globals.CEND +"     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
     print(globals.CSTP + "#################" + globals.CEND + f" Procedure complete! All generated files can be found in {dirpath} " + globals.CSTP + "#################"+ globals.CEND + "\n\n")
+
+    #need to return this string for usm-t automatic test generation '{"ant":"a_0,a_1","con":"b_0,b_1"}'
+    return '{\"ant\":\"' + merged_specification['inputs'] + '\",\"con\":\"' + merged_specification['outputs'] + '\"}'
 
 if __name__ == "__main__":
     main()
