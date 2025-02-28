@@ -1,6 +1,9 @@
 import os
 import subprocess
 import globals
+global debug
+global top_module_name
+global clk_name
 
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
@@ -21,7 +24,7 @@ def generate_injectable_design():
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run verilog2hif. {e}")
         exit(1)
 
-    ddt_command = f"ddt {globals.hif_tb_prefix}synthetic_design.hif.xml --toplevel top_module --output {globals.hif_tb_prefix}synthetic_design.ddt.hif.xml"
+    ddt_command = f"ddt {globals.hif_tb_prefix}synthetic_design.hif.xml --toplevel {globals.top_module_name} --output {globals.hif_tb_prefix}synthetic_design.ddt.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print(f"Running command: {ddt_command} \n")
@@ -30,7 +33,7 @@ def generate_injectable_design():
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run ddt. {e}")
         exit(1)
-    a2tool_command = f"a2tool {globals.hif_tb_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel top_module --output {globals.hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml"
+    a2tool_command = f"a2tool {globals.hif_tb_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel {globals.top_module_name} --output {globals.hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print(f"Running command: {a2tool_command} \n")
@@ -40,7 +43,7 @@ def generate_injectable_design():
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run a2tool. {e}")
         exit(1)
     
-    muffin_command = f"muffin {globals.hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {globals.clk_name} --toplevel top_module --output {globals.hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
+    muffin_command = f"muffin {globals.hif_tb_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {globals.clk_name} --toplevel {globals.top_module_name} --output {globals.hif_tb_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print(f"Running command: {muffin_command} \n")
@@ -110,13 +113,13 @@ def run_hifsuite(specification):
         exit(1)
 
     #modify the CMakeLists.txt to include the eventual submodules
-    submodule_string = "./src/top_module.cpp\n"
+    submodule_string = f"./src/{globals.top_module_name}.cpp"+"\n"
     spec_cpp_files = [f for f in os.listdir(f"{globals.hif_tb_prefix}injected/src") if f.startswith("spec")]
     for spec_cpp_file in spec_cpp_files:
-        submodule_string += f"./src/{spec_cpp_file}\n"
+        submodule_string += f"./src/{spec_cpp_file}"+"\n"
     with open (f"{globals.hif_tb_prefix}injected/CMakeLists.txt", "r") as file:
         Cmake_template = file.read()    
-    Cmake_template = Cmake_template.replace("./src/top_module.cpp", submodule_string)
+    Cmake_template = Cmake_template.replace(f"./src/top_module.cpp", submodule_string)
     with open(f"{globals.hif_tb_prefix}injected/CMakeLists.txt", "w") as file:
         file.write(Cmake_template)
 
@@ -186,17 +189,16 @@ def run_hifsuite(specification):
 
 #Generate testbench for HIFSuite
 def generate_testbench(specification):
-    global clk_name
     #Get input and outputs
     inputs = specification.get('inputs', '').split(',')
     outputs = specification.get('outputs', '').split(',')
     
     #Testbench file includes and declarations
-    declarations_string = "#include <stdlib.h>\n#include <algorithm>\n #include <cstdio>\n#include <filesystem>\n#include <fstream>\n#include <iostream>\n#include <vector>\n\n#include \"cpptracer/tracer.hpp\"\n#include \"muffin_dataTypes.hpp\"\n#include \"top_module.hpp\"\n\nusing Trace = std::vector<top_module::top_module_iostruct>;\n\n"
+    declarations_string = f"#include <stdlib.h>\n#include <algorithm>\n #include <cstdio>\n#include <filesystem>\n#include <fstream>\n#include <iostream>\n#include <vector>\n\n#include \"cpptracer/tracer.hpp\"\n#include \"muffin_dataTypes.hpp\"\n#include \"{globals.top_module_name}.hpp\"\n\nusing Trace = std::vector<{globals.top_module_name}::{globals.top_module_name}_iostruct>;\n\n"
     
     #################################################
     #setRandomInputs function creation
-    set_rand_input_string = "void setRandomInputs(top_module::top_module_iostruct& in) {\n"
+    set_rand_input_string = f"void setRandomInputs({globals.top_module_name}::{globals.top_module_name}_iostruct& in)"+"{\n"
     for signal in inputs:
         set_rand_input_string += f"\tin.{signal} = rand() % 2;\n"
     set_rand_input_string += "}"
@@ -204,7 +206,7 @@ def generate_testbench(specification):
     
     #################################################
     #setInputsFromTraceSample function creation
-    set_inputs_from_trace_string = "void setInputsFromTraceSample(top_module::top_module_iostruct& in, const top_module::top_module_iostruct& dump) {\n"
+    set_inputs_from_trace_string = f"void setInputsFromTraceSample({globals.top_module_name}::{globals.top_module_name}_iostruct& in, const {globals.top_module_name}::{globals.top_module_name}_iostruct& dump)"+" {\n"
     for signal in inputs:
         set_inputs_from_trace_string += f"\tin.{signal} = dump.{signal};\n"
     set_inputs_from_trace_string += "}"
@@ -212,7 +214,7 @@ def generate_testbench(specification):
 
     #################################################
     #checkOutputs function creation
-    check_outputs_string = "bool checkOutput(const top_module::top_module_iostruct& golden, const top_module::top_module_iostruct& faulty) {\n"
+    check_outputs_string = f"bool checkOutput(const {globals.top_module_name}::{globals.top_module_name}_iostruct& golden, const {globals.top_module_name}::{globals.top_module_name}_iostruct& faulty)"+" {\n"
     check_outputs_string += " if ("
     for signal in outputs:
         check_outputs_string += f"golden.{signal} != faulty.{signal} || "
@@ -221,7 +223,7 @@ def generate_testbench(specification):
 
     #################################################
     #printSample function creation
-    print_sample_string = "void printSample(top_module::top_module_iostruct& in) {"
+    print_sample_string = f"void printSample({globals.top_module_name}::{globals.top_module_name}_iostruct& in)"+" {"
     for signal in inputs:
         print_sample_string += f"printf(\"{signal}: %d\\n\", in.{signal});\n"
     print_sample_string += "}"   
@@ -244,7 +246,7 @@ def generate_testbench(specification):
 
     #################################################
     #initVCDTrace function creation
-    init_vcd_trace_string = "cpptracer::Tracer initVCDTrace(const std::string& name) {\n cpptracer::Tracer tracer(name, timeStep,\"top_module_bench\");\n tracer.addScope(\"top_module_\");\n\n"
+    init_vcd_trace_string = "cpptracer::Tracer initVCDTrace(const std::string& name) {\n cpptracer::Tracer tracer(name, timeStep,"+f"\"{globals.top_module_name}_bench\");\n tracer.addScope(\"{globals.top_module_name}_\");\n\n"
     init_vcd_trace_string += f"tracer.addTrace(vcd_{globals.clk_name}, \"{globals.clk_name}\");\n"
     for signal in inputs:
         init_vcd_trace_string += f"tracer.addTrace(vcd_{signal}, \"{signal}\");\n"
@@ -256,7 +258,7 @@ def generate_testbench(specification):
 
     #################################################
     #updateVCDTrace function creation
-    update_vcd_trace_string = "void updateVCDVariables(const top_module::top_module_iostruct& in) {\n"+ f"vcd_{globals.clk_name}[0] = in." + f"{globals.clk_name};\n"
+    update_vcd_trace_string = f"void updateVCDVariables(const {globals.top_module_name}::{globals.top_module_name}_iostruct& in)"+" {\n"+ f"vcd_{globals.clk_name}[0] = in." + f"{globals.clk_name};\n"
     for signal in inputs:
         update_vcd_trace_string += f"vcd_{signal}[0] = in.{signal};\n"
     for signal in outputs:
@@ -296,20 +298,18 @@ def generate_testbench(specification):
           bool """ + f"{globals.clk_name}"+"""_0 = 0;
 
           printf("Simulate golden \\n");
-
-          top_module top_module_instance;
-          top_module_instance.initialize();
-
+          
+          """ + f"{globals.top_module_name} {globals.top_module_name}_instance;\n {globals.top_module_name}_instance.initialize();" + """
           Trace golden_trace;
 
           // in case of a rst
-          top_module::top_module_iostruct in_rst_on;
+          """ + f"{globals.top_module_name}::{globals.top_module_name}_iostruct in_rst_on;" + """
           """ + f"in_rst_on.{globals.clk_name} = {globals.clk_name}_0;\n" + """
-          top_module_instance.simulate(&in_rst_on, cycles_number);
+          """ + f"{globals.top_module_name}_instance.simulate(&in_rst_on, cycles_number);" + """
+          """ + f"{globals.top_module_name}_instance.initialize();" + """
 
           srand(0);
-
-          top_module::top_module_iostruct in;
+          """ + f"{globals.top_module_name}::{globals.top_module_name}_iostruct in;" + """
 
           for (size_t k = 0; k < traceLength; ++k) {
         """ +    f"{globals.clk_name}_0 = !{globals.clk_name}_0;" + """
@@ -320,8 +320,8 @@ def generate_testbench(specification):
         """ +  f" if (!{globals.clk_name}_0)" + """ { 
               setRandomInputs(in);
             }
-
-            top_module_instance.simulate(&in, cycles_number);
+        
+        """ + f"{globals.top_module_name}_instance.simulate(&in, cycles_number);" + """
 
             // out
             golden_trace.push_back(in);
@@ -332,7 +332,7 @@ def generate_testbench(specification):
           size_t faultObserved = 0;
           std::vector<std::pair<size_t, size_t>> uncoveredFaults;
           std::vector<Trace> faultyTraces;
-          std::cout << "Number of faults: " << top_module_instance.hif_fault_node.number
+          std::cout << "Number of faults: " << """ + f"{globals.top_module_name}_instance.hif_fault_node.number" + """
                     << "\\n";
 
           std::vector<size_t> instanceToNumberOfFaults;
@@ -342,12 +342,12 @@ def generate_testbench(specification):
     main_string += f"instanceToNumberOfFaults.push_back(0);\n"
     
     #top_module module
-    main_string += f"instanceToNumberOfFaults.push_back(top_module_instance.hif_fault_node.number);\n"
+    main_string += f"instanceToNumberOfFaults.push_back({globals.top_module_name}_instance.hif_fault_node.number);\n"
     
     #if we have multiple submodules we need to inject faults in each of them
     spec_cpp_files = len([f for f in os.listdir(f"{globals.hif_tb_prefix}injected/src") if f.endswith(".cpp") and f not in ["main.cpp", "hif_globals.cpp"]])
     for i in range(spec_cpp_files-1):
-        main_string += f"instanceToNumberOfFaults.push_back(top_module_instance.spec_sbm{i}.hif_fault_node.number);\n"
+        main_string += f"instanceToNumberOfFaults.push_back({globals.top_module_name}_instance.spec_sbm{i}.hif_fault_node.number);\n"
 
     main_string +="""
           for (size_t curr_instance_number = 1;
@@ -363,12 +363,12 @@ def generate_testbench(specification):
                      muffin::fault_number);
           
             """ + f"{globals.clk_name}_0 = 0;" + """
-              top_module::top_module_iostruct in_rst_on;
+            """ + f"{globals.top_module_name}::{globals.top_module_name}_iostruct in_rst_on;" + """
             """ + f"in_rst_on.{globals.clk_name} = {globals.clk_name}_0;" + """
-              top_module_instance.simulate(&in_rst_on, cycles_number);
-              top_module_instance.initialize();
+            """ + f"{globals.top_module_name}_instance.simulate(&in_rst_on, cycles_number);" + """
+            """ + f"{globals.top_module_name}_instance.initialize();" + """
           
-              top_module::top_module_iostruct in;
+            """ + f"{globals.top_module_name}::{globals.top_module_name}_iostruct in;" + """
               bool faultFound = 0;
               for (size_t k = 0; k < traceLength; ++k) {
                 """ + f"{globals.clk_name}"+"""_0 = !""" + f"{globals.clk_name}"+"""_0;
@@ -378,7 +378,7 @@ def generate_testbench(specification):
                 if (!""" + f"{globals.clk_name}"+"""_0) {
                   setInputsFromTraceSample(in, golden_trace[k]);
                 }
-                top_module_instance.simulate(&in, cycles_number);
+            """ + f"{globals.top_module_name}_instance.simulate(&in, cycles_number);" + """
           
                 faulty_trace.push_back(in);
           

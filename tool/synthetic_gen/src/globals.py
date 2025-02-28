@@ -7,6 +7,7 @@ hif_tb_prefix = root + '/tool/synthetic_gen/hif_sim/'
 out_folder = root + '/tool/synthetic_gen/temp/'
 debug = False
 clk_name = "clock"
+top_module_name = ""
 tracelenght = 1000
 
 #debug color

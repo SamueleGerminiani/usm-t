@@ -14,7 +14,7 @@ def generate_circuit(specification,spec_list, modules):
         generate_top_module(spec_list)
     else:
         #generate a single controller for the merged specification
-        design_aiger = synthesize_controller(specification)
+        design_aiger = synthesize_controller(specification, f"{globals.top_module_name}.aiger")
         #Generate a SystemVerilog file for the controller
         aigerToSv(design_aiger,specification)
     if globals.debug: 
@@ -24,10 +24,9 @@ def generate_circuit(specification,spec_list, modules):
 
 #Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
-    global clk_name
 
     #prefix of the top module 
-    top_module = 'module top_module('
+    top_module = f'module {globals.top_module_name}('
     top_module += f'{globals.clk_name},' 
     #all submodule inputs
     inputs_tmp = []
@@ -58,18 +57,18 @@ def generate_top_module(spec_list):
 
     top_module += 'endmodule\n'
 
-    with open(globals.out_folder + 'top_module.v', 'w') as file:
+    with open(globals.out_folder + f'{globals.top_module_name}.v', 'w') as file:
         file.write(top_module)
     if globals.debug:    
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Generated top_module module: {globals.out_folder}top_module.v")
+        print(f"Generated {globals.top_module_name} module: {globals.out_folder}{globals.top_module_name}.v")
 
 
 #Call ltlsynt to generate a controller from a specification
 #The generated controller is saved in "aiger_filename" 
 #aiger_filename is default to 'top_module.aiger' as the function will be called with a single parameter in the case of merged specifications.
 #In the case of the submodules options being enabled, the function will be called with a second parameter to specify the name of the aiger file for each spec.
-def synthesize_controller(specification, aiger_filename='top_module.aiger'):
+def synthesize_controller(specification, aiger_filename):
     formula = specification.get('formula')
     inputs = specification.get('inputs')
     outputs = specification.get('outputs')
@@ -99,7 +98,6 @@ def synthesize_controller(specification, aiger_filename='top_module.aiger'):
 #design_aiger: the name of the AIGER file to convert
 #specification: the specification dictionary containing the inputs and outputs. Needed to fix yosys nonsense
 def aigerToSv(design_aiger, specification):
-    global clk_name
     input_file = design_aiger
     output_file = design_aiger.replace('.aiger', '.v')
     module_name = design_aiger.replace('.aiger', '')

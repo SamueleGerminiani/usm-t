@@ -1,2 +1,2 @@
 #launch from syntetic_gen folder
-bash USMTtestgen/testgen.sh ./test_folder ./benchmark_configs sample clk rst top_module_::testbench 1000
+bash ~/usm-t/tool/synthetic_gen/USMTtestgen/testgen.sh ~/usm-t/tool/synthetic_gen/config_gen/test_folder ~/usm-t/tool/synthetic_gen/config_gen/benchmark_configs test_config1 top_config1 clk rst top_config1_::testbench 1000

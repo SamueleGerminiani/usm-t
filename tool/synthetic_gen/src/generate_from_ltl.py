@@ -254,6 +254,7 @@ def main():
     global debug 
     global clk_name
     global tracelenght
+    global top_module_name
 
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
     #input parameters
@@ -262,6 +263,8 @@ def main():
     parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
     #optional clock name 
     parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
+    #top module name
+    parser.add_argument('--top_module', type=str, default='top_module', help='Top module name')
     #debug flag
     parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
     #output directory
@@ -279,6 +282,7 @@ def main():
     modules = args.parallel == 1
     debug = args.debug == 1
     clk_name = args.clk
+    globals.top_module_name = args.top_module
     dirpath = args.outdir
     templates = args.templates.replace('"', '').split(';')
     tracelenght = args.tracelenght
