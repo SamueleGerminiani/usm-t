@@ -1,0 +1,66 @@
+<usm-t>
+  <input id="0">
+    <vcd path="synthetic_gen_output/traces/vcd/golden.vcd" clk="clock" rst="reset" scope="sample_::testbench"/>
+    <verilog_dir path="synthetic_gen_output/design/"/>
+    <csv path="synthetic_gen_output/traces/csv/golden.csv"/>
+  </input>
+
+  <usecase id="harm_default">
+    <miner name="harm"/>
+    <input id="0" type="vcd"/>
+    <configuration type="support" path="sample_config/config.xml"/>
+    <configuration type="run" path="sample_config/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CLK="clock" SCOPE="sample_::testbench" CONFIG="sample_config/config.xml"/>
+    <docker image="samger/harm:latest"/>  
+  </usecase>
+
+  <usecase id="texada_default">
+    <miner name="texada"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="sample_config/run_miner.sh"/>
+    <input_adaptor path="csv_to_texada_log/run.sh"/>
+    <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt"/>
+    <docker image="samger/texada:latest"/>  
+  </usecase>
+
+  <usecase id="samples2ltl_default">
+    <miner name="samples2ltl"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="sample_config/run_miner.sh"/>
+    <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
+    <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="100"/>
+    <docker image="samger/samples2ltl:latest"/>  
+  </usecase>
+
+  <usecase id="goldminer_usecase_best">
+    <miner name="goldminer"/>
+    <input id="0" type="vcd,verilog"/>
+    <configuration type="support" path="sample_config/goldmine.cfg"/>
+    <configuration type="run" path="sample_config/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="goldminer_to_spotltl/run.sh"/>
+    <export VCD_FILE="synthetic_gen_output/traces/vcd/golden.vcd" CLK="clock" TOP_MODULE="sample_"/>
+    <docker image="samger/goldminer2:latest"/>  
+  </usecase>
+
+  <test name="sample">
+    <usecase id="harm_default"/>
+    <usecase id="texada_default"/>
+    <usecase id="samples2ltl_default"/>
+    <usecase id="goldminer_default"/>
+
+    <expected path="synthetic_gen_output/expected/specifications.txt"/>
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="fault_coverage" faulty_traces="synthetic_gen_output/faulty_traces/vcd/" trace_type="vcd" clk="clock" scope="sample_::testbench"/>
+    <compare with_strategy="time_to_mine"/>
+  </test>
+
+</usm-t>
+
