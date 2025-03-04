@@ -343,7 +343,8 @@ def main():
     print(globals.CSTP + "#################" + globals.CEND + f" Procedure complete! All generated files can be found in {dirpath} " + globals.CSTP + "#################"+ globals.CEND + "\n\n")
 
     #need to return this string for usm-t automatic test generation '{"ant":"a_0,a_1","con":"b_0,b_1"}'
-    return '{\"ant\":\"' + merged_specification['inputs'] + '\",\"con\":\"' + merged_specification['outputs'] + '\"}'
+    print('{\"ant\":\"' + merged_specification['inputs'] + '\",\"con\":\"' + merged_specification['outputs'] + '\"}')
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

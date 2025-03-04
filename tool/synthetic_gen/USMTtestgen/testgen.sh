@@ -36,7 +36,7 @@ TOP_MODULE="top_module"  # Adjust if top module is defined differently
 
 # Run generateTest.sh
 echo "Running generateTest.sh..."
-$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TEST_BASENAME" "$TOP_MODULE" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "0" 
+$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TOP_MODULE" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "0" 
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate test."
