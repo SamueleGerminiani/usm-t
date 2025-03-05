@@ -199,6 +199,105 @@ void dumpConfigStandalone(const UseCase &uc, const Test &test,
           dump_file + "'");
 }
 
+std::vector<std::string> makeHeader(fort::utf8_table &table,
+                                    const Test &test) {
+  std::vector<std::string> line_header;
+
+  table << fort::header;
+  line_header.push_back("Use Case");
+  for (const auto &comparator : test.comparators) {
+    line_header.push_back(comparator.with_strategy);
+    if (comparator.with_strategy != "time_to_mine" &&
+        comparator.with_strategy != "n_mined") {
+      line_header.push_back("");
+    }
+  }
+  return line_header;
+}
+
+std::vector<std::string>
+makeSubHeader(fort::utf8_table &table, const Test &test,
+              std::vector<size_t> &heatmap_configuration_col) {
+  std::vector<std::string> line_subheader;
+  line_subheader.push_back("");
+  for (const auto &comparator : test.comparators) {
+    if (comparator.with_strategy == "time_to_mine") {
+      line_subheader.push_back("");
+      heatmap_configuration_col.push_back(2);
+    } else if (comparator.with_strategy == "fault_coverage") {
+      line_subheader.push_back("FC");
+      heatmap_configuration_col.push_back(1);
+      line_subheader.push_back("MC");
+      heatmap_configuration_col.push_back(2);
+    } else if (comparator.with_strategy == "n_mined") {
+      line_subheader.push_back("");
+      heatmap_configuration_col.push_back(0);
+    } else {
+      line_subheader.push_back("MS");
+      heatmap_configuration_col.push_back(1);
+      line_subheader.push_back("RS");
+      heatmap_configuration_col.push_back(2);
+    }
+  }
+  return line_subheader;
+}
+
+void makeReportEntry(
+    const EvalReportPtr &er, std::vector<std::string> &line,
+    const std::string &usecase_id,
+    std::map<std::string, BestUseCase> &strategyToBestUseCase) {
+
+  if (std::dynamic_pointer_cast<FaultCoverageReport>(er)) {
+    FaultCoverageReportPtr fcr =
+        std::dynamic_pointer_cast<FaultCoverageReport>(er);
+    line.push_back(to_string_with_precision(fcr->fault_coverage, 2));
+    line.push_back(
+        std::to_string(fcr->_minCoveringAssertions.size()));
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, fcr->fault_coverage);
+  } else if (std::dynamic_pointer_cast<SemanticEquivalenceReport>(
+                 er)) {
+    SemanticEquivalenceReportPtr evmr =
+        std::dynamic_pointer_cast<SemanticEquivalenceReport>(er);
+    line.push_back(to_string_with_precision(evmr->_final_score, 2));
+    line.push_back(to_string_with_precision(evmr->_noise, 2));
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, evmr->_final_score);
+  } else if (std::dynamic_pointer_cast<HybridReport>(er)) {
+    HybridReportPtr evmr =
+        std::dynamic_pointer_cast<HybridReport>(er);
+    line.push_back(to_string_with_precision(evmr->_final_score, 2));
+    line.push_back(to_string_with_precision(evmr->_noise, 2));
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, evmr->_final_score);
+  } else if (std::dynamic_pointer_cast<SyntacticSimilarityReport>(
+                 er)) {
+    SyntacticSimilarityReportPtr evmr =
+        std::dynamic_pointer_cast<SyntacticSimilarityReport>(er);
+    line.push_back(to_string_with_precision(evmr->_final_score, 2));
+    line.push_back(to_string_with_precision(evmr->_noise, 2));
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, evmr->_final_score);
+  } else if (std::dynamic_pointer_cast<TemporalReport>(er)) {
+    TemporalReportPtr tr =
+        std::dynamic_pointer_cast<TemporalReport>(er);
+    line.push_back(
+        to_string_with_precision((double)tr->_timeMS / 1000.f, 2) +
+        "s");
+
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, (double)tr->_timeMS / 1000.f, false);
+  } else if (std::dynamic_pointer_cast<NMinedReport>(er)) {
+    NMinedReportPtr nr = std::dynamic_pointer_cast<NMinedReport>(er);
+    line.push_back(std::to_string(nr->_n_mined_assertions));
+
+    strategyToBestUseCase[er->_with_strategy].addUseCase(
+        usecase_id, (double)nr->_n_mined_assertions, false);
+  } else {
+    messageError("Unknown report type");
+  }
+}
+
 void run() {
 
   std::vector<Test> tests = readTestFile(clc::testFile);
@@ -210,59 +309,31 @@ void run() {
     messageInfo("Running test " + test.name);
     std::string summaryReportDumpPath =
         clc::dumpPath + "/summary_report_" + test.name + ".csv";
+    //remove previous report
     if (clc::dumpPath != "" &&
         std::filesystem::exists(summaryReportDumpPath)) {
       std::filesystem::remove(summaryReportDumpPath);
     }
 
-    //print the header of the table
     fort::utf8_table table;
     table.set_border_style(FT_PLAIN_STYLE);
 
-    //header
-    std::vector<std::string> line_header;
-    table << fort::header;
-    line_header.push_back("Use Case");
-    for (const auto &comparator : test.comparators) {
-      line_header.push_back(comparator.with_strategy);
-      if (comparator.with_strategy != "time_to_mine" &&
-          comparator.with_strategy != "n_mined") {
-        line_header.push_back("");
-      }
-    }
-
+    //handle the header of the table
+    std::vector<std::string> line_header = makeHeader(table, test);
     table_rows.push_back(line_header);
     appendCSVLineToFile(summaryReportDumpPath, line_header);
 
-    std::vector<std::string> line_subheader;
+    //handle the subheader of the table
+    std::vector<std::string> line_subheader =
+        makeSubHeader(table, test, heatmap_configuration_col);
     table << fort::header;
-    line_subheader.push_back("");
-    for (const auto &comparator : test.comparators) {
-      if (comparator.with_strategy == "time_to_mine") {
-        line_subheader.push_back("");
-        heatmap_configuration_col.push_back(2);
-      } else if (comparator.with_strategy == "fault_coverage") {
-        line_subheader.push_back("FC");
-        heatmap_configuration_col.push_back(1);
-        line_subheader.push_back("MC");
-        heatmap_configuration_col.push_back(2);
-      } else if (comparator.with_strategy == "n_mined") {
-        line_subheader.push_back("");
-        heatmap_configuration_col.push_back(0);
-      } else {
-        line_subheader.push_back("MS");
-        heatmap_configuration_col.push_back(1);
-        line_subheader.push_back("RS");
-        heatmap_configuration_col.push_back(2);
-      }
-    }
     table_rows.push_back(line_subheader);
     appendCSVLineToFile(summaryReportDumpPath, line_subheader);
 
     std::map<std::string, std::vector<EvalReportPtr>>
         useCaseToEvalReports;
-
     for (auto &use_case : test.use_cases) {
+      //find the absolute path for all paths
       initPathHandler(use_case);
 
       const UseCasePathHandler &ph = use_case.ph;
@@ -362,8 +433,7 @@ void run() {
     } //end of use cases
 
     //report to best use case
-    std::unordered_map<std::string, BestUseCase>
-        strategyToBestUseCase;
+    std::map<std::string, BestUseCase> strategyToBestUseCase;
 
     //AGGREGATE THE EVALUATION REPORTS-------------------
     for (const auto &[usecase_id, report] : useCaseToEvalReports) {
@@ -371,63 +441,7 @@ void run() {
       line.push_back(usecase_id);
       for (const auto &er : report) {
         //smart pointer cast
-        if (std::dynamic_pointer_cast<FaultCoverageReport>(er)) {
-          FaultCoverageReportPtr fcr =
-              std::dynamic_pointer_cast<FaultCoverageReport>(er);
-          line.push_back(
-              to_string_with_precision(fcr->fault_coverage, 2));
-          line.push_back(
-              std::to_string(fcr->_minCoveringAssertions.size()));
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, fcr->fault_coverage);
-        } else if (std::dynamic_pointer_cast<
-                       SemanticEquivalenceReport>(er)) {
-          SemanticEquivalenceReportPtr evmr =
-              std::dynamic_pointer_cast<SemanticEquivalenceReport>(
-                  er);
-          line.push_back(
-              to_string_with_precision(evmr->_final_score, 2));
-          line.push_back(to_string_with_precision(evmr->_noise, 2));
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, evmr->_final_score);
-        } else if (std::dynamic_pointer_cast<HybridReport>(er)) {
-          HybridReportPtr evmr =
-              std::dynamic_pointer_cast<HybridReport>(er);
-          line.push_back(
-              to_string_with_precision(evmr->_final_score, 2));
-          line.push_back(to_string_with_precision(evmr->_noise, 2));
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, evmr->_final_score);
-        } else if (std::dynamic_pointer_cast<
-                       SyntacticSimilarityReport>(er)) {
-          SyntacticSimilarityReportPtr evmr =
-              std::dynamic_pointer_cast<SyntacticSimilarityReport>(
-                  er);
-          line.push_back(
-              to_string_with_precision(evmr->_final_score, 2));
-          line.push_back(to_string_with_precision(evmr->_noise, 2));
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, evmr->_final_score);
-        } else if (std::dynamic_pointer_cast<TemporalReport>(er)) {
-          TemporalReportPtr tr =
-              std::dynamic_pointer_cast<TemporalReport>(er);
-          line.push_back(to_string_with_precision(
-                             (double)tr->_timeMS / 1000.f, 2) +
-                         "s");
-
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, (double)tr->_timeMS / 1000.f, false);
-        } else if (std::dynamic_pointer_cast<NMinedReport>(er)) {
-          NMinedReportPtr nr =
-              std::dynamic_pointer_cast<NMinedReport>(er);
-          line.push_back(std::to_string(nr->_n_mined_assertions));
-
-          strategyToBestUseCase[er->_with_strategy].addUseCase(
-              usecase_id, (double)nr->_n_mined_assertions, false);
-        } else {
-          messageError("Unknown report type");
-        }
-
+        makeReportEntry(er, line, usecase_id, strategyToBestUseCase);
       } //end of reports
       table_rows.push_back(line);
       appendCSVLineToFile(summaryReportDumpPath, line);

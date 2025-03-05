@@ -132,40 +132,4 @@
     <compare with_strategy="time_to_mine"/>
   </test>
 
-  <!--
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  -->
-
-  <input id="2">
-    <csv path="arb2/traces/numeric/csv/golden.csv"/>
-    <verilog path="arb2/design_bool/arb2_bool.v"/>
-  </input>
-
-  <usecase id="harm_usecase_1_numeric">
-    <miner name="harm"/> 
-    <input id="2" type="csv"/>
-    <configuration type="support" path="arb2_ex_numeric/generic.xml"/>
-    <configuration type="run" path="arb2_ex_numeric/run_miner.sh"/>
-    <input_adaptor path="csv_to_csv/run.sh"/>
-    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="numeric/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
-    <docker image="samger/harm:latest"/>  
-  </usecase>
-
-  <!--
-  -->
-  <test_disabled name="arb2_test_1_numeric">
-
-    <usecase id="harm_usecase_1_numeric"/> 
-
-    <expected path="input/arb2/expected/arb2_golden_ass_numeric.txt"/>
-
-    <compare with_strategy="n_mined"/>
-    <compare with_strategy="syntactic_similarity"/>
-    <compare with_strategy="semantic_equivalence"/>
-    <compare with_strategy="hybrid_similarity"/>
-    <compare with_strategy="time_to_mine"/>
-  </test>
-
-
 </usm-t>

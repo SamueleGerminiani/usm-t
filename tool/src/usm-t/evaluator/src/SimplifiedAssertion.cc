@@ -83,6 +83,7 @@ void remapTargets(
   //}
   //exit(0);
 
+  //assign a unique token to semantically equivalent propositions
   size_t tokenID = 0;
   for (const auto &[representant, equivalents] :
        semantically_equivalent) {
@@ -148,28 +149,20 @@ getSimplifiedAssertions(
 
   remapTargets(targetToRemap, all_rtarget_toProposition);
 
-  //retrieve flattened expected assertions
+  //retrieve simplified expected assertions
   for (const auto &a : expected_assertions) {
-    // messageErrorIf(
-    //     !isPropertyAlways(a->_formula),
-    //     "Expecting a safety assertion starting with G, got '" +
-    //         a->toString() + "'");
-    auto flattened_str =
+    auto simplified_str =
         temp2RemapString(a->_formula, targetToRemap,
                          Language::SpotLTL, PrintMode::ShowAll);
-    ret["expected"].push_back({a, flattened_str});
+    ret["expected"].push_back({a, simplified_str});
   }
 
-  //retrieve flattened mined assertions
+  //retrieve simplified mined assertions
   for (const auto &a : mined_assertions) {
-    // messageErrorIf(
-    //     !isPropertyAlways(a->_formula),
-    //     "Expecting a safety assertion starting with G, got '" +
-    //         a->toString() + "'");
-    auto flattened_str =
+    auto simplified_str =
         temp2RemapString(a->_formula, targetToRemap,
                          Language::SpotLTL, PrintMode::ShowAll);
-    ret["mined"].push_back({a, flattened_str});
+    ret["mined"].push_back({a, simplified_str});
   }
 
   return ret;
