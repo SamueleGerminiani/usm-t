@@ -272,7 +272,7 @@ def main():
     #template string formatted in this way "{template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};..."
     parser.add_argument('--templates', type=str, required=True, help='List of template files')
     #trace lenght
-    parser.add_argument('--tracelenght', type=int, default=1000, help='Trace lenght')
+    parser.add_argument('--tracelength', type=int, default=1000, help='Trace length')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -285,7 +285,7 @@ def main():
     globals.top_module_name = args.top_module
     dirpath = args.outdir
     templates = args.templates.replace('"', '').split(';')
-    tracelenght = args.tracelenght
+    tracelenght = args.tracelength
    
     template_list = []
     #parse the template string

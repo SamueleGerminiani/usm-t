@@ -2,8 +2,8 @@
 
 # Usage: ./generate_tests.sh <syntgen_folder> <config_folder> <output_folder> <test_name> <clock_name> <reset_signal> <vcd_scope>
 
-if [ "$#" -ne 9 ]; then
-    echo "Usage: $0 <syntgen_folder> <output_folder> <test_name> <top_module_name> <clock_name> <reset_signal> <vcd_scope> <tracelenght> <install>"
+if [ "$#" -ne 10 ]; then
+    echo "Usage: $0 <syntgen_folder> <output_folder> <test_name> <top_module_name> <clock_name> <template_string> <reset_signal> <vcd_scope> <tracelenght> <install>"
     exit 1
 fi
 
@@ -14,15 +14,29 @@ OUTPUT_FOLDER=$2
 TEST_NAME=$3
 TOP_MODULE_NAME=$4
 CLOCK_NAME=$5
-RESET_SIGNAL=$6
-VCD_SCOPE=$7
-TRACELENGHT=$8
-INSTALL=$9
+TEMPLATE_STRING=$6
+RESET_SIGNAL=$7
+VCD_SCOPE=$8
+TRACELENGHT=$9
+INSTALL="${10:-0}"
+
+
+# Check if SYNTGEN_FOLDER exists and delete if it does
+if [ -d "$SYNTGEN_FOLDER" ]; then
+    echo "Deleting existing syntgen_folder: $SYNTGEN_FOLDER"
+    rm -rf "$SYNTGEN_FOLDER"
+fi
+
+# Check if OUTPUT_FOLDER exists and delete if it does
+if [ -d "$OUTPUT_FOLDER" ]; then
+    echo "Deleting existing output_folder: $OUTPUT_FOLDER"
+    rm -rf "$OUTPUT_FOLDER"
+fi
 
 # Generate the design using generate_from_ltl.py
 #python src/generate_from_ltl.py --parallel 1 --clk clk --debug 0 --templates "{G(..&&.. |=> F ..&&..),3,2,2,3}" --tracelenght 10000
 echo "Generating design using generate_from_ltl.py..."
-GENERATE_OUTPUT=$(python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "\"{G(..&&.. |=> F ..&&..),3,2,2,3}\"" "--tracelenght" "$TRACELENGHT")
+GENERATE_OUTPUT=$(python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGHT")
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate design."
