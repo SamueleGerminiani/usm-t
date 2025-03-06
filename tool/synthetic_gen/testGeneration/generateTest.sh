@@ -68,8 +68,8 @@ golden_vcd_file="$input_base_name/traces/vcd/golden.vcd"
 golden_vcd_name=$(basename $golden_vcd_file)
 golden_csv_file="$input_base_name/traces/csv/golden.csv"
 golden_csv_name=$(basename $golden_csv_file)
-faulty_vcd_dir="$input_base_name/faulty_traces/vcd/"
-expected_file="$input_base_name/expected/specifications.txt"
+faulty_vcd_dir="input/$input_base_name/faulty_traces/vcd/"
+expected_file="input/$input_base_name/expected/specifications.txt"
 out_test_file="$out_dir_path/${test_name}_synthetic.xml"
 
 #check that the generated_design path exists and is a directory
@@ -110,12 +110,12 @@ declare -A substitutions=(
 ["<TEST_NAME>"]="$test_name"
 ["<EXPECTED_FILE>"]="$expected_file"
 ["<FAULTY_VCD_DIR>"]="$faulty_vcd_dir"
-["<HARM_CONFIGURATION>"]="${test_name}_config/config.xml"
-["<HARM_RUN>"]="${test_name}_config/run_miner.sh"
-["<TEXADA_RUN>"]="${test_name}_config/run_miner.sh"
-["<SAMPLES2LTL_RUN>"]="${test_name}_config/run_miner.sh"
-["<GOLDMINER_CONFIGURATION>"]="${test_name}_config/goldmine.cfg"
-["<GOLDMINER_RUN>"]="${test_name}_config/run_miner.sh"
+["<HARM_CONFIGURATION>"]="${test_name}/config.xml"
+["<HARM_RUN>"]="${test_name}/run_miner.sh"
+["<TEXADA_RUN>"]="${test_name}/run_miner.sh"
+["<SAMPLES2LTL_RUN>"]="${test_name}/run_miner.sh"
+["<GOLDMINER_CONFIGURATION>"]="${test_name}/goldmine.cfg"
+["<GOLDMINER_RUN>"]="${test_name}/run_miner.sh"
 )
 
 # Perform substitutions
@@ -134,7 +134,7 @@ mkdir -p "${harm_config_dir}"
 harm_config_file_path="${harm_config_dir}/config.xml"
 generate_harm_xml "$hints" "$harm_config_file_path" "G(..#1&.. |-> P0)"
 harm_run_file_path="${harm_config_dir}/run_miner.sh"
-generate_harm_run "$harm_run_file_path"
+generate_harm_run "$harm_run_file_path" "$clk"
 
 #Goldminer
 goldminer_config_dir="${out_dir_path}/tools/goldminer/configurations/${test_name}"
@@ -142,7 +142,7 @@ mkdir -p "${goldminer_config_dir}"
 goldminer_config_file_path="${goldminer_config_dir}/goldmine.cfg"
 generate_goldminer_config "1000" "4" "3" "$goldminer_config_file_path"
 goldminer_run_file_path="${goldminer_config_dir}/run_miner.sh"
-generate_goldminer_run "$goldminer_run_file_path"
+generate_goldminer_run "$goldminer_run_file_path" "$top_module"
 
 #Texada
 texada_config_dir="${out_dir_path}/tools/texada/configurations/${test_name}"

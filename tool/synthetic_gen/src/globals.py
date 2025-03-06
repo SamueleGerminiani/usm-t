@@ -6,9 +6,9 @@ ltlsynt_prefix = root + '/tool/third_party/spot/bin/'
 hif_tb_prefix = root + '/tool/synthetic_gen/hif_sim/'
 out_folder = root + '/tool/synthetic_gen/temp/'
 debug = False
-clk_name = "clock"
+clk_name = ""
 top_module_name = ""
-tracelenght = 1000
+tracelnegth = 1000
 
 #debug color
 CDBG = '\033[43m'

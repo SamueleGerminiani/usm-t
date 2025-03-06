@@ -48,11 +48,12 @@ function generate_goldminer_config() {
 
 function generate_goldminer_run() {
     local output_file=$1
+    local top_module=$2
 
     # Open file descriptor to write output to file
     exec 3> "$output_file"
 
-    echo "python2.7 ../src/goldmine.py -m test -u /input/ -S -V -f /input/ --clock \"$clk:1\" -v /input/$golden_vcd_name ; find goldmine.out/ -name \"*.gold\" -exec cat {} + > /output/\$MINED_SPECIFICATIONS_FILE" >&3
+    echo "python2.7 ../src/goldmine.py -m $top_module -u /input/ -S -V -f /input/ --clock \"$clk:1\" -v /input/$golden_vcd_name ; find goldmine.out/ -name \"*.gold\" -exec cat {} + > /output/\$MINED_SPECIFICATIONS_FILE" >&3
 
     # Close file descriptor
     exec 3>&-

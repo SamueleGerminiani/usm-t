@@ -42,12 +42,13 @@ function generate_harm_xml() {
 
 function generate_harm_run() {
     local output_file=$1
+    local clk=$2
 
     # Open file descriptor to write output to file
     exec 3> "$output_file"
 
     # Start the XML output
-    echo "./harm --clk clock --conf /input/config.xml --vcd /input/$golden_vcd_name --dump-to /output/\$MINED_SPECIFICATIONS_FILE --vcd-ss $vcd_scope --max-threads \$MAX_THREADS" >&3
+    echo "./harm --clk $clk --conf /input/config.xml --vcd /input/$golden_vcd_name --dump-to /output/\$MINED_SPECIFICATIONS_FILE --vcd-ss $vcd_scope --max-threads \$MAX_THREADS" >&3
 
     # Close file descriptor
     exec 3>&-

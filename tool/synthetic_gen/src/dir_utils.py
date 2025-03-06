@@ -86,7 +86,6 @@ def create_outfolder():
             exit(1)
 
 def generateCSV():
-    global clk_name
     #create the csv traces from vcd traces
     try:
         subprocess.run(f"{globals.root}/tool/build/vcd2csv --vcd-dir {globals.out_folder}faulty_traces/vcd --clk {globals.clk_name} --vcd-ss \"{globals.top_module_name}_bench::{globals.top_module_name}_\" --dump-to {globals.out_folder}faulty_traces/csv",stdout=subprocess.DEVNULL if not globals.debug else None,stderr=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)

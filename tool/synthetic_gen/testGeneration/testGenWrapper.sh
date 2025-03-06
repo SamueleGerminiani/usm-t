@@ -8,7 +8,6 @@ if [ "$#" -ne 10 ]; then
 fi
 
 SYNTGEN_FOLDER=$1
-#CONFIG_FOLDER=$2
 CONFIG_FOLDER="$USMT_ROOT/miners/usmt_default_config.xml"
 OUTPUT_FOLDER=$2
 TEST_NAME=$3
@@ -34,9 +33,9 @@ if [ -d "$OUTPUT_FOLDER" ]; then
 fi
 
 # Generate the design using generate_from_ltl.py
-#python src/generate_from_ltl.py --parallel 1 --clk clk --debug 0 --templates "{G(..&&.. |=> F ..&&..),3,2,2,3}" --tracelenght 10000
 echo "Generating design using generate_from_ltl.py..."
 GENERATE_OUTPUT=$(python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGHT")
+#python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGHT" "--debug" "1"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate design."
@@ -46,12 +45,9 @@ fi
 # Extract returned string from generate_from_ltl.py
 RETURNED_STRING=$(echo "$GENERATE_OUTPUT" | tail -n 1)  # Assuming the last line is the output string
 
-# Determine the top module from the design folder
-TOP_MODULE="top_module"  # Adjust if top module is defined differently
-
 # Run generateTest.sh
 echo "Running generateTest.sh..."
-$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TOP_MODULE" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "$INSTALL"
+$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TOP_MODULE_NAME" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "$INSTALL"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate test."

@@ -36,7 +36,7 @@
     <docker image="samger/samples2ltl:latest"/>  
   </usecase>
 
-  <usecase id="goldminer_usecase_best">
+  <usecase id="goldminer_default">
     <miner name="goldminer"/>
     <input id="0" type="vcd,verilog"/>
     <configuration type="support" path="<GOLDMINER_CONFIGURATION>"/>

@@ -109,7 +109,7 @@ def expand_spec(specification, numprops, assnumb):
     ret_spec['formula'] = formula
     ret_spec['inputs'] = ins
     ret_spec['outputs'] = outs
-    if debug:
+    if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print(f"Expanded formula: {ret_spec['formula']}")
     return ret_spec
@@ -136,7 +136,7 @@ def create_specification(template_list,modules):
         for j, num in enumerate(range(1, template['nspec'] + 1), start=1):
             #expand special templates
             if '..' in specification['formula']:
-                if debug:
+                if globals.debug:
                     print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
                     print(f"Expanding template")
 
@@ -168,7 +168,7 @@ def create_specification(template_list,modules):
             #update the global spec counter    
             specounter += 1
 
-    if debug:
+    if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
         print("Merged specification:")
         print(merged_specification)
@@ -251,10 +251,6 @@ def overlap_spec(spec_list,merged_specification,overlap):
     current_spec['formula'] = current_spec_overlapped
 
 def main():
-    global debug 
-    global clk_name
-    global tracelenght
-    global top_module_name
 
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
     #input parameters
@@ -262,17 +258,17 @@ def main():
     #submodules flag
     parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
     #optional clock name 
-    parser.add_argument('--clk', type=str, default='clock', help='Clock signal name')
+    parser.add_argument('--clk', type=str, help='Clock signal name')
     #top module name
-    parser.add_argument('--top_module', type=str, default='top_module', help='Top module name')
+    parser.add_argument('--top_module', type=str, help='Top module name')
     #debug flag
     parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
     #output directory
-    parser.add_argument('--outdir', type=str, default='./synthetic_gen_output', help='Output directory')
+    parser.add_argument('--outdir', type=str, help='Output directory')
     #template string formatted in this way "{template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};..."
     parser.add_argument('--templates', type=str, required=True, help='List of template files')
     #trace lenght
-    parser.add_argument('--tracelength', type=int, default=1000, help='Trace length')
+    parser.add_argument('--tracelength', type=int, help='Trace length')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -280,12 +276,12 @@ def main():
 
     args = parser.parse_args()
     modules = args.parallel == 1
-    debug = args.debug == 1
-    clk_name = args.clk
+    globals.debug = args.debug == 1
+    globals.clk_name = args.clk
     globals.top_module_name = args.top_module
     dirpath = args.outdir
     templates = args.templates.replace('"', '').split(';')
-    tracelenght = args.tracelength
+    globals.tracelnegth = args.tracelength
    
     template_list = []
     #parse the template string

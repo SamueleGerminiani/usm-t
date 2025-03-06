@@ -11,3 +11,8 @@ hif_sim/traces
 synthetic_gen_output
 gmon.out 
 src/__pycache__
+hif_sim/injected/
+hif_sim/synthetic_design.ddt.a2t.hif.xml
+hif_sim/synthetic_design.ddt.a2t.muffin.hif.xml
+hif_sim/synthetic_design.ddt.hif.xml
+hif_sim/synthetic_design.hif.xml

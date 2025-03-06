@@ -1,9 +1,6 @@
 import os
 import subprocess
 import globals
-global debug
-global top_module_name
-global clk_name
 
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
@@ -76,15 +73,24 @@ def run_hifsuite(specification):
 
     #create rtl folder if needed
     rtl_folder = os.path.join(globals.hif_tb_prefix, 'rtl')
-    if not os.path.exists(rtl_folder):
+    #delete the folder if it already exists
+    if os.path.exists(rtl_folder):
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
+            print(f"Removing existing rtl directory\n")
         try:
-            os.makedirs(rtl_folder)
-            if globals.debug:
-                print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-                print(f"Created directory: {rtl_folder}")
-        except OSError as e:
-            print(globals.CERR +"Error:" + globals.CEND + f"Failed to create directory {rtl_folder}. {e}")
+            subprocess.run(f"rm -rf {rtl_folder}", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(globals.CERR +"Error:" + globals.CEND + f"Failed to remove rtl directory. {e}")
             exit(1)
+    try:
+        os.makedirs(rtl_folder)
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
+            print(f"Created directory: {rtl_folder}")
+    except OSError as e:
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to create directory {rtl_folder}. {e}")
+        exit(1)
 
     #move all .v in outs folder to hif folder 
     try:
@@ -293,7 +299,7 @@ def generate_testbench(specification):
 
           // faults
           int32_t cycles_number = 0;
-          size_t traceLength = """ + f"{globals.tracelenght}" + """ * 2;  // 1000 positive and 1000 negative edges
+          size_t traceLength = """ + f"{globals.tracelnegth}" + """ * 2;  // 1000 positive and 1000 negative edges
 
           bool """ + f"{globals.clk_name}"+"""_0 = 0;
 
