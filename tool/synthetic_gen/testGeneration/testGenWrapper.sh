@@ -2,8 +2,8 @@
 
 # Usage: ./generate_tests.sh <syntgen_folder> <config_folder> <output_folder> <test_name> <clock_name> <reset_signal> <vcd_scope>
 
-if [ "$#" -ne 8 ]; then
-    echo "Usage: $0 <syntgen_folder> <output_folder> <test_name> <top_module_name> <clock_name> <reset_signal> <vcd_scope> <tracelenght>"
+if [ "$#" -ne 9 ]; then
+    echo "Usage: $0 <syntgen_folder> <output_folder> <test_name> <top_module_name> <clock_name> <reset_signal> <vcd_scope> <tracelenght> <install>"
     exit 1
 fi
 
@@ -17,6 +17,7 @@ CLOCK_NAME=$5
 RESET_SIGNAL=$6
 VCD_SCOPE=$7
 TRACELENGHT=$8
+INSTALL=$9
 
 # Generate the design using generate_from_ltl.py
 #python src/generate_from_ltl.py --parallel 1 --clk clk --debug 0 --templates "{G(..&&.. |=> F ..&&..),3,2,2,3}" --tracelenght 10000
@@ -36,7 +37,7 @@ TOP_MODULE="top_module"  # Adjust if top module is defined differently
 
 # Run generateTest.sh
 echo "Running generateTest.sh..."
-$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TOP_MODULE" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "0" 
+$USMT_ROOT/tool/synthetic_gen/testGeneration/generateTest.sh "$SYNTGEN_FOLDER" "$CONFIG_FOLDER" "$OUTPUT_FOLDER" "$TEST_NAME" "$TOP_MODULE" "$CLOCK_NAME" "$RESET_SIGNAL" "$VCD_SCOPE" "$RETURNED_STRING" "$INSTALL"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate test."
