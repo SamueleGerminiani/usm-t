@@ -39,7 +39,7 @@ public:
     if (_minCoveringAssertions.size() > 0) {
       ss << "Min covering set size: " << _minCoveringAssertions.size()
          << "\n";
-      ss << "-------Min Covering Assertions----------\n";
+      ss << "-------Min Covering Specifications----------\n";
       for (const auto &assertion : _minCoveringAssertions) {
         ss << "\t" << assertion << "\n";
       }
