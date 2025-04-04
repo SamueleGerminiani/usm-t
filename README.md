@@ -1,5 +1,6 @@
 
 # The official repository of the Universal Specification Miner Tester (USM-T) tool
+<img src="icon.png" alt="drawing" width="200"/>
 
 ## Table of contents
 
@@ -23,6 +24,8 @@
 ## Project info
 
 This project introduces a robust framework designed for evaluating and comparing LTL (Linear Temporal Logic) specification miners. Traditional approaches often struggle with subjective assessments and intricate configurations; our solution addresses these issues by offering a structured methodology to assess the quality of specifications through both semantic and syntactic analyses.
+
+![](usmt_demo.gif)
 
 ## Quick start
 
