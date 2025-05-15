@@ -56,10 +56,10 @@ Here is a brief explanation of the program inputs:
 - **templates**: String that contains a list of templates
 
     ## About templates: 
-    A list of templates that can be specified by the user as a string. Each template need represents the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
+    A list of templates that can be specified by the user as a string. Each template represents the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
     The accepted format for the template string is as follows: 
     ```bash
-    {template1,nant,ncon,nspec,overlap},{template2,nant,ncon,nspec,overlap},...
+    {template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};...
     ```
     Where:
     - **nant**: number of proposition that will be used for expanding the antecedent
@@ -67,7 +67,7 @@ Here is a brief explanation of the program inputs:
     - **nspec**: number of specification that will be generated from this template
     - **overlap**: number of proposition that will be overlapped with other specifications
 
-    The templates can be specified using special placeholders (**..&&..**, **..##N..** and **..#1&..**) taht will be expanded as follows:
+    The templates can be specified using special placeholders (**..&&..**, **..##N..** and **..#N&..**) taht will be expanded as follows:
     -  **..&&..** : prop0 & prop1 & prop2 & ...
     -  **..##N..** : prop0 ##N prop1 ##N prop2 ##N ...
     -  **..#N&..** : prop0 & prop1 ##N prop2 & ...
