@@ -154,6 +154,7 @@ VarDeclaration toVarDeclaration(std::string name, std::string type,
 
   VarDeclaration ret;
   auto [t, s] = variableTypeFromString(type, size);
+  ret.setBase(getTypeBase(type));
 
   if (isInt(t) && s > 64) {
     messageWarning("Truncating '" + name + "' to 64 bits");

@@ -45,7 +45,7 @@ public:
   void setBase(size_t base);
 
 /// @brief Returns the base of the integer/logic variable
-  size_t getBase();
+  size_t getBase() const;
 
 private:
   /// @brief Stores the name of the variable.

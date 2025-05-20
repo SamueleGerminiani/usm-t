@@ -157,6 +157,7 @@ TracePtr CSVtraceReader::readTrace(const std::string file) {
     size_t fieldIndex = 0;
     //for each field of the row
     for (CSVField &field : row) {
+      std::string val = removeSpaces(field.get());
       //varIndexToBucket[fieldIndex] is the type of the variable in the field, all vars are ordered by type and occurrence in the csv header
       if (vars_dt[fieldIndex].getType() == ExpType::Bool) {
         boolVars[bfieldIndex++]->assign(time,
@@ -166,7 +167,6 @@ TracePtr CSVtraceReader::readTrace(const std::string file) {
         numVars[ffieldIndex++]->assign(time, safeStod(field.get()));
       } else if (isInt(vars_dt[fieldIndex].getType())) {
         size_t base = vars_dt[fieldIndex].getBase();
-        auto val = field.get();
         if (base == 2) {
           messageErrorIf(!isBase2(val),
                          "val '" + val +
@@ -178,7 +178,7 @@ TracePtr CSVtraceReader::readTrace(const std::string file) {
           }
           std::replace_if(
               val.begin(), val.end(),
-              [](char c) { return c == 'x' || c == 'z'; }, '0');
+              [](char c) { return c == 'x' || c == 'z' || c == 'X' || c == 'Z'; }, '0');
         }
         if (intVars[ifieldIndex]->getType().first == ExpType::SInt) {
           intVars[ifieldIndex]->assign(time, safeStoll(val, base));
