@@ -121,7 +121,6 @@ void parseCommandLineArguments(int argc, char *args[]) {
                        result["vcd-dir"].as<std::string>());
   }
 
-  messageInfo("Using test file: " + clc::testFile);
 
   if (result.count("dump-to")) {
     clc::dumpPath = result["dump-to"].as<std::string>();
