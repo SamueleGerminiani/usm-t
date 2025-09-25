@@ -193,7 +193,7 @@ def overlap_spec(spec_list,merged_specification,overlap):
     #Divide the overlap value by 2 to gen an equal overlap on both sides
     #Arbitrarily assign the extra overlap to the consequent side
     overlap_ant = (overlap // 2)
-    overlap_con = overlap // 2+ (overlap % 2)
+    overlap_con = (overlap // 2) + (overlap % 2)
 
     #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
     if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
