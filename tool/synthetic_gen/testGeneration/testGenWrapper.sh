@@ -16,7 +16,7 @@ CLOCK_NAME=$5
 TEMPLATE_STRING=$6
 RESET_SIGNAL=$7
 VCD_SCOPE=$8
-TRACELENGHT=$9
+TRACELENGTH=$9
 INSTALL="${10:-0}"
 
 
@@ -34,8 +34,8 @@ fi
 
 # Generate the design using generate_from_ltl.py
 echo "Generating design using generate_from_ltl.py..."
-GENERATE_OUTPUT=$(python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGHT")
-#python3 $USMT_ROOT/tool/synthetic_gen/src/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGHT" "--debug" "1"
+GENERATE_OUTPUT=$(python3 $USMT_ROOT/tool/synthetic_gen/generate_from_ltl/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGTH")
+#python3 $USMT_ROOT/tool/synthetic_gen/generate_from_ltl/generate_from_ltl.py "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$SYNTGEN_FOLDER" "--templates" "$TEMPLATE_STRING" "--tracelength" "$TRACELENGTH" "--debug" "1"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate design."
