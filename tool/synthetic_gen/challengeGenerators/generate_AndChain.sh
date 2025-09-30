@@ -13,7 +13,7 @@ bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
 AndChain \
 AndChain_top \
 clk \
-"{G(..&&.. |=> ..&&..),3,3,5,0}" \
+"{formula : G(..&&.. |=> ..&&..), nant : 3, ncon : 3, nspec: 10, overlap : 0}" \
 rst \
 AndChain_top_bench::AndChain_top_ \
 1000 \

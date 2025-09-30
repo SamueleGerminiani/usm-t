@@ -157,12 +157,12 @@ def create_specification(template_list,modules):
 
             #for each iteration add the expanded formula to the list
             spec_list.append(copy.deepcopy(expanded_formula))
+            
                 
             overlap_spec(spec_list,merged_specification,template['overlap'])
 
             # Write expanded formulas to a file
             with open(globals.out_folder + 'specifications.txt', 'a') as file:
-            #    file.write(f"Expanded formula {j} for template {i}:\n")
                 file.write(f"{expanded_formula['formula']}\n")
 
             #update the global spec counter    
@@ -251,23 +251,19 @@ def overlap_spec(spec_list,merged_specification,overlap):
     current_spec['formula'] = current_spec_overlapped
 
 def main():
-
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
-    #input parameters
+    # input parameters
     parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
-    #submodules flag
-    parser.add_argument('--parallel', type=int, choices=[0, 1], required=True, help='Enable parallel module generation (1 for true, 0 for false)')
-    #optional clock name 
+    parser.add_argument('--parallel', type=int, choices=[0, 1], required=True,
+                        help='Enable parallel module generation (1 for true, 0 for false)')
     parser.add_argument('--clk', type=str, help='Clock signal name')
-    #top module name
     parser.add_argument('--top_module', type=str, help='Top module name')
-    #debug flag
-    parser.add_argument('--debug', type=int, choices=[0, 1],default=0, help='Enable debug mode (1 for true, 0 for false)')
-    #output directory
+    parser.add_argument('--debug', type=int, choices=[0, 1], default=0,
+                        help='Enable debug mode (1 for true, 0 for false)')
     parser.add_argument('--outdir', type=str, help='Output directory')
-    #template string formatted in this way "{template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};..."
-    parser.add_argument('--templates', type=str, required=True, help='List of template files')
-    #trace lenght
+    parser.add_argument('--templates', type=str, required=True,
+                        help='List of template files, format: '
+                             '"{formula : G(P0 -> P1), nant : 1, ncon : 1, nspec : 2, overlap : 1};..."')
     parser.add_argument('--tracelength', type=int, help='Trace length')
 
     if len(sys.argv) == 1:
@@ -282,65 +278,110 @@ def main():
     dirpath = args.outdir
     templates = args.templates.replace('"', '').split(';')
     globals.tracelnegth = args.tracelength
-   
+
+    required_keys = {"formula": str, "nant": int, "ncon": int, "nspec": int, "overlap": int}
     template_list = []
-    #parse the template string
-    for template in templates:
+
+    for idx, template in enumerate(templates, 1):
+
         specification = {}
-        #remove external brackets and split template into parts
-        temp = template.strip()[1:-1].split(',')
-        #split on commas and populate specifications fields accordingly
-        specification["formula"] = temp[0]
-        specification["nant"] = int(temp[1])
-        specification["ncon"] = int(temp[2])
-        specification["nspec"] = int(temp[3])
-        specification["overlap"] = int(temp[4])
+        template = template.strip()
+
+        # must start with { and end with }
+        if not (template.startswith("{") and template.endswith("}")):
+            raise ValueError(f"Template #{idx} is ill-formed (missing braces): {template}")
+
+        inner = template[1:-1].strip()
+        if not inner:
+            raise ValueError(f"Template #{idx} is empty: {template}")
+
+        # split by commas not inside parentheses
+        pairs = re.split(r',(?![^(]*\))', inner)
+        for pair in pairs:
+            if ':' not in pair:
+                raise ValueError(f"Template #{idx} has malformed pair (missing ':'): {pair}")
+            key, value = pair.split(':', 1)
+            key = key.strip()
+            value = value.strip()
+
+            # check if key is expected
+            if key not in required_keys:
+                raise ValueError(f"Template #{idx} contains unexpected key '{key}'")
+
+            # type check and conversion
+            expected_type = required_keys[key]
+            if expected_type == int:
+                if not value.isdigit():
+                    raise ValueError(f"Template #{idx}, key '{key}' must be an integer, got '{value}'")
+                value = int(value)
+            else:
+                if not value:
+                    raise ValueError(f"Template #{idx}, key '{key}' must be a non-empty string")
+            specification[key] = value
+
+        # check if all required keys are present
+        missing = required_keys.keys() - specification.keys()
+        if missing:
+            raise ValueError(f"Template #{idx} missing required keys: {', '.join(missing)}")
+
         template_list.append(copy.deepcopy(specification))
 
-    print(globals.CSTP + "1." + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND + " \n")
+    print(globals.CSTP + "1." + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n")
     print(globals.CSTP + "2." + globals.CEND + " Creating LTL specifications" + " \n")
-    
-    #create the output directory
+
     dir_utils.create_outfolder()
+    merged_specification, spec_list = create_specification(template_list, modules)
 
-    #create the specifications
-    merged_specification, spec_list = create_specification(template_list,modules)
+    print(globals.CSTP + "2." + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n")
 
-    print(globals.CSTP + "2."  + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
     ###############################################################
     ############### GENERATION AND SIMULATION STAGE ###############
-    ###############################################################  
-    print(globals.CSTP + "3."  + globals.CEND + " Generating circuit from specification" + " \n")
-    rtl_utils.generate_circuit(merged_specification,spec_list, modules)
-    print(globals.CSTP + "3."  + globals.CEND + "     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
-    
+    ###############################################################
+    print(globals.CSTP + "3." + globals.CEND + " Generating circuit from specification" + " \n")
+    rtl_utils.generate_circuit(merged_specification, spec_list, modules)
+    print(globals.CSTP + "3." + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n")
+
     print(globals.CSTP + "4." + globals.CEND + " Running HIFSuite" + " \n")
     hif_utils.run_hifsuite(merged_specification)
-    print(globals.CSTP + "4."  + globals.CEND +"     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
-    
+    print(globals.CSTP + "4." + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n")
+
     if os.path.exists(f"{globals.root}/tool/build/vcd2csv"):
-        print(globals.CSTP +"4.5" + globals.CEND + " Creating CSV traces" + " \n")
+        print(globals.CSTP + "4.5" + globals.CEND + " Creating CSV traces" + " \n")
         dir_utils.generateCSV()
         try:
-            subprocess.run(f"mv {globals.out_folder}faulty_traces/csv/golden.csv {globals.out_folder}traces/csv/", shell=True, check=True)
-            subprocess.run(f"mv {globals.out_folder}faulty_traces/vcd/golden.vcd {globals.out_folder}traces/vcd/", shell=True, check=True)
+            subprocess.run(f"mv {globals.out_folder}faulty_traces/csv/golden.csv "
+                           f"{globals.out_folder}traces/csv/", shell=True, check=True)
+            subprocess.run(f"mv {globals.out_folder}faulty_traces/vcd/golden.vcd "
+                           f"{globals.out_folder}traces/vcd/", shell=True, check=True)
         except subprocess.CalledProcessError as e:
-            print(globals.CERR +"Error:" + globals.CEND + f"Failed to move golden traces to {globals.out_folder}/traces. {e}")
+            print(globals.CERR + "Error:" + globals.CEND +
+                  f"Failed to move golden traces to {globals.out_folder}/traces. {e}")
 
-        print(globals.CSTP + "4.5"  + globals.CEND +"     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
+        print(globals.CSTP + "4.5" + globals.CEND + "     " +
+              globals.CSTP + "Complete!" + globals.CEND + " \n")
     else:
-        print(globals.CERR +"4.5" + globals.CEND + " Skipping CSV traces creation")
-        print(globals.CERR +"4.5" + globals.CEND + " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n")
-    
-    print(globals.CSTP +"5." + globals.CEND +" Populating selected output directory" + " \n")
-    dir_utils.populate_output_dir(dirpath)
-    
-    print(globals.CSTP + "5."  + globals.CEND +"     " + globals.CSTP + "Complete!" + globals.CEND +  " \n")
-    print(globals.CSTP + "#################" + globals.CEND + f" Procedure complete! All generated files can be found in {dirpath} " + globals.CSTP + "#################"+ globals.CEND + "\n\n")
+        print(globals.CERR + "4.5" + globals.CEND + " Skipping CSV traces creation")
+        print(globals.CERR + "4.5" + globals.CEND +
+              " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n")
 
-    #need to return this string for usm-t automatic test generation '{"ant":"a_0,a_1","con":"b_0,b_1"}'
-    print('{\"ant\":\"' + merged_specification['inputs'] + '\",\"con\":\"' + merged_specification['outputs'] + '\"}')
+    print(globals.CSTP + "5." + globals.CEND + " Populating selected output directory" + " \n")
+    dir_utils.populate_output_dir(dirpath)
+
+    print(globals.CSTP + "5." + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n")
+    print(globals.CSTP + "#################" + globals.CEND +
+          f" Procedure complete! All generated files can be found in {dirpath} " +
+          globals.CSTP + "#################" + globals.CEND + "\n\n")
+
+    # need to return this string for usm-t automatic test generation
+    print('{\"ant\":\"' + merged_specification['inputs'] +
+          '\",\"con\":\"' + merged_specification['outputs'] + '\"}')
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

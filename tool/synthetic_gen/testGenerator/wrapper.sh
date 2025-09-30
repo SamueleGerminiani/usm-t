@@ -57,7 +57,17 @@ mkdir -p "$TEST_OUTPUT_FOLDER"
 
 # Generate the design using input_generator.py
 echo "Generating test input (design + traces) using input_generator.py..."
-INPUT_GENERATOR_OUTPUT_STRING=$(python3 "$USMT_ROOT/tool/synthetic_gen/testGenerator/input_generator/input_generator.py" "--parallel" "1" "--top_module" "$TOP_MODULE_NAME" "--clk" "$CLOCK_NAME" "--outdir" "$INPUT_GENERATOR_OUTPUT_FOLDER" --templates "$TEMPLATE_STRING" "--tracelength" "$TRACE_LENGTH" "--debug" "$DEBUG")
+INPUT_GENERATOR_OUTPUT_STRING=$(
+    python3 "$USMT_ROOT/tool/synthetic_gen/testGenerator/input_generator/input_generator.py" \
+        --parallel "1" \
+        --top_module "$TOP_MODULE_NAME" \
+        --clk "$CLOCK_NAME" \
+        --outdir "$INPUT_GENERATOR_OUTPUT_FOLDER" \
+        --templates "$TEMPLATE_STRING" \
+        --tracelength "$TRACE_LENGTH" \
+        --debug "$DEBUG" \
+    | tee /dev/tty | tail -n 1
+)
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate input."
