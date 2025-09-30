@@ -49,6 +49,8 @@ function generate_goldminer_config() {
 function generate_goldminer_run() {
     local output_file=$1
     local top_module=$2
+    local clk=$3
+    local golden_vcd_name=$4
 
     # Open file descriptor to write output to file
     exec 3> "$output_file"

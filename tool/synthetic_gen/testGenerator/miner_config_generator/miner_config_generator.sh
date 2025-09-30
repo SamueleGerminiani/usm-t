@@ -42,6 +42,7 @@ fi
 
 #This is the path to the directory containing a generated synthetic design and traces (must follow a predifined internal structure and naming convention) + the output path for the config files
 CONFIG_OUTPUT_FOLDER="$1"
+
 #Path to the template of the test file: this will be used to generate the test file
 TEST_CONFIG_TEMPLATE="$USMT_ROOT/miners/usmt_default_config.xml"
 #Name of the test (arbitrary)
@@ -58,15 +59,14 @@ VCD_SCOPE="$6"
 HINTS="$7"
 
 
-input_base_name=$(basename $CONFIG_OUTPUT_FOLDER)
-verilog_dir="$input_base_name/design/"
-golden_vcd_file="$input_base_name/traces/vcd/golden.vcd"
-golden_vcd_name=$(basename $golden_vcd_file)
-golden_csv_file="$input_base_name/traces/csv/golden.csv"
-golden_csv_name=$(basename $golden_csv_file)
-faulty_vcd_dir="input/$input_base_name/faulty_traces/vcd/"
-expected_file="input/$input_base_name/expected/specifications.txt"
-out_test_file="$CONFIG_OUTPUT_FOLDER/${TEST_NAME}_synthetic.xml"
+VERILOG_DIR="$TEST_NAME/design/"
+GOLDEN_VCD_FILE="$TEST_NAME/traces/vcd/golden.vcd"
+GOLDEN_VCD_NAME=$(basename $GOLDEN_VCD_FILE)
+GOLDEN_CSV_FILE="$TEST_NAME/traces/csv/golden.csv"
+GOLDEN_CSV_NAME=$(basename $GOLDEN_CSV_FILE)
+FAULTY_VCD_DIR="input/$TEST_NAME/faulty_traces/vcd/"
+EXPECTED_FILE="input/$TEST_NAME/expected/specifications.txt"
+OUT_TEST_FILE="$CONFIG_OUTPUT_FOLDER/${TEST_NAME}_synthetic.xml"
 
 #check that the generated_design path exists and is a directory
 if [ ! -d "$CONFIG_OUTPUT_FOLDER" ]; then
@@ -93,16 +93,16 @@ fi
 
 # Define substitutions: "ORIGINAL":"SUB"
 declare -A substitutions=(
-["<GOLDEN_VCD_FILE>"]="$golden_vcd_file"
+["<GOLDEN_VCD_FILE>"]="$GOLDEN_VCD_FILE"
 ["<CLK>"]="$CLOCK_NAME"
 ["<RST>"]="$RESET_NAME"
 ["<VCD_SCOPE>"]="$VCD_SCOPE"
-["<VERILOG_DIR>"]="$verilog_dir"
-["<CSV_FILE>"]="$golden_csv_file"
+["<VERILOG_DIR>"]="$VERILOG_DIR"
+["<CSV_FILE>"]="$GOLDEN_CSV_FILE"
 ["<TOP_MODULE>"]="$TOP_MODULE_NAME"
 ["<TEST_NAME>"]="$TEST_NAME"
-["<EXPECTED_FILE>"]="$expected_file"
-["<FAULTY_VCD_DIR>"]="$faulty_vcd_dir"
+["<EXPECTED_FILE>"]="$EXPECTED_FILE"
+["<FAULTY_VCD_DIR>"]="$FAULTY_VCD_DIR"
 ["<HARM_CONFIGURATION>"]="${TEST_NAME}/config.xml"
 ["<HARM_RUN>"]="${TEST_NAME}/run_miner.sh"
 ["<TEXADA_RUN>"]="${TEST_NAME}/run_miner.sh"
@@ -112,30 +112,30 @@ declare -A substitutions=(
 )
 
 # Perform substitutions
-cp "$TEST_CONFIG_TEMPLATE" "$out_test_file"
+cp "$TEST_CONFIG_TEMPLATE" "$OUT_TEST_FILE"
 
 # Perform substitutions using sed with alternative delimiter "|"
 for original in "${!substitutions[@]}"
 do
     sub=${substitutions[$original]}
-    sed -i "s|$original|$sub|g" "$out_test_file"
+    sed -i "s|$original|$sub|g" "$OUT_TEST_FILE"
 done
 
 #HARM
 harm_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/harm/configurations/${TEST_NAME}"
 mkdir -p "${harm_config_dir}"
 harm_config_file_path="${harm_config_dir}/config.xml"
-generate_harm_xml "$HINTS" "$harm_config_file_path" "G(..#1&.. |-> P0)"
+generate_harm_xml "$harm_config_file_path" "G(..#1&.. |-> P0)" "$HINTS" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" 
 harm_run_file_path="${harm_config_dir}/run_miner.sh"
-generate_harm_run "$harm_run_file_path" "$CLOCK_NAME"
+generate_harm_run "$harm_run_file_path" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" "$CLOCK_NAME" 
 
 #Goldminer
 goldminer_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/goldminer/configurations/${TEST_NAME}"
 mkdir -p "${goldminer_config_dir}"
 goldminer_config_file_path="${goldminer_config_dir}/goldmine.cfg"
-generate_goldminer_config "1000" "4" "3" "$goldminer_config_file_path"
+generate_goldminer_config "1000000" "4" "3" "$goldminer_config_file_path"
 goldminer_run_file_path="${goldminer_config_dir}/run_miner.sh"
-generate_goldminer_run "$goldminer_run_file_path" "$TOP_MODULE_NAME"
+generate_goldminer_run "$goldminer_run_file_path" "$TOP_MODULE_NAME" "$CLOCK_NAME" "$GOLDEN_VCD_NAME"
 
 #Texada
 texada_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/texada/configurations/${TEST_NAME}"

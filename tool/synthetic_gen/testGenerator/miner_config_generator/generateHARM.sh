@@ -1,8 +1,10 @@
 #!/bin/bash
 function generate_harm_xml() {
-    local hint_string=$1
-    local output_file=$2
-    local template="$3"
+    local output_file=$1
+    local template="$2"
+    local hint_string=$3
+    local golden_vcd_name=$4
+    local vcd_scope=$5
 
     # Parse the input string into antecedent and consequence variables
     local ant=$(echo $hint_string | grep -oP '"ant":"\K[^"]*')
@@ -30,7 +32,7 @@ function generate_harm_xml() {
     done
 
     # Add the remaining static parts of the XML
-    echo "    <template dtLimits=\"3A,1E,O\" exp=\"$template\" />" >&3
+    echo "    <template dtLimits=\"3A,0E,O\" exp=\"$template\" />" >&3
     echo "    <sort name=\"causality\" exp=\"1-afct/traceLength\"/>" >&3
     echo "    <sort name=\"frequency\" exp=\"atct/traceLength\"/>" >&3
     echo "  </context>" >&3
@@ -42,7 +44,10 @@ function generate_harm_xml() {
 
 function generate_harm_run() {
     local output_file=$1
-    local clk=$2
+    local golden_vcd_name=$2
+    local vcd_scope=$3
+    local clk=$4
+
 
     # Open file descriptor to write output to file
     exec 3> "$output_file"
