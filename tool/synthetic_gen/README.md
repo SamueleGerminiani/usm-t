@@ -1,7 +1,7 @@
 # Syntetic generation of verilog designs
 
 ## Description
-This project allows to generate automatically a verilog implementation starting from LTL specifications. Together with the Verilog design, the execution traces and design specification are generated.
+This tool allows to generate automatically a verilog implementation starting from LTL specifications. Together with the Verilog design, the execution traces and design specification are generated.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -34,11 +34,13 @@ To enable this functionality "vcd2csv" needs to be compiled using the USM-T comp
 To run the generation of verilog designs simply use the following command from the "tool/syntetic_gen" folder: 
 
 ```bash
-# Run the project
-python generate_from_ltl.py config_file.xml
+# Run the tool
+python generate_from_ltl.py --ARGS
 ```
+<sub>The arguments are presented [here](#arguments).</sub>
 
 ## Arguments
+
 The program generates a verilog design based on templates provided in input.
 
 You can see all the cmd line options by running:
@@ -52,14 +54,16 @@ Here is a brief explanation of the program inputs:
 - **parallel**: boolean value (0 or 1). If set to 1 each specification will be used to generate a standalone module. If set to 0 a single monolitic module will be generated
 - **[Optional] clk**: String that can be used to specify a custom clock name 
 - **debug**: bolean value. If 1 enable debug features
+- **top_module**: Specify the name for the top module of the generated design
 - **[Optional] outdir**: path to the directory for the generated files. If not specified the default directory is ".synthetic_gen_output"
+- **tracelength**: Number of time instants of the generated execution traces
 - **templates**: String that contains a list of templates
 
     ## About templates: 
-    A list of templates that can be specified by the user as a string. Each template need represents the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
+    A list of templates that can be specified by the user as a string. Each template represents the LTL formula structure. A template is accepted by the tool if it is accepted by the ltlsynt grammar (see https://spot.lre.epita.fr/ltlsynt.html).
     The accepted format for the template string is as follows: 
     ```bash
-    {template1,nant,ncon,nspec,overlap},{template2,nant,ncon,nspec,overlap},...
+    {template1,nant,ncon,nspec,overlap};{template2,nant,ncon,nspec,overlap};...
     ```
     Where:
     - **nant**: number of proposition that will be used for expanding the antecedent
@@ -67,7 +71,7 @@ Here is a brief explanation of the program inputs:
     - **nspec**: number of specification that will be generated from this template
     - **overlap**: number of proposition that will be overlapped with other specifications
 
-    The templates can be specified using special placeholders (**..&&..**, **..##N..** and **..#1&..**) taht will be expanded as follows:
+    The templates can be specified using special placeholders (**..&&..**, **..##N..** and **..#N&..**) taht will be expanded as follows:
     -  **..&&..** : prop0 & prop1 & prop2 & ...
     -  **..##N..** : prop0 ##N prop1 ##N prop2 ##N ...
     -  **..#N&..** : prop0 & prop1 ##N prop2 & ...
