@@ -18,8 +18,8 @@ def generate_circuit(specification,spec_list, modules):
         #Generate a SystemVerilog file for the controller
         aigerToSv(design_aiger,specification)
     if globals.debug: 
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("Circuit generated! \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print("Circuit generated! \n", flush=True)
 
 
 #Generates a top module that instantiates all the submodules
@@ -60,8 +60,8 @@ def generate_top_module(spec_list):
     with open(globals.out_folder + f'{globals.top_module_name}.v', 'w') as file:
         file.write(top_module)
     if globals.debug:    
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Generated {globals.top_module_name} module: {globals.out_folder}{globals.top_module_name}.v")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Generated {globals.top_module_name} module: {globals.out_folder}{globals.top_module_name}.v", flush=True)
 
 
 #Call ltlsynt to generate a controller from a specification
@@ -77,15 +77,15 @@ def synthesize_controller(specification, aiger_filename):
 
     result = subprocess.run(ltlsynt_command, shell=True, check=False, capture_output=True, text=True)
     if result.returncode == 1:
-        print(globals.CERR +"Error:" + globals.CEND + "The design is unrealizable.")
+        print(globals.CERR +"Error:" + globals.CEND + "The design is unrealizable.", flush=True)
         exit(1)
     elif result.returncode == 2:
-        print(globals.CERR +"Error:" + globals.CEND + "An error occurred during the realizability check.")
+        print(globals.CERR +"Error:" + globals.CEND + "An error occurred during the realizability check.", flush=True)
         exit(2)
     else:
         if globals.debug:
-            print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-            print("Controller synthesized successfully. \n")
+            print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+            print("Controller synthesized successfully. \n", flush=True)
         #Remove REALIZABLE/UNREALIZABLE output line from aiger file
         with open(globals.out_folder + aiger_filename, 'r') as file:
             lines = file.readlines()
@@ -105,7 +105,7 @@ def aigerToSv(design_aiger, specification):
     try:    
         subprocess.run(yosys_command, stdout=subprocess.DEVNULL, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to convert AIGER to SystemVerilog. errno: {e.returncode}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to convert AIGER to SystemVerilog. errno: {e.returncode}", flush=True)
         exit(1)
 
     #yosys for some reason mixes inputs and outputs in the module signal list so we need to fix it
@@ -143,5 +143,5 @@ def aigerToSv(design_aiger, specification):
             file.writelines(lines)
 
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Generated SystemVerilog file: {output_file} in {globals.out_folder} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Generated SystemVerilog file: {output_file} in {globals.out_folder} \n", flush=True)
