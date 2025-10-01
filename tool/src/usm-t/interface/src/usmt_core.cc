@@ -298,7 +298,7 @@ void makeReportEntry(
   }
 }
 
-void run() {
+void run_usmt() {
 
   std::vector<Test> tests = readTestFile(clc::testFile);
 
@@ -341,10 +341,10 @@ void run() {
       TemporalReportPtr tr = std::make_shared<TemporalReport>();
 
       if (!external) {
-        //ADAPT THE INPUT--------------------------------
+        //-------------[ADAPT THE INPUT]----------------------
         adaptInput(use_case);
 
-        //PREPARE THE EXECUTION-------------------------------
+        //-------------[PREPARE THE MINER]-------------------------------
         //count number of run
         messageErrorIf(
             std::count_if(
@@ -352,6 +352,7 @@ void run() {
                 [](const Config &c) { return c.type == "run"; }) != 1,
             "Multiple run configurations found in use case " +
                 use_case.usecase_id);
+
         //copy the conf input files to the input folder
         for (const auto &conf : use_case.configs) {
           if (conf.type == "support") {
@@ -368,7 +369,7 @@ void run() {
           }
         }
 
-        //RUN THE MINER---------------------------------------
+        //-----------------[RUN THE MINER]---------------------
         std::string run_container_command = "";
         run_container_command = "bash " + ph.run_container_path;
         run_container_command += " " + use_case.docker_image;
@@ -386,10 +387,10 @@ void run() {
         }
         messageInfo("Running '" + use_case.miner_name + "'");
 
-        //start the timer
         auto start = std::chrono::high_resolution_clock::now();
         systemCheckExit(run_container_command);
         auto stop = std::chrono::high_resolution_clock::now();
+        //keep track of the elapsed time
         tr->_timeMS =
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 stop - start)
@@ -406,10 +407,11 @@ void run() {
                               ph.work_path + ph.work_output +
                                   mined_file_name);
       }
-      //ADAPT THE OUTPUT--------------------------------
+
+      //-----------------[ADAPT THE OUTPUT]------------------
       adaptOutput(use_case);
 
-      //EVAL-----------------------------------------------
+      //-----------------[EVAL]------------------------------
       for (const auto &comp : test.comparators) {
         //skip time_to_mine comparator which is implicit
         if (comp.with_strategy == "time_to_mine") {
@@ -422,7 +424,7 @@ void run() {
         useCaseToEvalReports[use_case.usecase_id].push_back(er);
       }
 
-      //DUMP THE CONFIG STANDALONE-------------------------
+      //------------[DUMP THE STANDALONE CONFIG] ---------
       dumpConfigStandalone(use_case, test,
                            ph.work_path +
                                ph.work_test_config_standalone +
@@ -435,7 +437,7 @@ void run() {
     //report to best use case
     std::map<std::string, BestUseCase> strategyToBestUseCase;
 
-    //AGGREGATE THE EVALUATION REPORTS-------------------
+    //-------------[AGGREGATE THE EVALUATION REPORTS]-----
     for (const auto &[usecase_id, report] : useCaseToEvalReports) {
       std::vector<std::string> line;
       line.push_back(usecase_id);
@@ -462,7 +464,7 @@ void run() {
     }
     std::cout << table.to_string() << std::endl;
 
-    //print the best use case
+    //FIXME: print the best use case, does this even work?
     //for (const auto &[strategy, best] : strategyToBestUseCase) {
     //  std::string best_use_cases = "";
     //  for (const auto &use_case : best._same_value_use_cases) {

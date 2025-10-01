@@ -1,4 +1,4 @@
 namespace usmt {
-void run();
+void run_usmt();
 } // namespace usmt
 

@@ -33,7 +33,7 @@ int main(int arg, char *argv[]) {
 
   parseCommandLineArguments(arg, argv);
 
-  run();
+  run_usmt();
 
   return 0;
 }
