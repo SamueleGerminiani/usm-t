@@ -157,13 +157,13 @@ def create_specification(template_list,modules):
 
             #for each iteration add the expanded formula to the list
             spec_list.append(copy.deepcopy(expanded_formula))
-            
-                
-            overlap_spec(spec_list,merged_specification,template['overlap'])
+
+
+            current_formula = overlap_spec(spec_list,merged_specification,template['overlap'])
 
             # Write expanded formulas to a file
             with open(globals.out_folder + 'specifications.txt', 'a') as file:
-                file.write(f"{expanded_formula['formula']}\n")
+                file.write(f"{current_formula}\n")
 
             #update the global spec counter    
             specounter += 1
@@ -246,9 +246,11 @@ def overlap_spec(spec_list,merged_specification,overlap):
     merged_specification['outputs'] = ','.join(outputs_globals_copy)
 
     #update the current spec inputs and outputs
-    current_spec['inputs'] = ','.join(current_spec_inputs)
-    current_spec['outputs'] = ','.join(current_spec_outputs)
-    current_spec['formula'] = current_spec_overlapped
+    spec_list[len(spec_list) - 1]['inputs'] = ','.join(current_spec_inputs)
+    spec_list[len(spec_list) - 1]['outputs'] = ','.join(current_spec_outputs)
+    spec_list[len(spec_list) - 1]['formula'] = current_spec_overlapped
+
+    return spec_list[len(spec_list) - 1]['formula']
 
 def main():
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
