@@ -5,97 +5,97 @@ import globals
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("Generating injectable design \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print("Generating injectable design \n", flush=True)
 
     # Set the LD_LIBRARY_PATH here because it conflicts with other commands
     verilog_files = subprocess.run(f"find {globals.hif_temp_prefix}rtl/ -name '*.v'", shell=True, check=False, capture_output=True, text=True).stdout.strip().replace('\n', ' ')
 
     verilog2hif_command = f"verilog2hif {verilog_files} --output {globals.hif_temp_prefix}synthetic_design.hif.xml"
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Running command: {verilog2hif_command} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Running command: {verilog2hif_command} \n", flush=True)
     try:    
         subprocess.run(verilog2hif_command,stderr=subprocess.DEVNULL if not globals.debug else None,  stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run verilog2hif. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run verilog2hif. {e}", flush=True)
         exit(1)
 
     ddt_command = f"ddt {globals.hif_temp_prefix}synthetic_design.hif.xml --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml"
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Running command: {ddt_command} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Running command: {ddt_command} \n", flush=True)
     try: 
         subprocess.run(ddt_command,stderr=subprocess.DEVNULL if not globals.debug else None,  stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run ddt. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run ddt. {e}", flush=True)
         exit(1)
     a2tool_command = f"a2tool {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml"
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Running command: {a2tool_command} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Running command: {a2tool_command} \n", flush=True)
     try:
         subprocess.run(a2tool_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run a2tool. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run a2tool. {e}", flush=True)
         exit(1)
     
     muffin_command = f"muffin {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {globals.clk_name} --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Running command: {muffin_command} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Running command: {muffin_command} \n", flush=True)
     try:
         subprocess.run(muffin_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run muffin. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run muffin. {e}", flush=True)
         exit(1)
     
     hif2sc_command = f"hif2sc {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml --extensions cpp_hpp --directory {globals.hif_temp_prefix}injected"
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Running command: {hif2sc_command} \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Running command: {hif2sc_command} \n", flush=True)
     try:
         subprocess.run(hif2sc_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run hif2sc. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run hif2sc. {e}", flush=True)
         exit(1)
 
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("HIF: sussessfully generated injectable design \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print("HIF: sussessfully generated injectable design \n", flush=True)
 
 
 def run_hifsuite(specification):
     os.makedirs(globals.hif_temp_prefix, exist_ok=True)
 
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("Performing Fault injection and simulation \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print("Performing Fault injection and simulation \n", flush=True)
 
     # ----------------------------------------------------------------------
     # Step 1: Prepare RTL folder
     rtl_folder = os.path.join(globals.hif_temp_prefix, 'rtl')
     if os.path.exists(rtl_folder):
         if globals.debug:
-            print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-            print(f"Removing existing rtl directory\n")
+            print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+            print(f"Removing existing rtl directory\n", flush=True)
         try:
             subprocess.run(f"rm -rf {rtl_folder}", shell=True, check=True)
         except subprocess.CalledProcessError as e:
-            print(globals.CERR +"Error:" + globals.CEND + f"Failed to remove rtl directory. {e}")
+            print(globals.CERR +"Error:" + globals.CEND + f"Failed to remove rtl directory. {e}", flush=True)
             exit(1)
 
     try:
         os.makedirs(rtl_folder)
     except OSError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to create directory {rtl_folder}. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to create directory {rtl_folder}. {e}", flush=True)
         exit(1)
 
     # Copy .v files to rtl
     try:
         subprocess.run(f"cp {globals.out_folder}*.v {rtl_folder}", stdout=subprocess.DEVNULL, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy files to {rtl_folder}. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy files to {rtl_folder}. {e}", flush=True)
         exit(1)
 
     # ----------------------------------------------------------------------
@@ -111,7 +111,7 @@ def run_hifsuite(specification):
         subprocess.run(f"cp {globals.hif_template_prefix}/CMakeLists.txt {injected_dir}/", stdout=subprocess.DEVNULL, shell=True, check=True)
         subprocess.run(f"cp -r {globals.hif_template_prefix}/cpptracer {injected_dir}/src", stdout=subprocess.DEVNULL, shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy template files. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy template files. {e}", flush=True)
         exit(1)
 
     # Modify CMakeLists.txt
@@ -130,8 +130,8 @@ def run_hifsuite(specification):
     # Step 3: Build
     if os.path.exists(build_dir):
         if globals.debug:
-            print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-            print("Removing existing build directory\n")
+            print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+            print("Removing existing build directory\n", flush=True)
         subprocess.run(f"rm -rf {build_dir}", shell=True, check=True)
 
     os.makedirs(build_dir, exist_ok=True)
@@ -142,7 +142,7 @@ def run_hifsuite(specification):
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run cmake. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run cmake. {e}", flush=True)
         exit(1)
 
     try:
@@ -151,7 +151,7 @@ def run_hifsuite(specification):
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to compile the testbench. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to compile the testbench. {e}", flush=True)
         exit(1)
 
     # ----------------------------------------------------------------------
@@ -162,7 +162,7 @@ def run_hifsuite(specification):
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run the simulation. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to run the simulation. {e}", flush=True)
         exit(1)
 
     # ----------------------------------------------------------------------
@@ -170,12 +170,12 @@ def run_hifsuite(specification):
     try:
         subprocess.run(f"cp {injected_dir}/build/traces/*.vcd {globals.out_folder}faulty_traces/vcd", shell=True, check=True)
     except subprocess.CalledProcessError as e:
-        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy trace files. {e}")
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy trace files. {e}", flush=True)
         exit(1)
 
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("Design injected and simulated correctly \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print("Design injected and simulated correctly \n", flush=True)
 
 
 #Generate testbench for HIFSuite
@@ -446,5 +446,5 @@ def generate_testbench(specification):
         testbench_file.write(testbench)
 
     if globals.debug: 
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print(f"Generated testbench: {globals.hif_temp_prefix}injected/src/main.cpp \n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
+        print(f"Generated testbench: {globals.hif_temp_prefix}injected/src/main.cpp \n", flush=True)

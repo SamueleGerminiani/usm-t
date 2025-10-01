@@ -160,7 +160,11 @@ def create_specification(template_list,modules):
 
 
             current_formula = overlap_spec(spec_list,merged_specification,template['overlap'])
-
+            
+            # If this is the first specification, we don't need to overlap, so current_formula will be expanded_formula
+            if current_formula is None:
+                current_formula = expanded_formula['formula']
+            
             # Write expanded formulas to a file
             with open(globals.out_folder + 'specifications.txt', 'a') as file:
                 file.write(f"{current_formula}\n")
@@ -169,10 +173,10 @@ def create_specification(template_list,modules):
             specounter += 1
 
     if globals.debug:
-        print(globals.CDBG+"DEBUG_MSG"+globals.CEND)
-        print("Merged specification:")
-        print(merged_specification)
-        print("\n")
+        print(globals.CDBG+"DEBUG_MSG"+globals.CEND,  flush=True)
+        print("Merged specification:", flush=True)
+        print(merged_specification, flush=True)
+        print("\n", flush=True)
     return merged_specification, spec_list
 
 #This function is used to overlap the specifications
@@ -197,7 +201,7 @@ def overlap_spec(spec_list,merged_specification,overlap):
 
     #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
     if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
-        print(globals.CWRN + "Warning:" + globals.CEND + "Overlap value is greater than the number of inputs and outputs. Adjusting overlap value to match the number of inputs and outputs")
+        print(globals.CWRN + "Warning:" + globals.CEND + "Overlap value is greater than the number of inputs and outputs. Adjusting overlap value to match the number of inputs and outputs", flush=True)
         overlap_ant = len(current_spec_inputs)
         overlap_con = len(current_spec_outputs)
 
@@ -253,7 +257,7 @@ def overlap_spec(spec_list,merged_specification,overlap):
     return spec_list[len(spec_list) - 1]['formula']
 
 def main():
-    print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n")
+    print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n", flush=True)
     # input parameters
     parser = argparse.ArgumentParser(description='Generate circuit from LTL specifications.')
     parser.add_argument('--parallel', type=int, choices=[0, 1], required=True,
@@ -269,7 +273,7 @@ def main():
     parser.add_argument('--tracelength', type=int, help='Trace length')
 
     if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
+        parser.print_help(sys.stderr, flush=True)
         sys.exit(1)
 
     args = parser.parse_args()
@@ -329,30 +333,30 @@ def main():
         template_list.append(copy.deepcopy(specification))
 
     print(globals.CSTP + "1." + globals.CEND + "     " +
-          globals.CSTP + "Complete!" + globals.CEND + " \n")
-    print(globals.CSTP + "2." + globals.CEND + " Creating LTL specifications" + " \n")
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
+    print(globals.CSTP + "2." + globals.CEND + " Creating LTL specifications" + " \n", flush=True)
 
     dir_utils.create_outfolder()
     merged_specification, spec_list = create_specification(template_list, modules)
 
     print(globals.CSTP + "2." + globals.CEND + "     " +
-          globals.CSTP + "Complete!" + globals.CEND + " \n")
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
 
     ###############################################################
     ############### GENERATION AND SIMULATION STAGE ###############
     ###############################################################
-    print(globals.CSTP + "3." + globals.CEND + " Generating circuit from specification" + " \n")
+    print(globals.CSTP + "3." + globals.CEND + " Generating circuit from specification" + " \n", flush=True)
     rtl_utils.generate_circuit(merged_specification, spec_list, modules)
     print(globals.CSTP + "3." + globals.CEND + "     " +
-          globals.CSTP + "Complete!" + globals.CEND + " \n")
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
 
-    print(globals.CSTP + "4." + globals.CEND + " Running HIFSuite" + " \n")
+    print(globals.CSTP + "4." + globals.CEND + " Running HIFSuite" + " \n", flush=True)
     hif_utils.run_hifsuite(merged_specification)
     print(globals.CSTP + "4." + globals.CEND + "     " +
-          globals.CSTP + "Complete!" + globals.CEND + " \n")
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
 
     if os.path.exists(f"{globals.root}/tool/build/vcd2csv"):
-        print(globals.CSTP + "4.5" + globals.CEND + " Creating CSV traces" + " \n")
+        print(globals.CSTP + "4.5" + globals.CEND + " Creating CSV traces" + " \n", flush=True)
         dir_utils.generateCSV()
         try:
             subprocess.run(f"mv {globals.out_folder}faulty_traces/csv/golden.csv "
@@ -361,27 +365,27 @@ def main():
                            f"{globals.out_folder}traces/vcd/", shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(globals.CERR + "Error:" + globals.CEND +
-                  f"Failed to move golden traces to {globals.out_folder}/traces. {e}")
+                  f"Failed to move golden traces to {globals.out_folder}/traces. {e}", flush=True)
 
         print(globals.CSTP + "4.5" + globals.CEND + "     " +
-              globals.CSTP + "Complete!" + globals.CEND + " \n")
+              globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
     else:
-        print(globals.CERR + "4.5" + globals.CEND + " Skipping CSV traces creation")
+        print(globals.CERR + "4.5" + globals.CEND + " Skipping CSV traces creation", flush=True)
         print(globals.CERR + "4.5" + globals.CEND +
-              " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n")
+              " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n", flush=True)
 
-    print(globals.CSTP + "5." + globals.CEND + " Populating selected output directory" + " \n")
+    print(globals.CSTP + "5." + globals.CEND + " Populating selected output directory" + " \n", flush=True)
     dir_utils.populate_output_dir(dirpath)
 
     print(globals.CSTP + "5." + globals.CEND + "     " +
-          globals.CSTP + "Complete!" + globals.CEND + " \n")
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
     print(globals.CSTP + "#################" + globals.CEND +
           f" Procedure complete! All generated files can be found in {dirpath} " +
-          globals.CSTP + "#################" + globals.CEND + "\n\n")
+          globals.CSTP + "#################" + globals.CEND + "\n\n", flush=True)
 
     # need to return this string for usm-t automatic test generation
     print('{\"ant\":\"' + merged_specification['inputs'] +
-          '\",\"con\":\"' + merged_specification['outputs'] + '\"}')
+          '\",\"con\":\"' + merged_specification['outputs'] + '\"}', flush=True)
     sys.exit(0)
 
 
