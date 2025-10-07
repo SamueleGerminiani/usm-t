@@ -35,8 +35,8 @@
 #include "Assertion.hh"
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "Trace.hh"
 #include "VCDtraceReader.hh"
 #include "assertion_utils.hh"
@@ -87,7 +87,7 @@ void evaluateWithSemanticComparison(
       targetToRemap; //not used
   auto simplifiedAssertions =
       getSimplifiedAssertions(assertions.at("expected"),
-                             assertions.at("mined"), targetToRemap);
+                              assertions.at("mined"), targetToRemap);
 
   progresscpp::ParallelProgressBar pb;
 
@@ -109,6 +109,7 @@ void evaluateWithSemanticComparison(
       //no point in comparing if they have no common variables
       if (getNumberOfCommonVariables(sea.original, sma.original) ==
           0) {
+        //Debug
         //std::cout << "Skipping " << sea.original->toString()
         //          << " and " << sma.original->toString()
         //          << " because they have no common variables\n";

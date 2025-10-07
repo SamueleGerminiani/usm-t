@@ -24,6 +24,9 @@ extern bool isilent;
 ///--psilent
 extern bool psilent;
 
+///--continue-on-error
+extern bool continueOnError;
+
 ///--max-threads
 extern size_t maxThreads;
 ///--sva, --psl, --spotltl

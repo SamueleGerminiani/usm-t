@@ -17,6 +17,7 @@ cxxopts::ParseResult parseUSMT(int argc, char *argv[]) {
     // clang-format off
 options.add_options()
 ("test", ".xml containing the usm-t test suite", cxxopts::value<std::string>(), "<FILE>")
+("continue-on-error", "continue execution if one of the miner fails or can't produce any assertions")
 ( "dump-to", "dump summary report to file", cxxopts::value<std::string>(), "<DIRECTORY>")
 ( "ltlf", "enable evaluation of specifications with finite semantics (default false)")
 ( "sva", "output specifications in SystemVerilog Assertion format")

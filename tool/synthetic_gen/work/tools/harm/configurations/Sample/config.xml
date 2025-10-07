@@ -1,0 +1,22 @@
+<harm>
+  <context name="default">
+    <prop exp="a_2" loc="dt"/>
+    <prop exp="a_1" loc="dt"/>
+    <prop exp="b_2" loc="dt"/>
+    <prop exp="b_1" loc="dt"/>
+    <prop exp="b_0" loc="dt"/>
+    <prop exp="a_0" loc="dt"/>
+    <prop exp="d_1" loc="c"/>
+    <prop exp="c_0" loc="c"/>
+    <prop exp="c_2" loc="c"/>
+    <prop exp="d_0" loc="c"/>
+    <prop exp="d_2" loc="c"/>
+    <prop exp="c_1" loc="c"/>
+
+    <template dtLimits="3A,3D,0E" exp="G(..##1.. |-> P0)" />
+    <template dtLimits="3A,3D,0E" exp="G(..##1.. |-> {P0 ##1 P1})" />
+
+    <sort name="causality" exp="1-afct/traceLength"/>
+    <sort name="frequency" exp="atct/traceLength"/>
+  </context>
+</harm>

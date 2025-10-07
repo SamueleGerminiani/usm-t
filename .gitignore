@@ -26,6 +26,7 @@ tool/third_party/z3
 tool/third_party/gedlib
 tool/third_party/oss-cad-suite
 tool/third_party/hifsuite_linux_x86_stand_alone
+tool/third_party/radarChartPlotter
 tool/src/miner/modules/src/traceReader/vcdTraceReader/pyVCDparser/vcdToC.pyc
 tool/src/miner/modules/src/traceReader/vcdTraceReader/pyVCDparser/Verilog_VCD.pyc
 tool/src/api/cpp/example/harm_example

@@ -60,7 +60,8 @@ getAssertionsFromFile(const std::string &input_path,
                       const TracePtr &trace) {
 
   messageErrorIf(!std::filesystem::exists(input_path),
-                 "Could not find specifications file'" + input_path + "'");
+                 "Could not find specifications file'" + input_path +
+                     "'");
   messageInfo("Parsing specifications file '" + input_path);
   std::vector<std::string> assStrs;
   std::fstream ass(input_path);
@@ -69,9 +70,10 @@ getAssertionsFromFile(const std::string &input_path,
   while (std::getline(ass, line)) {
     assStrs.push_back(line);
   }
-  messageErrorIf(assStrs.empty(),
-                 "No content found in specifications file '" + input_path +
-                     "'");
+  if (assStrs.empty()) {
+    return std::vector<AssertionPtr>();
+  }
+
   return parseAssertions(assStrs, trace);
 }
 
@@ -178,6 +180,10 @@ getExpectedMinedAssertions(
       ph.work_path + ph.work_adapted + MINED_SPECIFICATIONS_FILE;
   auto mined_assertions_tmp =
       getAssertionsFromFile(adapted_output_folder, trace);
+  if (mined_assertions_tmp.empty()) {
+    throw std::runtime_error("No mined assertions found in " +
+                             adapted_output_folder);
+  }
   mined_assertions.insert(mined_assertions.end(),
                           mined_assertions_tmp.begin(),
                           mined_assertions_tmp.end());

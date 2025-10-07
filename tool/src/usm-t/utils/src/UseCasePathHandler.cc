@@ -64,6 +64,13 @@ void initPathHandler(UseCase &us) {
   //work folder
   ret.work_path = ret.miner_path + "runs/" + us.usecase_id + "_" +
                   getCurrentDateTime() + "/";
+
+  //check if the latest folder exists
+  if (std::filesystem::exists(ret.miner_path + "runs/latest")) {
+    //delete the folder
+    std::filesystem::remove_all(ret.miner_path + "runs/latest");
+  }
+
   //check if the work folder exists
   if (std::filesystem::exists(ret.work_path)) {
     //delete the folder
@@ -81,6 +88,14 @@ void initPathHandler(UseCase &us) {
   messageErrorIf(!std::filesystem::create_directories(ret.work_path),
                  "error while creating directory '" + ret.work_path +
                      "'");
+
+  std::error_code ec;
+  std::filesystem::create_directory_symlink(
+      ret.work_path, ret.miner_path + "runs/latest", ec);
+  messageErrorIf(ec, "error while creating symlink '" +
+                         ret.miner_path + "runs/latest' to '" +
+                         ret.work_path + "': " + ec.message());
+
   messageErrorIf(!std::filesystem::create_directories(ret.work_path +
                                                       ret.work_input),
                  "error while creating directory '" + ret.work_path +
@@ -97,14 +112,15 @@ void initPathHandler(UseCase &us) {
                                                       ret.work_eval),
                  "error while creating directory '" + ret.work_path +
                      ret.work_eval + "'");
-  messageErrorIf(!std::filesystem::create_directories(ret.work_path +
-                                                      ret.work_test_config_standalone),
+  messageErrorIf(!std::filesystem::create_directories(
+                     ret.work_path + ret.work_test_config_standalone),
                  "error while creating directory '" + ret.work_path +
                      ret.work_test_config_standalone + "'");
 
   if (!external) {
     //container
-    ret.run_container_path = ret.tools_path + "/run_docker_container.sh";
+    ret.run_container_path =
+        ret.tools_path + "/run_docker_container.sh";
     messageErrorIf(!std::filesystem::exists(ret.run_container_path),
                    "Run container script '" + ret.run_container_path +
                        "' not found");

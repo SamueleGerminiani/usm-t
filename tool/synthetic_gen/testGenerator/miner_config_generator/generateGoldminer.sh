@@ -1,9 +1,23 @@
 #!/bin/bash
 function generate_goldminer_config() {
-    local max_sim_cycles=$1
-    local num_cycles=$2
-    local num_propositions=$3
-    local output_file=$4
+    local hint_string=$1
+    local output_file=$2
+    local max_sim_cycles=1000000
+
+    local nant=$(echo "$hint_string" | grep -oP 'nant\s*:\s*\K[0-9]+')
+    local ncon=$(echo "$hint_string" | grep -oP 'ncon\s*:\s*\K[0-9]+')
+    local nspec=$(echo "$hint_string" | grep -oP 'nspec\s*:\s*\K[0-9]+')
+
+    N=$(echo "$formula" | sed -n 's/[^>]*##\([0-9]\+\).*/\1/p')
+    #if N is empty, set to 3 else set to N*nant
+    if [ -z "$N" ]; then
+        N=3
+    else
+        N=$((N * nant))
+    fi
+
+    local num_cycles=$N
+    local num_propositions=3
 
     # Open file descriptor to write output to the specified file
     exec 3> "$output_file"

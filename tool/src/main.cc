@@ -13,7 +13,7 @@
 #include "globals.hh"
 #include "message.hh"
 #include "misc.hh"
-#include "ustm_core.hh"
+#include "usmt_core.hh"
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -101,6 +101,10 @@ void parseCommandLineArguments(int argc, char *args[]) {
   }
   if (result.count("psilent")) {
     clc::psilent = true;
+  }
+
+  if (result.count("continue-on-error")) {
+    clc::continueOnError = true;
   }
 
   if (result.count("dump-to")) {

@@ -4,6 +4,9 @@ import globals
 
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
+
+    hif_binaries_path = globals.root + '/tool/third_party/hifsuite_linux_x86_stand_alone'
+
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print("Generating injectable design \n", flush=True)
@@ -11,7 +14,8 @@ def generate_injectable_design():
     # Set the LD_LIBRARY_PATH here because it conflicts with other commands
     verilog_files = subprocess.run(f"find {globals.hif_temp_prefix}rtl/ -name '*.v'", shell=True, check=False, capture_output=True, text=True).stdout.strip().replace('\n', ' ')
 
-    verilog2hif_command = f"verilog2hif {verilog_files} --output {globals.hif_temp_prefix}synthetic_design.hif.xml"
+    verilog2hif_command = f"{hif_binaries_path}/verilog2hif {verilog_files} --output {globals.hif_temp_prefix}synthetic_design.hif.xml"
+
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {verilog2hif_command} \n", flush=True)
@@ -21,7 +25,7 @@ def generate_injectable_design():
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run verilog2hif. {e}", flush=True)
         exit(1)
 
-    ddt_command = f"ddt {globals.hif_temp_prefix}synthetic_design.hif.xml --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml"
+    ddt_command = f"{hif_binaries_path}/ddt {globals.hif_temp_prefix}synthetic_design.hif.xml --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {ddt_command} \n", flush=True)
@@ -30,7 +34,7 @@ def generate_injectable_design():
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run ddt. {e}", flush=True)
         exit(1)
-    a2tool_command = f"a2tool {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml"
+    a2tool_command = f"{hif_binaries_path}/a2tool {globals.hif_temp_prefix}synthetic_design.ddt.hif.xml --protocol CPP --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {a2tool_command} \n", flush=True)
@@ -40,7 +44,7 @@ def generate_injectable_design():
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run a2tool. {e}", flush=True)
         exit(1)
     
-    muffin_command = f"muffin {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {globals.clk_name} --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
+    muffin_command = f"{hif_binaries_path}/muffin {globals.hif_temp_prefix}synthetic_design.ddt.a2t.hif.xml --fault STUCK_AT --clock {globals.clk_name} --toplevel {globals.top_module_name} --output {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {muffin_command} \n", flush=True)
@@ -50,7 +54,7 @@ def generate_injectable_design():
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run muffin. {e}", flush=True)
         exit(1)
     
-    hif2sc_command = f"hif2sc {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml --extensions cpp_hpp --directory {globals.hif_temp_prefix}injected"
+    hif2sc_command = f"{hif_binaries_path}/hif2sc {globals.hif_temp_prefix}synthetic_design.ddt.a2t.muffin.hif.xml --extensions cpp_hpp --directory {globals.hif_temp_prefix}injected"
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {hif2sc_command} \n", flush=True)

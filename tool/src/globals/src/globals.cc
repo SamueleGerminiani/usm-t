@@ -18,4 +18,7 @@ bool silent = false;
 bool wsilent = false;
 bool isilent = false;
 bool psilent = false;
+
+bool continueOnError = false;
+
 } // namespace clc

@@ -14,6 +14,6 @@ python3 "$USMT_ROOT/tool/synthetic_gen/testGenerator/input_generator/input_gener
 --clk clk \
 --top_module sample_ \
 --debug $debug \
---templates "{G(..&&.. |=> ..&&..),2,2,3,0}" \
+--templates "{formula : G(..##1.. |-> ..##2..), nant : 2, ncon : 2, nspec : 3, overlap : 0}" \
 --tracelength 1000 \
 --outdir work

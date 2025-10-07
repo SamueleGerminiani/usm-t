@@ -146,6 +146,10 @@ void evaluateWithFaultCoverage(
   selected_copy.erase(std::remove(selected_copy.begin(),
                                   selected_copy.end(), nullptr),
                       selected_copy.end());
+  if (selected_copy.empty()) {
+    throw std::runtime_error(
+        "No valid assertion to evaluate for fault coverage");
+  }
 
   //silence warnings and infos (to silence the traceReader)
   clc::isilent = 1;

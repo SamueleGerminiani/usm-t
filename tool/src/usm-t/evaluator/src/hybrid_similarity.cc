@@ -86,6 +86,8 @@ void evaluateWithHybrid(
 
   for (const auto &[ea, ea_sa] : expectedToSAutomaton) {
     std::string ea_assertionStr = ea->toString();
+    report->_expectedToClosest[ea_assertionStr] =
+        std::make_pair("", 0.f);
     for (const auto &[ma, ma_sa] : minedToSAutomaton) {
       std::string ma_assertionStr = ma->toString();
 

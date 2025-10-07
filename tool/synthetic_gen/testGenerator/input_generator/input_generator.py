@@ -384,8 +384,8 @@ def main():
           globals.CSTP + "#################" + globals.CEND + "\n\n", flush=True)
 
     # need to return this string for usm-t automatic test generation
-    print('{\"ant\":\"' + merged_specification['inputs'] +
-          '\",\"con\":\"' + merged_specification['outputs'] + '\"}', flush=True)
+    print('{ant : ' + merged_specification['inputs'] +
+          '; con : ' + merged_specification['outputs'] + ';' + templates[0].replace('{', '').replace('}', '').replace(',',';') + '}', flush=True)
     sys.exit(0)
 
 

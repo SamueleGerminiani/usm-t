@@ -11,4 +11,4 @@ if [ ! -d "$1" ]; then
     exit 1
 fi
 
-bash "$USMT_ROOT/tool/synthetic_gen/testGenerator/miner_config_generator/miner_config_generator.sh" $1 Sample sample_ clk rst sample_::testbench '{"ant":"a_0,b_0,a_2,b_1,a_1,b_2","con":"c_0,c_1,c_2,d_0,d_2,d_1"}'
+bash "$USMT_ROOT/tool/synthetic_gen/testGenerator/miner_config_generator/miner_config_generator.sh" $1 Sample sample_ clk rst sample_::testbench '{ant : a_2,a_1,b_2,b_1,b_0,a_0; con : d_1,c_0,c_2,d_0,d_2,c_1;formula : G(..##1.. |-> ..##1..); nant : 1; ncon : 2; nspec : 3; overlap : 0}'

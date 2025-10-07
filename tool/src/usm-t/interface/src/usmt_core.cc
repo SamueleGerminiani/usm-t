@@ -1,3 +1,4 @@
+#include "usmt_core.hh"
 #include "EvalReport.hh"
 #include "Test.hh"
 #include "adaptor.hh"
@@ -7,15 +8,16 @@
 #include "misc.hh"
 #include "test_reader.hh"
 #include "usmt_evaluator.hh"
-#include "ustm_core.hh"
 #include "xmlUtils.hh"
 #include <algorithm>
 #include <chrono>
+#include <cstring>
 #include <filesystem>
 #include <iomanip>
 #include <limits>
 #include <map>
 #include <sstream>
+#include <unordered_set>
 #include <vector>
 
 namespace usmt {
@@ -53,6 +55,123 @@ void appendCSVLineToFile(const std::string &filename,
   }
   file << "\n";
   file.close();
+}
+
+void dumpRadarChart(
+    const std::string &radarChartDumpPath,
+    const std::map<std::string, std::vector<EvalReportPtr>>
+        &useCaseToEvalReports,
+    const std::string &relative, const std::string &inverted,
+    const std::string &title) {
+
+  std::string usmt_root = getenv("USMT_ROOT");
+  messageErrorIf(usmt_root == "",
+                 "USMT_ROOT environment variable not set");
+  std::string radar_chart_plotter_path =
+      usmt_root + "/tool/third_party/radarChartPlotter/prc.py";
+  messageErrorIf(!std::filesystem::exists(radar_chart_plotter_path),
+                 "Radar chart plotter '" + radar_chart_plotter_path +
+                     "' not found");
+
+  std::vector<std::string> wanted_reports = {
+      "hybrid_similarity", "fault_coverage", "time_to_mine"};
+  std::string data_string = "name, MS, RS, FC, Time \n";
+
+  //check that all use cases contain the wanted reports, if not remove them from the wanted reports list
+  for (auto &wanted_report : wanted_reports) {
+    for (auto &[use_case, reports] : useCaseToEvalReports) {
+      if (std::find_if(reports.begin(), reports.end(),
+                       [&wanted_report](const EvalReportPtr &er) {
+                         return er->_with_strategy == wanted_report;
+                       }) == reports.end()) {
+        messageWarning("Use case '" + use_case +
+                       "' does not contain report '" + wanted_report +
+                       "', removing it from the radar chart");
+        wanted_report = "";
+        break;
+      }
+    }
+  }
+  wanted_reports.erase(
+      std::remove(wanted_reports.begin(), wanted_reports.end(), ""),
+      wanted_reports.end());
+  if (wanted_reports.empty()) {
+    messageWarning("No reports available for the radar chart, can't "
+                   "generate it");
+    return;
+  }
+  //check if hybrid_similarity is present
+  if (std::find(wanted_reports.begin(), wanted_reports.end(),
+                "hybrid_similarity") == wanted_reports.end()) {
+    messageWarning(
+        "Hybrid similarity report is not present, radar chart "
+        "will not be generated");
+    return;
+  }
+
+  //Make the csv string
+  for (auto &[use_case, reports] : useCaseToEvalReports) {
+    data_string += use_case;
+    for (const auto &wanted_report : wanted_reports) {
+      auto report =
+          std::find_if(reports.begin(), reports.end(),
+                       [&wanted_report](const EvalReportPtr &er) {
+                         return er->_with_strategy == wanted_report;
+                       });
+      //need to handle the various report types
+      if (report != reports.end()) {
+        if (std::dynamic_pointer_cast<FaultCoverageReport>(*report)) {
+          FaultCoverageReportPtr fcr =
+              std::dynamic_pointer_cast<FaultCoverageReport>(*report);
+          data_string +=
+              ", " + to_string_with_precision(fcr->fault_coverage, 2);
+        } else if (std::dynamic_pointer_cast<HybridReport>(*report)) {
+          HybridReportPtr evmr =
+              std::dynamic_pointer_cast<HybridReport>(*report);
+          data_string +=
+              ", " + to_string_with_precision(evmr->_final_score, 2) +
+              ", " + to_string_with_precision(evmr->_noise, 2);
+        } else if (std::dynamic_pointer_cast<TemporalReport>(
+                       *report)) {
+          TemporalReportPtr tr =
+              std::dynamic_pointer_cast<TemporalReport>(*report);
+          data_string += ", " + to_string_with_precision(
+                                    (double)tr->_timeMS / 1000.f, 2);
+        } else if (std::dynamic_pointer_cast<NMinedReport>(*report)) {
+          NMinedReportPtr nr =
+              std::dynamic_pointer_cast<NMinedReport>(*report);
+          data_string +=
+              ", " + std::to_string(nr->_n_mined_assertions);
+        } else {
+          messageError("Unknown report type");
+        }
+      } else {
+        messageWarning("Use case '" + use_case +
+                       "' does not contain report '" + wanted_report +
+                       "', skipping it");
+      }
+    }
+    data_string += " \n";
+  }
+
+  //debug
+  std::cout << "Title: " << title << "\n";
+  std::cout << "Dump to: " << radarChartDumpPath << "\n";
+  std::cout << "Using tool: " << radar_chart_plotter_path << "\n";
+  std::cout << "Relative: " << relative << "\n";
+  std::cout << "Inverted: " << inverted << "\n";
+  std::cout << "Data string:\n" << data_string << "\n";
+
+  if (systemCheckFailure(
+          "python3 " + radar_chart_plotter_path + " --dump-to \"" +
+          radarChartDumpPath + "\"" + " --relative \"" + relative +
+          "\" --invert \"" + inverted + "\" --title \"" + title +
+          "\"" + " --string \"" + data_string + "\"")) {
+
+    messageWarning("Could not generate radar chart");
+  } else {
+    messageInfo("Radar chart dumped to '" + radarChartDumpPath + "'");
+  }
 }
 
 // Function to convert numerical value to a colored string based on min and max values
@@ -297,6 +416,19 @@ void makeReportEntry(
     messageError("Unknown report type");
   }
 }
+bool askToContinue() {
+  if (clc::continueOnError) {
+    return true;
+  }
+  std::cout << "Do you want to continue? [y/n] ";
+  std::string answer;
+  std::getline(std::cin, answer);
+  if (answer == "y" || answer == "Y" || answer == "") {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 void run_usmt() {
 
@@ -307,12 +439,21 @@ void run_usmt() {
     std::vector<size_t> heatmap_configuration_col = {0};
 
     messageInfo("Running test " + test.name);
-    std::string summaryReportDumpPath =
-        clc::dumpPath + "/summary_report_" + test.name + ".csv";
-    //remove previous report
-    if (clc::dumpPath != "" &&
-        std::filesystem::exists(summaryReportDumpPath)) {
-      std::filesystem::remove(summaryReportDumpPath);
+    std::string summaryReportDumpPath = "";
+    std::string radarChartDumpPath = "";
+    if (clc::dumpPath != "") {
+      summaryReportDumpPath =
+          clc::dumpPath + "/summary_report_" + test.name + ".csv";
+      radarChartDumpPath =
+          clc::dumpPath + "/radar_chart_" + test.name + ".png";
+      //remove previous report
+      if (std::filesystem::exists(summaryReportDumpPath)) {
+        std::filesystem::remove(summaryReportDumpPath);
+      }
+      //remove previous radar chart
+      if (std::filesystem::exists(radarChartDumpPath)) {
+        std::filesystem::remove(radarChartDumpPath);
+      }
     }
 
     fort::utf8_table table;
@@ -321,14 +462,16 @@ void run_usmt() {
     //handle the header of the table
     std::vector<std::string> line_header = makeHeader(table, test);
     table_rows.push_back(line_header);
-    appendCSVLineToFile(summaryReportDumpPath, line_header);
+    if (summaryReportDumpPath != "")
+      appendCSVLineToFile(summaryReportDumpPath, line_header);
 
     //handle the subheader of the table
     std::vector<std::string> line_subheader =
         makeSubHeader(table, test, heatmap_configuration_col);
     table << fort::header;
     table_rows.push_back(line_subheader);
-    appendCSVLineToFile(summaryReportDumpPath, line_subheader);
+    if (summaryReportDumpPath != "")
+      appendCSVLineToFile(summaryReportDumpPath, line_subheader);
 
     std::map<std::string, std::vector<EvalReportPtr>>
         useCaseToEvalReports;
@@ -388,7 +531,16 @@ void run_usmt() {
         messageInfo("Running '" + use_case.miner_name + "'");
 
         auto start = std::chrono::high_resolution_clock::now();
-        systemCheckExit(run_container_command);
+        if (systemCheckFailure(run_container_command)) {
+          messageWarning("Miner '" + use_case.miner_name +
+                         "' failed");
+          if (askToContinue()) {
+            //skip to the next use case but dump the standalone config
+            goto dump_standalone_config;
+          } else {
+            messageError("Aborting...");
+          }
+        }
         auto stop = std::chrono::high_resolution_clock::now();
         //keep track of the elapsed time
         tr->_timeMS =
@@ -418,13 +570,28 @@ void run_usmt() {
           useCaseToEvalReports[use_case.usecase_id].push_back(tr);
           continue;
         }
-        EvalReportPtr er = evaluate(use_case, comp);
-        std::cout << er->to_string() << "\n";
-        er->dumpTo(ph.work_path + ph.work_eval);
-        useCaseToEvalReports[use_case.usecase_id].push_back(er);
+        try {
+          EvalReportPtr er = evaluate(use_case, comp);
+          std::cout << er->to_string() << "\n";
+          er->dumpTo(ph.work_path + ph.work_eval);
+          useCaseToEvalReports[use_case.usecase_id].push_back(er);
+        } catch (std::exception &e) {
+          messageWarning("Evaluation " + comp.with_strategy +
+                         " for use case '" + use_case.usecase_id +
+                         "' failed: " + std::string(e.what()));
+          messageWarning(use_case.usecase_id + " will not be used");
+          if (askToContinue()) {
+            //skip to the next use case but dump the standalone config
+            useCaseToEvalReports.erase(use_case.usecase_id);
+            goto dump_standalone_config;
+          } else {
+            messageError("Aborting...");
+          }
+        }
       }
 
       //------------[DUMP THE STANDALONE CONFIG] ---------
+    dump_standalone_config:;
       dumpConfigStandalone(use_case, test,
                            ph.work_path +
                                ph.work_test_config_standalone +
@@ -442,12 +609,12 @@ void run_usmt() {
       std::vector<std::string> line;
       line.push_back(usecase_id);
       for (const auto &er : report) {
-        //smart pointer cast
         makeReportEntry(er, line, usecase_id, strategyToBestUseCase);
-      } //end of reports
+      }
       table_rows.push_back(line);
-      appendCSVLineToFile(summaryReportDumpPath, line);
-    } // end of useCaseToEvalReports
+      if (summaryReportDumpPath != "")
+        appendCSVLineToFile(summaryReportDumpPath, line);
+    }
 
     //tranform the table into a heatmap
     auto colorized_table_rows =
@@ -473,6 +640,8 @@ void run_usmt() {
     //  messageInfo("Best " + strategy + ": " + best_use_cases);
     //}
 
+    dumpRadarChart(radarChartDumpPath, useCaseToEvalReports, "Time",
+                   "Time, RS", test.name);
   } //end of tests
 }
 

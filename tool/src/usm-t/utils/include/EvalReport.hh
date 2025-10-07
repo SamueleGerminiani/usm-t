@@ -117,9 +117,17 @@ public:
         }
       }
     }
+    //print uncovered only if there are some
+    if (_uncovered.size() > 0) {
+      ss << "--------Uncovered------------------\n";
+      for (const auto &uncovered : _uncovered) {
+        ss << uncovered << "\n";
+      }
+    }
 
-    ss << "Final score: " << _final_score << "\n";
-    ss << "Noise: " << _noise << "\n";
+    ss << "----------------------------------------\n";
+    ss << "MS: " << _final_score << "\n";
+    ss << "RS: " << _noise << "\n";
 
     return ss.str();
   }
@@ -166,8 +174,9 @@ public:
       ss << pair.first << "\n\t\t--> " << pair.second.first << " : "
          << pair.second.second << "\n";
     }
-    ss << "Final score: " << _final_score << "\n";
-    ss << "Noise: " << _noise << "\n";
+    ss << "----------------------------------------\n";
+    ss << "MS: " << _final_score << "\n";
+    ss << "RS: " << _noise << "\n";
 
     return ss.str();
   }
@@ -203,8 +212,9 @@ public:
       ss << pair.first << "\n\t\t--> " << pair.second.first << " : "
          << pair.second.second << "\n";
     }
-    ss << "Final score: " << _final_score << "\n";
-    ss << "Noise: " << _noise << "\n";
+    ss << "----------------------------------------\n";
+    ss << "MS: " << _final_score << "\n";
+    ss << "RS: " << _noise << "\n";
 
     return ss.str();
   }
@@ -235,6 +245,7 @@ public:
 
   virtual std::string to_string() override {
     std::stringstream ss;
+    ss << "----------------------------------------\n";
     ss << "Temporal Report\n";
     ss << "Time: " << (double)_timeMS / 1000.f << " ms\n";
     return ss.str();

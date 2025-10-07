@@ -59,6 +59,7 @@ VCD_SCOPE="$6"
 HINTS="$7"
 
 
+
 VERILOG_DIR="$TEST_NAME/design/"
 GOLDEN_VCD_FILE="$TEST_NAME/traces/vcd/golden.vcd"
 GOLDEN_VCD_NAME=$(basename $GOLDEN_VCD_FILE)
@@ -111,6 +112,7 @@ declare -A substitutions=(
 ["<GOLDMINER_RUN>"]="${TEST_NAME}/run_miner.sh"
 )
 
+
 # Perform substitutions
 cp "$TEST_CONFIG_TEMPLATE" "$OUT_TEST_FILE"
 
@@ -125,7 +127,7 @@ done
 harm_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/harm/configurations/${TEST_NAME}"
 mkdir -p "${harm_config_dir}"
 harm_config_file_path="${harm_config_dir}/config.xml"
-generate_harm_xml "$harm_config_file_path" "G(..#1&.. |-> P0)" "$HINTS" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" 
+generate_harm_xml "$harm_config_file_path" "$HINTS" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" 
 harm_run_file_path="${harm_config_dir}/run_miner.sh"
 generate_harm_run "$harm_run_file_path" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" "$CLOCK_NAME" 
 
@@ -133,7 +135,7 @@ generate_harm_run "$harm_run_file_path" "$GOLDEN_VCD_NAME" "$VCD_SCOPE" "$CLOCK_
 goldminer_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/goldminer/configurations/${TEST_NAME}"
 mkdir -p "${goldminer_config_dir}"
 goldminer_config_file_path="${goldminer_config_dir}/goldmine.cfg"
-generate_goldminer_config "1000000" "4" "3" "$goldminer_config_file_path"
+generate_goldminer_config "$HINTS" "$goldminer_config_file_path"
 goldminer_run_file_path="${goldminer_config_dir}/run_miner.sh"
 generate_goldminer_run "$goldminer_run_file_path" "$TOP_MODULE_NAME" "$CLOCK_NAME" "$GOLDEN_VCD_NAME"
 
@@ -141,7 +143,7 @@ generate_goldminer_run "$goldminer_run_file_path" "$TOP_MODULE_NAME" "$CLOCK_NAM
 texada_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/texada/configurations/${TEST_NAME}"
 mkdir -p "${texada_config_dir}"
 texada_run_file_path="${texada_config_dir}/run_miner.sh"
-generate_texada_run "$texada_run_file_path" "[](P0 -> P1)"
+generate_texada_run "$texada_run_file_path" "$HINTS"
 
 #Samples2LTL
 samples2ltl_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/samples2ltl/configurations/${TEST_NAME}"

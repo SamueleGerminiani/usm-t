@@ -10,6 +10,7 @@ then
     bash install_hifsuite.sh 
     bash install_os-cad.sh 
     bash install_ltlsynt.sh 
+    bash install_radarChartPlotter.sh
 else
     installPrefix="$1"
     bash install_antlr.sh "$installPrefix"
@@ -20,6 +21,7 @@ else
     bash install_hifsuite.sh "$installPrefix"
     bash install_os-cad.sh "$installPrefix"
     bash install_boost.sh "$installPrefix"
+    bash install_radarChartPlotter.sh "$installPrefix"
 fi
 
 
