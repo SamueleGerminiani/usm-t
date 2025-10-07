@@ -155,12 +155,12 @@ void dumpRadarChart(
   }
 
   //debug
-  std::cout << "Title: " << title << "\n";
-  std::cout << "Dump to: " << radarChartDumpPath << "\n";
-  std::cout << "Using tool: " << radar_chart_plotter_path << "\n";
-  std::cout << "Relative: " << relative << "\n";
-  std::cout << "Inverted: " << inverted << "\n";
-  std::cout << "Data string:\n" << data_string << "\n";
+  //std::cout << "Title: " << title << "\n";
+  //std::cout << "Dump to: " << radarChartDumpPath << "\n";
+  //std::cout << "Using tool: " << radar_chart_plotter_path << "\n";
+  //std::cout << "Relative: " << relative << "\n";
+  //std::cout << "Inverted: " << inverted << "\n";
+  //std::cout << "Data string:\n" << data_string << "\n";
 
   if (systemCheckFailure(
           "python3 " + radar_chart_plotter_path + " --dump-to \"" +
@@ -640,8 +640,9 @@ void run_usmt() {
     //  messageInfo("Best " + strategy + ": " + best_use_cases);
     //}
 
-    dumpRadarChart(radarChartDumpPath, useCaseToEvalReports, "Time",
-                   "Time, RS", test.name);
+    if (radarChartDumpPath != "")
+      dumpRadarChart(radarChartDumpPath, useCaseToEvalReports, "Time",
+                     "Time, RS", test.name);
   } //end of tests
 }
 
