@@ -29,6 +29,15 @@ namespace usmt {
 
 AssertionPtr makeAssertion(const std::string &assertion_str,
                            const TracePtr &trace) {
+
+  if (!hparser::isSyntacticallyCorrectTemporalExpression(
+          assertion_str, trace)) {
+    messageWarning(
+        "The specification '" + assertion_str +
+        "' is not syntactically correct or supported, skipping it.");
+    return nullptr;
+  }
+
   TemporalExpressionPtr te =
       hparser::parseTemporalExpression(assertion_str, trace);
   AssertionPtr new_ass = generatePtr<Assertion>(te);
@@ -47,7 +56,10 @@ parseAssertions(const std::vector<std::string> &assStrs,
                      " specifications...",
                  assStrs.size(), 70);
   for (size_t i = 0; i < assStrs.size(); i++) {
-    assertions.push_back(makeAssertion(assStrs[i], trace));
+    auto new_assertion = makeAssertion(assStrs[i], trace);
+    if (new_assertion != nullptr) {
+      assertions.push_back(new_assertion);
+    }
     pb.increment(0);
     pb.display();
   }

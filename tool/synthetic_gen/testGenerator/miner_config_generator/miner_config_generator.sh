@@ -30,6 +30,12 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+source "$USMT_ROOT/tool/synthetic_gen/testGenerator/miner_config_generator/generateGeminiFlash.sh"
+if [ $? -ne 0 ]; then
+  echo "Failed to source generateGeminiFlash.sh"
+  exit 1
+fi
+
 #Add new miner here...
 
 
@@ -110,6 +116,8 @@ declare -A substitutions=(
 ["<SAMPLES2LTL_RUN>"]="${TEST_NAME}/run_miner.sh"
 ["<GOLDMINER_CONFIGURATION>"]="${TEST_NAME}/goldmine.cfg"
 ["<GOLDMINER_RUN>"]="${TEST_NAME}/run_miner.sh"
+["<GEMINI_RUN>"]="${TEST_NAME}/run_miner.sh"
+["<GEMINI_AGENT_SETUP>"]="${TEST_NAME}/agent_instructions.txt"
 )
 
 
@@ -150,6 +158,15 @@ samples2ltl_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/samples2ltl/configurations
 mkdir -p "${samples2ltl_config_dir}"
 samples2ltl_run_file_path="${samples2ltl_config_dir}/run_miner.sh"
 generate_samples2ltl_run "$samples2ltl_run_file_path" "4"
+
+#GeminiFlash
+gemini_flash_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/gemini-flash/configurations/${TEST_NAME}"
+mkdir -p "${gemini_flash_config_dir}"
+gemini_flash_run_file_path="${gemini_flash_config_dir}/run_miner.sh"
+generate_gemini_run "$gemini_flash_run_file_path"
+gemini_agent_setup_path="${gemini_flash_config_dir}/agent_instructions.txt"
+generate_gemini_agent_setup "$gemini_agent_setup_path" "$HINTS"
+
 
 #Add new miner here... (extend the install logic in the wrapper if needed)
 

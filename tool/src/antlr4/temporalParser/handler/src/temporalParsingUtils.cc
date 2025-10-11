@@ -83,4 +83,59 @@ parseTemporalExpression(std::string formula,
   return parsedFormula;
 }
 
+bool isSyntacticallyCorrectTemporalExpression(
+    std::string formula, const harm::TracePtr &trace) {
+  auto decls = trace->getDeclarations();
+  addTypeToExp(formula, decls);
+
+  // Create the listener for semantic/AST handling
+  std::shared_ptr<hparser::TemporalParserHandler> listener =
+      std::make_shared<hparser::TemporalParserHandler>(trace);
+  listener->_useCache = 0;
+
+  // Define a flag to capture lexer/parser errors
+  bool hasError = false;
+
+  // Custom error listener to set flag instead of throwing
+  class BailErrorListener : public antlr4::BaseErrorListener {
+  public:
+    bool *errorFlag;
+    explicit BailErrorListener(bool *flag) : errorFlag(flag) {}
+    void syntaxError(antlr4::Recognizer *recognizer,
+                     antlr4::Token *offendingSymbol, size_t line,
+                     size_t charPositionInLine,
+                     const std::string &msg,
+                     std::exception_ptr e) override {
+      *errorFlag = true;
+    }
+  };
+
+  try {
+    antlr4::ANTLRInputStream input(formula);
+    temporalLexer lexer(&input);
+
+    BailErrorListener errorListener(&hasError);
+    lexer.removeErrorListeners();
+    lexer.addErrorListener(&errorListener);
+
+    antlr4::CommonTokenStream tokens(&lexer);
+    temporalParser parser(&tokens);
+
+    parser.removeErrorListeners();
+    parser.addErrorListener(&errorListener);
+
+    antlr4::tree::ParseTree *treeFragAnt = parser.formula();
+
+    // Only walk if no lexer/parser errors
+    if (!hasError)
+      antlr4::tree::ParseTreeWalker::DEFAULT.walk(listener.get(),
+                                                  treeFragAnt);
+
+  } catch (...) {
+    hasError = true; // Catch any unexpected parser exceptions
+  }
+
+  // Return true if a syntax error occurred
+  return hasError == false;
+}
 } // namespace hparser

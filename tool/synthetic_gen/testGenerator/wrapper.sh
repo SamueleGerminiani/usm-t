@@ -93,6 +93,7 @@ harm_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/harm/configurations/${TEST_NAME}"
 goldminer_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/goldminer/configurations/${TEST_NAME}"
 texada_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/texada/configurations/${TEST_NAME}"
 samples2ltl_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/samples2ltl/configurations/${TEST_NAME}"
+gemini_config_dir="${CONFIG_OUTPUT_FOLDER}/tools/gemini-flash/configurations/${TEST_NAME}"
 
 #Install test
 if [ "$INSTALL" -eq 1 ]; then
@@ -101,6 +102,7 @@ if [ "$INSTALL" -eq 1 ]; then
     cp -r "$goldminer_config_dir" "$USMT_ROOT/miners/tools/goldminer/configurations/"
     cp -r "$texada_config_dir" "$USMT_ROOT/miners/tools/texada/configurations/"
     cp -r "$samples2ltl_config_dir" "$USMT_ROOT/miners/tools/samples2ltl/configurations/"
+    cp -r "$gemini_config_dir" "$USMT_ROOT/miners/tools/gemini-flash/configurations/"
 
     #cp the input
     cp -r "$INPUT_GENERATOR_OUTPUT_FOLDER" "$USMT_ROOT/input/${TEST_NAME}"

@@ -40,6 +40,7 @@ miners/tools/texada/runs/*
 miners/tools/goldminer/runs/*
 miners/tools/samples2ltl/runs/*
 miners/tools/external/runs/*
+miners/tools/gemini-flash/runs/*
 tool/syntetic_gen/hif_sim/complete
 tool/syntetic_gen/hif_sim/syntetic_design*
 tool/syntetic_gen/hif_sim/rtl/*

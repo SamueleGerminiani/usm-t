@@ -20,4 +20,6 @@ expression::TemporalExpressionPtr
 parseTemporalExpression(std::string formula,
                         const harm::TracePtr &trace);
 
+bool isSyntacticallyCorrectTemporalExpression(
+    std::string formula, const harm::TracePtr &trace);
 } // namespace hparser

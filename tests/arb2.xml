@@ -56,6 +56,17 @@
     <docker image="samger/harm:latest"/>  
   </usecase>
 
+  <usecase id="gemini_usecase_1">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog" />
+    <configuration type="run" path="arb2_ex/run_miner.sh"/>
+    <configuration type="support" path="arb2_ex/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export GEMINI_API_KEY="AIzaSyC_W23nnKpMQIsJYNRowDjFyYwMHyYUO1E" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
   <usecase id="texada_usecase_1">
     <miner name="texada"/> 
     <input id="0" type="csv" />
@@ -112,6 +123,7 @@
     <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
     <external id="manually_defined"/>
+    <usecase id="gemini_usecase_1"/>
 
     <!--
       - The path is relative to $USMT_ROOT/

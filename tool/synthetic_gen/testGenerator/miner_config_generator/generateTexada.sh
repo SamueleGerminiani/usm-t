@@ -74,8 +74,8 @@ function generate_texada_run() {
     local output_file=$1
     local hint_string=$2
     # Parse the input string into antecedent and consequence variables
-    local ant=$(echo "$hint_string" | grep -oP 'ant\s*:\s*\K[^;}]*')
-    local con=$(echo "$hint_string" | grep -oP 'con\s*:\s*\K[^;}]*')
+    local ant=$(echo "$hint_string" | grep -oP '{ant\s*:\s*\K[^;}]*')
+    local con=$(echo "$hint_string" | grep -oP '\scon\s*:\s*\K[^;}]*')
     local formula=$(echo "$hint_string" | grep -oP 'formula\s*:\s*\K[^;}]*')
     formula="${formula// /}"  # remove spaces
     local nant=$(echo "$hint_string" | grep -oP 'nant\s*:\s*\K[0-9]+')

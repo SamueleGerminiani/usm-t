@@ -47,11 +47,25 @@
     <docker image="samger/goldminer2:latest"/>  
   </usecase>
 
+  <usecase id="gemini_default">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="<GEMINI_RUN>"/>
+    <configuration type="support" path="<GEMINI_AGENT_SETUP>"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export GEMINI_API_KEY="AIzaSyC_W23nnKpMQIsJYNRowDjFyYwMHyYUO1E" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
   <test name="<TEST_NAME>">
     <usecase id="harm_default"/>
     <usecase id="texada_default"/>
     <usecase id="samples2ltl_default"/>
     <usecase id="goldminer_default"/>
+    <!--
+    <usecase id="gemini_default"/>
+    -->
 
     <expected path="<EXPECTED_FILE>"/>
     <compare with_strategy="n_mined"/>
