@@ -8,14 +8,14 @@ if [ -z "$USMT_ROOT" ]; then
 fi
 
 bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
-"$USMT_ROOT"/tool/synthetic_gen/raw_challenges/AndUntil \
-AndUntil \
-AndUntil_top \
+"$USMT_ROOT"/tool/synthetic_gen/raw_challenges/Until \
+Until \
+Until_top \
 clk \
-"{formula : G(..&&.. |=> ..&&.. U ..&&..), nant : 2, ncon : 1, nspec : 10, overlap : 0}" \
+"{formula : G(..&&.. |-> ..&&.. U ..&&..), nant : 2, ncon : 1, nspec : 10, overlap : 0}" \
 rst \
-AndUntil_top_bench::AndUntil_top_ \
-50000 \
+Until_top_bench::Until_top_ \
+10000 \
 $install \
 $debug
 

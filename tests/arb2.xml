@@ -117,13 +117,13 @@
     <!--
     - Define the usecases to run for this test (must be defined above)
     - They will appear in the summary report in alphabetical order
+    <usecase id="gemini_usecase_1"/>
     -->
     <usecase id="harm_usecase_1_bool"/>
     <usecase id="goldminer_usecase_1"/>
     <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
     <external id="manually_defined"/>
-    <usecase id="gemini_usecase_1"/>
 
     <!--
       - The path is relative to $USMT_ROOT/

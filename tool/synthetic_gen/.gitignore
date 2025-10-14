@@ -1,3 +1,4 @@
 .temp
 __pycache__
 ./synthetic_gen/sa
+./raw_challenges/*

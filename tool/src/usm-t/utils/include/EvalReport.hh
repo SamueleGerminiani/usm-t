@@ -19,7 +19,7 @@ public:
   ~EvalReport() {}
   virtual void dumpTo(const std::string &pathToDir) = 0;
   virtual std::string to_string() = 0;
-  std::string _with_strategy;
+  std::string _with_strategy = "";
 };
 
 class FaultCoverageReport : public EvalReport {
@@ -35,6 +35,7 @@ public:
     ss << "Fault coverage: ";
     ss << "\t" << _totFaults - _uncoveredFaults.size() << "/"
        << _totFaults << " (" << fault_coverage * 100.f << "%)\n";
+    ss << "Uncovered faults: " << _uncoveredFaults.size() << "\n";
 
     if (_minCoveringAssertions.size() > 0) {
       ss << "Min covering set size: " << _minCoveringAssertions.size()
@@ -65,20 +66,24 @@ public:
         << fault_coverage * 100.f << ", "
         << _minCoveringAssertions.size() << ", ";
 
-    std::string line = "[";
-    for (const auto &assertion : _minCoveringAssertions) {
-      line += "\"" + assertion + "\"; ";
+    if (!_minCoveringAssertions.empty()) {
+      std::string line = "[";
+      for (const auto &assertion : _minCoveringAssertions) {
+        line += "\"" + assertion + "\"; ";
+      }
+      line.pop_back();
+      line.pop_back();
+      line += "]";
+      out << line << "\n";
+    } else {
+      out << "None\n";
     }
-    line.pop_back();
-    line.pop_back();
-    line += "]";
-    out << line << "\n";
   }
 
   double fault_coverage = 0.f;
   std::vector<std::string> _uncoveredFaults;
   std::vector<std::string> _minCoveringAssertions;
-  size_t _totFaults;
+  size_t _totFaults = 0;
 };
 
 class SemanticEquivalenceReport : public EvalReport {

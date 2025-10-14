@@ -69,8 +69,10 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
 
   //gather info on the coverage
 
-  ret->fault_coverage = (double)_fToAid.size() /
-                        (double)fc_result._faultyTraceFiles.size();
+  ret->fault_coverage =
+      !_fToAid.empty() ? ((double)_fToAid.size() /
+                          (double)fc_result._faultyTraceFiles.size())
+                       : 0.f;
 
   if (!_fToAid.empty()) {
     auto minCoveringAssertionsIds = getCoverageSet(fc_result);
@@ -85,14 +87,12 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
                          "' not found in mined assertions");
       ret->_minCoveringAssertions.push_back((*found)->toString());
     }
-
-    if (_fToAid.size() < fc_result._faultyTraceFiles.size()) {
-      for (size_t j = 0; j < fc_result._faultyTraceFiles.size();
-           j++) {
-        if (!_fToAid.count(j)) {
-          ret->_uncoveredFaults.push_back(
-              fc_result._faultyTraceFiles[j]);
-        }
+  }
+  if (_fToAid.size() < fc_result._faultyTraceFiles.size()) {
+    for (size_t j = 0; j < fc_result._faultyTraceFiles.size(); j++) {
+      if (!_fToAid.count(j)) {
+        ret->_uncoveredFaults.push_back(
+            fc_result._faultyTraceFiles[j]);
       }
     }
   }
@@ -244,7 +244,7 @@ void evaluateWithFaultCoverage(
   //              << "   " << f << "\n";
   //  }
   //}
-  
+
   //restore the original trace in all assertions
   for (AssertionPtr &a : selected_copy) {
     a->changeTrace(originalTrace);

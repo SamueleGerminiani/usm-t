@@ -12,7 +12,7 @@ bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
 Eventually \
 Eventually_top \
 clk \
-"{formula : G(..&&.. |=> F ..&&..), nant : 1, ncon : 2, nspec: 10, overlap : 0}" \
+"{formula : G(..&&.. |-> F ..&&..), nant : 1, ncon : 2, nspec: 10, overlap : 0}" \
 rst \
 Eventually_top_bench::Eventually_top_ \
 1000 \

@@ -12,7 +12,7 @@ bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
 NextAnd \
 NextAnd_top \
 clk \
-"{formula : G(..#1&.. |=> ..#1&..), nant : 3, ncon : 2, nspec: 10, overlap : 0}" \
+"{formula : G(..#1&.. |-> ..#1&..), nant : 3, ncon : 2, nspec: 10, overlap : 0}" \
 rst \
 NextAnd_top_bench::NextAnd_top_ \
 1000 \
