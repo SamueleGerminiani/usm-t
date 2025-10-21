@@ -1,4 +1,5 @@
 .temp
 __pycache__
-./synthetic_gen/sa
-./raw_challenges/*
+synthetic_gen/sa
+raw_challenges
+testGenerator/input_generator/__pycache__

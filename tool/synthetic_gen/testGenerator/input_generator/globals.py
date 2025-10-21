@@ -11,7 +11,11 @@ out_folder = root + '/tool/synthetic_gen/testGenerator/input_generator/.temp/'
 debug = False
 clk_name = ""
 top_module_name = ""
-tracelnegth = 1000
+traceLength = 1000
+
+#empty map string to elapsed time
+time_map = {}
+
 
 #debug color
 CDBG = '\033[43m'

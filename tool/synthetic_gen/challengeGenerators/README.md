@@ -22,40 +22,25 @@ source scripts/setupEnvironment.sh
 ```
 
 ## Usage
-To run the benchmark generation use the following command from the synthetic_gen folder: 
-
+To generate a benchmark, you can run one of the provided scripts in this directory. For example, to generate the 'And' challenge, run:
 ```bash
-#launch from syntetic_gen folder
-bash ~/usm-t/tool/synthetic_gen/testGeneration/testGenWrapper.sh <ARGUMENTS>
+bash generate_And.sh [install] [debug]
 ```
+The `install` and `debug` arguments are optional.
+
+The scripts in this directory call the main wrapper script `tool/synthetic_gen/testGenerator/wrapper.sh` with pre-filled parameters for each challenge.
 
 ## Arguments
-The program will generate a all the testbench sources as well as the configuration files needed to execute a testrun. The program, if specified will also copy all the necessary files (sources and configurations) to the USM-T appropriate folders.
+The generation scripts in this directory accept two optional positional arguments:
+1.  `install`: (Optional) Integer value (0, 1, or 2). Default is 0.
+    - `0`: Only generate the challenge in the `raw_challenges` directory.
+    - `1`: Generate and install the challenge into the USM-T framework.
+    - `2`: Uninstall the challenge from the USM-T framework.
+2.  `debug`: (Optional) Integer value (0 or 1). Default is 0. `1` enables debug mode for more verbose output.
 
-You can see all the cmd line options by running:
+The internal parameters of each challenge (e.g., number of specifications, LTL formula template) are defined within each `generate_*.sh` script. If you want to customize a challenge, it is recommended to copy an existing script and modify these parameters.
 
-```bash
-bash ~/usm-t/tool/synthetic_gen/testGeneration/testGenWrapper.sh -h
-```
-
-Here is a brief explanation of the program inputs:
-- **[Optional] h**: Prints the usage message
-- **syntgen_folder**: Path to the sources output folder
-- **output_folder**: Path to the configurations output folder
-- **test_name**:String value. Set the name of generated test in the configurations
-- **top_module_name**: Specify the name for the top module of the generated design
-- **clock_name**: Name of the clock signal that will be used in the generated design
-- **template_string**: String that contains a list of templates representing the specifications implemented by the benchmark. More about templates [here](#about-templates)
-- **reset_signal**:Name of the reset signal that will be used in the generated design
-- **vcd_scope**:vcd path to the top module
-
-- **tracelength**:Number of time instants of the generated execution traces
-- **install**: Boolean value. default is 0, 1 to install, 2 to uninstall. They act as follows:
-    - *Default*: Only generate design and configurations for the specified benchmark.
-    - *Install*: Generate AND copy in the corresponding directories for the USM-T execution.
-    - *Uninstall*: Remove the files from the USM-T folders.
-
-The recommended approach to create your first benchmark is to copy and modify one of the generation script that you find in the [miningChallengesGenerator](../miningChallengesGenerator/) folder, e.g. [generate_sample_challgenge.sh](../miningChallengesGenerator/generate_sample_challenge.sh). 
+The recommended approach to create your first benchmark is to copy and modify one of the generation scripts that you find in this folder, e.g. `generate_And.sh`.
 
 
 ## Contact

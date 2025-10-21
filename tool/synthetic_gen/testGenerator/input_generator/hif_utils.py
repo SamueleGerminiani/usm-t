@@ -1,6 +1,7 @@
 import os
 import subprocess
 import globals
+import time
 
 #Support function that calls the hif pipeline anche check for errors
 def generate_injectable_design():
@@ -11,8 +12,10 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print("Generating injectable design \n", flush=True)
 
+    start_time = time.time()
     # Set the LD_LIBRARY_PATH here because it conflicts with other commands
     verilog_files = subprocess.run(f"find {globals.hif_temp_prefix}rtl/ -name '*.v'", shell=True, check=False, capture_output=True, text=True).stdout.strip().replace('\n', ' ')
+    globals.time_map['find_verilog_files'] = time.time() - start_time
 
     verilog2hif_command = f"{hif_binaries_path}/verilog2hif {verilog_files} --output {globals.hif_temp_prefix}synthetic_design.hif.xml"
 
@@ -20,7 +23,9 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {verilog2hif_command} \n", flush=True)
     try:    
+        start_time = time.time()
         subprocess.run(verilog2hif_command,stderr=subprocess.DEVNULL if not globals.debug else None,  stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
+        globals.time_map['verilog2hif'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run verilog2hif. {e}", flush=True)
         exit(1)
@@ -30,7 +35,9 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {ddt_command} \n", flush=True)
     try: 
+        start_time = time.time()
         subprocess.run(ddt_command,stderr=subprocess.DEVNULL if not globals.debug else None,  stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
+        globals.time_map['ddt'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run ddt. {e}", flush=True)
         exit(1)
@@ -39,7 +46,9 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {a2tool_command} \n", flush=True)
     try:
+        start_time = time.time()
         subprocess.run(a2tool_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
+        globals.time_map['a2tool'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run a2tool. {e}", flush=True)
         exit(1)
@@ -49,7 +58,9 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {muffin_command} \n", flush=True)
     try:
+        start_time = time.time()
         subprocess.run(muffin_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
+        globals.time_map['muffin'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run muffin. {e}", flush=True)
         exit(1)
@@ -59,7 +70,9 @@ def generate_injectable_design():
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print(f"Running command: {hif2sc_command} \n", flush=True)
     try:
+        start_time = time.time()
         subprocess.run(hif2sc_command,stderr=subprocess.DEVNULL if not globals.debug else None, stdout=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
+        globals.time_map['hif2sc'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run hif2sc. {e}", flush=True)
         exit(1)
@@ -70,6 +83,7 @@ def generate_injectable_design():
 
 
 def run_hifsuite(specification):
+
     os.makedirs(globals.hif_temp_prefix, exist_ok=True)
 
     if globals.debug:
@@ -104,8 +118,13 @@ def run_hifsuite(specification):
 
     # ----------------------------------------------------------------------
     # Step 2: Run HIF pipeline + testbench
+    start_time = time.time()
     generate_injectable_design()
+    globals.time_map['generate_injectable_design'] = time.time() - start_time
+
+    start_time = time.time()
     generate_testbench(specification)
+    globals.time_map['generate_testbench'] = time.time() - start_time
 
     injected_dir = os.path.join(globals.hif_temp_prefix, "injected")
     build_dir = os.path.join(injected_dir, "build")
@@ -141,19 +160,23 @@ def run_hifsuite(specification):
     os.makedirs(build_dir, exist_ok=True)
 
     try:
-        subprocess.run("cmake ..", cwd=build_dir,
+        start_time = time.time()
+        subprocess.run("cmake -DFETCHCONTENT_FULLY_DISCONNECTED=ON ..", cwd=build_dir,
                        stderr=None if globals.debug else subprocess.DEVNULL,
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
+        globals.time_map['cmake'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run cmake. {e}", flush=True)
         exit(1)
 
     try:
+        start_time = time.time()
         subprocess.run("make", cwd=build_dir,
                        stderr=None if globals.debug else subprocess.DEVNULL,
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
+        globals.time_map['make'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to compile the testbench. {e}", flush=True)
         exit(1)
@@ -161,10 +184,12 @@ def run_hifsuite(specification):
     # ----------------------------------------------------------------------
     # Step 4: Run simulation
     try:
+        start_time = time.time()
         subprocess.run("./synthetic_circuit", cwd=build_dir,
                        stderr=None if globals.debug else subprocess.DEVNULL,
                        stdout=None if globals.debug else subprocess.DEVNULL,
                        shell=True, check=True)
+        globals.time_map['simulation'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to run the simulation. {e}", flush=True)
         exit(1)
@@ -172,7 +197,9 @@ def run_hifsuite(specification):
     # ----------------------------------------------------------------------
     # Step 5: Copy traces
     try:
+        start_time = time.time()
         subprocess.run(f"cp {injected_dir}/build/traces/*.vcd {globals.out_folder}faulty_traces/vcd", shell=True, check=True)
+        globals.time_map['copy_traces'] = time.time() - start_time
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to copy trace files. {e}", flush=True)
         exit(1)
@@ -180,6 +207,7 @@ def run_hifsuite(specification):
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND, flush=True)
         print("Design injected and simulated correctly \n", flush=True)
+
 
 
 #Generate testbench for HIFSuite
@@ -288,7 +316,7 @@ def generate_testbench(specification):
 
           // faults
           int32_t cycles_number = 0;
-          size_t traceLength = """ + f"{globals.tracelnegth}" + """ * 2;  // 1000 positive and 1000 negative edges
+          size_t traceLength = """ + f"{globals.traceLength}" + """ * 2;  // 1000 positive and 1000 negative edges
 
           bool """ + f"{globals.clk_name}"+"""_0 = 0;
 

@@ -4,6 +4,7 @@ import os
 import random
 import copy 
 import sys
+import time
 import argparse
 import dir_utils
 import hif_utils
@@ -271,10 +272,12 @@ def main():
                         help='List of template files, format: '
                              '"{formula : G(P0 -> P1), nant : 1, ncon : 1, nspec : 2, overlap : 1};..."')
     parser.add_argument('--tracelength', type=int, help='Trace length')
+    parser.add_argument('--dump-time', type=str, help='File to dump time measurements')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr, flush=True)
         sys.exit(1)
+
 
     args = parser.parse_args()
     modules = args.parallel == 1
@@ -283,10 +286,13 @@ def main():
     globals.top_module_name = args.top_module
     dirpath = args.outdir
     templates = args.templates.replace('"', '').split(';')
-    globals.tracelnegth = args.tracelength
+    globals.traceLength = args.tracelength
+
+    start_time = time.time()
 
     required_keys = {"formula": str, "nant": int, "ncon": int, "nspec": int, "overlap": int}
     template_list = []
+    start_time = time.time()
 
     for idx, template in enumerate(templates, 1):
 
@@ -346,23 +352,32 @@ def main():
     ############### GENERATION AND SIMULATION STAGE ###############
     ###############################################################
     print(globals.CSTP + "3." + globals.CEND + " Generating circuit from specification" + " \n", flush=True)
+    globals.time_map['generate_specification'] = time.time() - start_time
+    start_time = time.time()
     rtl_utils.generate_circuit(merged_specification, spec_list, modules)
+    globals.time_map['generate_circuit'] = time.time() - start_time
     print(globals.CSTP + "3." + globals.CEND + "     " +
           globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
 
     print(globals.CSTP + "4." + globals.CEND + " Running HIFSuite" + " \n", flush=True)
+
+    start_time = time.time()
     hif_utils.run_hifsuite(merged_specification)
+    globals.time_map['hifsuite_total'] = time.time() - start_time
+
     print(globals.CSTP + "4." + globals.CEND + "     " +
           globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
 
     if os.path.exists(f"{globals.root}/tool/build/vcd2csv"):
         print(globals.CSTP + "4.5" + globals.CEND + " Creating CSV traces" + " \n", flush=True)
+        vcd2_csv_start_time = time.time()
         dir_utils.generateCSV()
         try:
             subprocess.run(f"mv {globals.out_folder}faulty_traces/csv/golden.csv "
                            f"{globals.out_folder}traces/csv/", shell=True, check=True)
             subprocess.run(f"mv {globals.out_folder}faulty_traces/vcd/golden.vcd "
                            f"{globals.out_folder}traces/vcd/", shell=True, check=True)
+            globals.time_map['generate_csv'] = time.time() - vcd2_csv_start_time
         except subprocess.CalledProcessError as e:
             print(globals.CERR + "Error:" + globals.CEND +
                   f"Failed to move golden traces to {globals.out_folder}/traces. {e}", flush=True)
@@ -383,10 +398,47 @@ def main():
           f" Procedure complete! All generated files can be found in {dirpath} " +
           globals.CSTP + "#################" + globals.CEND + "\n\n", flush=True)
 
+    end_time = time.time()
+    tot_runtime = end_time - start_time
+    print(globals.CSTP + "Total runtime: " + globals.CEND +
+          f"{tot_runtime:.2f} seconds\n", flush=True)
+
     # need to return this string for usm-t automatic test generation
     print('{ant : ' + merged_specification['inputs'] +
           '; con : ' + merged_specification['outputs'] + ';' + templates[0].replace('{', '').replace('}', '').replace(',',';') + '}', flush=True)
+
+
+
+    #dump as csv
+    if args.dump_time:
+        with open(args.dump_time, 'a') as f:
+            f.write(f"name, time\n")
+            f.write(f"tot, {tot_runtime:.2f}\n")
+            f.write(f"\tgenerate_specification, {globals.time_map.get('generate_specification', 0):.2f}\n")
+            f.write(f"\tgenerate_circuit, {globals.time_map.get('generate_circuit', 0):.2f}\n")
+            f.write(f"\thifsuite_total, {globals.time_map.get('hifsuite_total', 0):.2f}\n")
+            #verilog2hif, ddt, a2tool, muffin, hif2sc
+            f.write(f"\t\tgenerate_injectable_design, {globals.time_map.get('generate_injectable_design', 0):.2f}\n")
+            f.write(f"\t\t\tfind_verilog_files, {globals.time_map.get('find_verilog_files', 0):.2f}\n")
+            f.write(f"\t\t\tverilog2hif, {globals.time_map.get('verilog2hif', 0):.2f}\n")
+            f.write(f"\t\t\tddt, {globals.time_map.get('ddt', 0):.2f}\n")
+            f.write(f"\t\t\ta2tool, {globals.time_map.get('a2tool', 0):.2f}\n")
+            f.write(f"\t\t\tmuffin, {globals.time_map.get('muffin', 0):.2f}\n")
+            f.write(f"\t\t\thif2sc, {globals.time_map.get('hif2sc', 0):.2f}\n")
+            #cmake, make, simulation, copy_traces
+            f.write(f"\t\tcmake, {globals.time_map.get('cmake', 0):.2f}\n")
+            f.write(f"\t\tmake, {globals.time_map.get('make', 0):.2f}\n")
+            f.write(f"\t\tsimulation, {globals.time_map.get('simulation', 0):.2f}\n")
+            f.write(f"\t\tcopy_traces, {globals.time_map.get('copy_traces', 0):.2f}\n")
+            f.write(f"\t\tgenerate_testbench, {globals.time_map.get('generate_testbench', 0):.2f}\n")
+            f.write(f"\tgenerate_csv, {globals.time_map.get('generate_csv', 0):.2f}\n")
+
+
+
+
+
     sys.exit(0)
+
 
 
 if __name__ == "__main__":

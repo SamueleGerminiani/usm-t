@@ -22,6 +22,7 @@ def generate_circuit(specification,spec_list, modules):
         print("Circuit generated! \n", flush=True)
 
 
+
 #Generates a top module that instantiates all the submodules
 def generate_top_module(spec_list):
 
@@ -101,7 +102,8 @@ def aigerToSv(design_aiger, specification):
     input_file = design_aiger
     output_file = design_aiger.replace('.aiger', '.v')
     module_name = design_aiger.replace('.aiger', '')
-    yosys_command = f"yosys -p 'read_aiger  -module_name {module_name} -clk_name {globals.clk_name} {globals.out_folder}{input_file}; write_verilog {globals.out_folder}{output_file}'"
+    #yosys_command = f"yosys -p 'read_aiger  -module_name {module_name} -clk_name {globals.clk_name} {globals.out_folder}{input_file}; write_verilog {globals.out_folder}{output_file}'"
+    yosys_command = f"yosys -p 'read_aiger  -module_name {module_name} -clk_name {globals.clk_name} {globals.out_folder}{input_file}; opt_merge; opt_muxtree; opt_expr -fine; opt_reduce -fine; opt_clean; abc -g all; write_verilog {globals.out_folder}{output_file}'"
     try:    
         subprocess.run(yosys_command, stdout=subprocess.DEVNULL, shell=True, check=True)
     except subprocess.CalledProcessError as e:

@@ -12,10 +12,10 @@ bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
 Until \
 Until_top \
 clk \
-"{formula : G(..&&.. |-> ..&&.. U ..&&..), nant : 2, ncon : 1, nspec : 10, overlap : 0}" \
+"{formula : G(..&&.. |-> ..&&.. U ..&&..), nant : 1, ncon : 1, nspec : 10, overlap : 0}" \
 rst \
 Until_top_bench::Until_top_ \
-10000 \
+1000 \
 $install \
 $debug
 

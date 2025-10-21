@@ -33,6 +33,7 @@ if [ "$INSTALL" -eq 2 ]; then
     rm -rf "$USMT_ROOT/miners/tools/goldminer/configurations/${TEST_NAME}"
     rm -rf "$USMT_ROOT/miners/tools/texada/configurations/${TEST_NAME}"
     rm -rf "$USMT_ROOT/miners/tools/samples2ltl/configurations/${TEST_NAME}"
+    rm -rf "$USMT_ROOT/miners/tools/gemini-flash/configurations/${TEST_NAME}"
 
 
     #rm the input
@@ -66,6 +67,7 @@ INPUT_GENERATOR_OUTPUT_STRING=$(
         --templates "$TEMPLATE_STRING" \
         --tracelength "$TRACE_LENGTH" \
         --debug "$DEBUG" \
+        --dump-time "$TEST_OUTPUT_FOLDER/.elapsed.csv" \
     | tee /dev/tty | tail -n 1
 )
 
