@@ -1,6 +1,6 @@
 
 # The official repository of the Universal Specification Miner Tester (USM-T) tool
-<img src="icon.png" alt="drawing" width="200"/>
+<img src="figures/icon.png" alt="drawing" width="200"/>
 
 ## Table of contents
 
@@ -25,7 +25,7 @@
 
 This project introduces a robust framework designed for evaluating and comparing LTL (Linear Temporal Logic) specification miners. Traditional approaches often struggle with subjective assessments and intricate configurations; our solution addresses these issues by offering a structured methodology to assess the quality of specifications through both semantic and syntactic analyses.
 
-![](usmt_demo.gif)
+![](/figures/usmt_demo.gif)
 
 ## Quick start
 
@@ -112,142 +112,73 @@ cd tool/build
 ./usm-t --test ../../tests/arb2.xml --dump-to .
 ```
 
-## The configuration file
+This will generate singolar reports in the runs directory for each miner and a summary report in the current directory. Together with a radar chart. We report an example of the radar chart generated below. 
 
-The configuration file in XML format specifies inputs and use cases for testing with the Universal Specification Miner Tester. Here is a complete example of the configuration file, followed by an in-depth explanation of each element:
+![Radar Chart Example](figures/sample_radar_chart.png)
 
-```xml
-  <input id="0">
-    <vcd path="arb2/traces/bool/golden.vcd" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
-    <csv path="arb2/traces/bool/golden.csv"/>
-    <verilog path="arb2/design_bool/arb2_bool.v"/>
-  </input>
-```
+## All Options
 
-- The paths a relative to $USMT_ROOT/input/
-- Defines the input of the test: traces and/or design
-- The id can be used in usecases to use this test
-- If both csv and vcd traces are used, the resulting vcd set must be equal to the csv trace and viceversa, both from a naming point of view of the single elements (with different suffix) and in the content of the trace
-- Source designs are not checked for equivalence
-- clk and scope are mandatory when using vcd, the scope is the hierachical path from the top module separated with ::
+Below is a description of all supported command-line options:
 
-```xml
-  <input id="1">
-    <vcd_dir path="arb2/traces/bool/" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
-    <csv_dir path="arb2/traces/bool/"/>
-    <verilog_dir path="arb2/design_bool/"/>
-  </input>
-```
+- `--test <FILE>`  
+  Specifies the input `.xml` file containing the USM-T test suite to execute.
 
-- Also directories containing the traces and the design can be defined (the suffix of the files must match the type, e.g. .vcd for VCD, .csv for CSV, .v for Verilog)
+- `--continue-on-error`  
+  Continues execution even if one of the miners fails or cannot produce assertions. Without this option, execution stops at the first miner failure.
 
-```xml
-  <usecase id="harm_usecase_1_bool">
-    <miner name="harm"/> 
-    <input id="0" type="vcd" dest_dir="bool/"/>
-```
+- `--dump-to <DIRECTORY>`  
+  Dumps a summary report of the execution into the specified directory.
 
-- Select the input to use for this usecase specifying the id and the types (as a comma separated list) of the input to use
-- dest_dir is the directory where the miner will write the input files relative to /input/ (in the docker container)
+- `--ltlf`  
+  Enables evaluation of specifications using **finite-trace semantics (LTLf)**. Disabled by default.
 
+- `--sva`  
+  Outputs mined specifications in **SystemVerilog Assertions (SVA)** format.
 
-```xml
-    <config type="support" path="config1_bool/generic.xml"/>
-    <config type="run" path="config1_bool/run_miner.sh"/>
-```
+- `--psl`  
+  Outputs mined specifications in **PSL (Property Specification Language)** format.
 
-- The path is relative to $USMT_ROOT/miners/<miner_name>/configurations/
-- Define the configuration files to use for this usecase. The type can be either "support" or "run". "run" specifies a path to the file containing a bash script to run the miner. The script will be used in the run_container.sh script (in $USMT_ROOT/miners/<miner_name>/docker/) to run the miner.
-- "support" specifies additional configuration files that are needed by the miner and will be copied to /input/ in the docker container.
+- `--spotltl`  
+  Outputs mined specifications in **spotLTL** format, compatible with the Spot model checking library.
+
+- `--silent`  
+  Disables **all output**, including logs, warnings, and progress bars.
+
+- `--wsilent`  
+  Disables **warnings only**, while still showing errors and info messages.
+
+- `--isilent`  
+  Disables **informational messages**, but warnings and errors are still displayed.
+
+- `--psilent`  
+  Disables **progress bar output** during execution.
+
+- `--help`  
+  Displays the list of available options and exits.
 
 
-```xml
-    <input_adaptor path="vcd_to_vcd/run.sh"/>
-    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-```
-- Define the adaptors to use for this usecase.
-- Each input adaptor must have two inputs, a path to a directory containing the input files and a path to a directory where the output files will be written.
-- Each output adaptor must have two inputs, a path to a file containing the mined assertions in the custom format of the miner, and a path to an output file where the assertions will be written in a supported format (e.g. spotltl).
+## Manual
+For a detailed manual on how to add a new test or miner check the manual MANUAL.md
 
-```xml
-<export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
-  </usecase>
-```
-
-- Variables exported here can be used in the script to run the miner. The variables are passed as environment variables to the docker container running the miner.
-
-```xml
- <docker image="samger/harm:latest"/>  
-```
-- The image to use for the docker container running the miner. The image must be available in the local machine.
-
-```xml
-<external id="manually_defined">
-    <external_specifications path="input/arb2/external/manually_defined.txt"/>
-    <input id="0" type="vcd"/>
-    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-</external>
-```
-- The path is relative to $USMT_ROOT/
-- It is possible to use external specifications (not mined by the miners) to compare with the mined ones
-- The external_specifications file must contain the specifications (one per line) to be used in the evaluation.
-- This tag is similar to usecase; however, it does not run the miner. 
-- The input trace, and the output adaptor are still needed to evaluate the mined specifications.
-
-
-```xml
-<test name="arb2_test_1">
-```
-- Define the test to run
-
-```xml
-    <usecase id="samples2ltl_usecase_1"/>
-    <usecase id="harm_usecase_1_bool"/>
-    <usecase id="goldminer_usecase_1"/>
-    <usecase id="texada_usecase_1"/> 
-    <external id="manually_defined"/>
-```
-
-- Define the use cases (and externals) to use in this test (must be defined above)
-- They will appear in the summary report in alphabetical order
-
-
-```xml
-<expected path="input/arb2/expected/arb2_golden_ass_bool.txt"/>
-```
-- The path is relative to $USMT_ROOT/
-- File containing the golden assertions to compare with
-- This is neccessary for all comparison strategies except for time_to_mine and fault_coverage
-
-```xml
-    <compare with_strategy="n_mined"/>
-    <compare with_strategy="syntactic_similarity"/>
-    <compare with_strategy="semantic_equivalence"/>
-    <compare with_strategy="hybrid_similarity"/>
-    <compare with_strategy="fault_coverage" faulty_traces="input/arb2/faulty_traces/" trace_type="csv" />
-    <compare with_strategy="time_to_mine"/>
-  </test>
-</usm-t>
-```
-
-- List of evaluation strategies to use
-- They will appear in the summary report in the same order as in this XML
-
-## Generating synthetic benchmarks
-See tool/synthetic_gen/README.md
+## Mining challenges
+We provide a set of mining challenges to evaluate the performance of LTL miners. See tool/synthetic_gen/README.md
 
 ## Citations
 
 If you need to reference this tool in an academic publication, please use the following citation (add details here):
 
-\```bibtex
-@article{YourCitation,
-  title={Title},
-  author={Author},
-  journal={Journal},
-  year={Year},
-  volume={Volume},
-  pages={Pages}
-}
-\```
+```
+
+@INPROCEEDINGS{A_Baseline_Framework_for_the_Qualification_of_LTL_Specification_Miners2025,
+  author={Germiniani, Samuele and Nicoletti, Daniele and Pravadelli, Graziano},
+  booktitle={2025 Design, Automation & Test in Europe Conference (DATE)}, 
+  title={A Baseline Framework for the Qualification of LTL Specification Miners}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={1-7},
+  keywords={Measurement;Semantics;Europe;Manuals;Syntactics;Containers;Benchmark testing;Logic;Reliability;Qualifications;Linear Temporal Logic;Specification Mining;SVA Generation;Assertion Mining;Behavior Detection},
+  doi={10.23919/DATE64628.2025.10992993}}
+
+```
 

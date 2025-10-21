@@ -12,7 +12,7 @@ The integration process involves the following key stages:
 
 1.  **Setup**: Creating the necessary directory structure and configuration files for the new miner.
 2.  **Data Flow Integration**: Developing "adaptors" to convert USM-T's standard data formats to and from the formats required by the new miner.
-3.  **Test Case Definition**: Creating a specific test case in an XML file to run the miner with a given dataset.
+3.  **Test Case Definition**: Creating a specific test case in an XML file to run the miner with a given dataset. Or adding a new miner in an existing text.
 
 ### 1.3. Prerequisites
 
@@ -23,6 +23,8 @@ Before you begin, you must have access to the new miner you wish to integrate. T
 This section covers the initial setup of the miner's files and default configuration within the USM-T framework.
 
 ### 2.1. Create the Miner's Directory Structure
+
+You can create the necessary directory structure manually or by using the provided `scripts/createMiner.sh <miner_name>` script. This script will generate a basic template for your miner, which you can then customize.
 
 First, create a new directory for your miner under `/miners/tools/`. The name of this directory will be used as the miner's identifier.
 
@@ -180,96 +182,149 @@ echo "Output conversion complete."
 
 After creating your adaptors, remember to update the `<input_adaptor>` and `<output_adaptor>` paths in the appropriate `<usecase>` within your test XML file.
 
-## 4. Defining a Test Case
+## 4. Defining a Test Case (Test XML File)
 
-Once your miner is configured and has the necessary adaptors, you can define a specific test case to run it.
+In the previous chapter, we introduced adaptors as a mechanism to connect miners with the USM-T data flow. We now move from data transformation to test orchestration. A **test** in USM-T is defined by an XML file that specifies:
+- which input data should be used,
+- which miners should be executed,
+- and how their results should be evaluated.
 
-### 4.1. Anatomy of a Test XML File
+This chapter explains the structure of a test XML file and how to write one from scratch. Understanding test XML files is essential because each new miner must be validated within at least one test case to be executed by the framework.
 
-Test cases are defined in XML files located in the `tests/` directory. These files orchestrate a complete test run, specifying the input data, the miners to run, and the evaluations to perform. A test file has three main sections:
+---
 
-1.  **`<input>`**: Defines a set of source data (traces and designs). Paths are relative to the `input/` directory.
-2.  **`<usecase>`**: Configures a specific run of a single miner for this test. It customizes the miner's default settings for a particular dataset.
-3.  **`<test>`**: The main block that defines the test execution flow. It specifies which use cases to run and which evaluation strategies to apply.
+### 4.1 Overview of Test XML Files
 
-    ```xml
-    <test name="my_new_test_all_goals">
-      <!-- List all use cases to be included in this test run -->
-      <usecase id="my_miner_run_1"/>
-      <usecase id="harm_usecase_1_bool"/>
+A test XML file is located in the `tests/` directory of the project and has the following general layout:
 
-      <!-- Specify the file with the expected or "golden" specifications -->
-      <expected path="input/my_test_data/expected/golden_formulas.txt"/>
+```xml
+<usmt>
+  <input>...</input>
+  <usecase>...</usecase>
+  <test>...</test>
+</usmt>
+```
 
-      <!-- List the evaluation strategies to apply -->
-      <compare with_strategy="n_mined"/>
-      <compare with_strategy="syntactic_similarity"/>
-      <compare with_strategy="semantic_equivalence"/>
-      <compare with_strategy="hybrid_similarity"/>
-      <compare with_strategy="fault_coverage" faulty_traces="input/arb2/faulty_traces/csv/" trace_type="csv" />
-      <compare with_strategy="time_to_mine"/>
-    </test>
-    ```
+Each section plays a specific role:
+- `<input>` defines where the test gets its data from,
+- `<usecase>` defines how a miner is run with this data,
+- `<test>` groups usecases and applies evaluation strategies.
 
-    *   **`<usecase id="...">`**: Includes a previously defined use case in the test run.
-    *   **`<expected path="...">`**: Specifies the path to a file containing the "golden" specifications for comparison. The path is relative to the project's root directory (`$USMT_ROOT`). This file is required for most comparison strategies.
-    *   **`<compare with_strategy="...">`**: Defines an evaluation strategy to be used. The results of these comparisons will be available in the final report. The available strategies are:
-        *   `n_mined`: Counts the number of specifications mined by each tool.
-        *   `syntactic_similarity`: Measures the similarity between the mined specifications and the golden ones based on their textual representation.
-        *   `semantic_equivalence`: Checks for logical equivalence between the mined and golden specifications.
-        *   `hybrid_similarity`: A combination of syntactic and semantic similarity measures.
-        *   `fault_coverage`: Checks if the mined specifications can detect faults using a given set of faulty traces. This strategy requires the following attributes:
-            *   `faulty_traces`: The path from the project's root directory (`$USMT_ROOT`) to the directory containing the faulty trace files.
-            *   `trace_type`: The type of the trace files. Supported options are `vcd` and `csv`.
-        *   `time_to_mine`: Measures the execution time for each miner.
+The following sections explain each part in the required order.
 
-### 4.2. Creating a New Test File
+---
 
-The easiest way to create a new test is to copy an existing one and modify it.
+### 4.2 The `<input>` Section
 
-1.  **Copy an existing test file**, for example `tests/arb2.xml`, to a new file in the same directory, e.g., `tests/my_new_test.xml`.
+The `<input>` section defines the datasets that will be used in the test. These datasets can include execution traces, hardware designs, and optional auxiliary files. 
+A test file can include multiple `<input>` blocks, each with a unique `id`.
 
-2.  **Modify the `<input>` block** to point to the traces and/or design files for your new test. You can define multiple `<input>` blocks with different `id` attributes.
+Example:
+```xml
+  <input id="0">
+    <vcd path="arb2/traces/bool/golden.vcd" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv path="arb2/traces/bool/golden.csv"/>
+    <verilog path="arb2/design_bool/arb2_bool.v"/>
+  </input>
+```
 
-    ```xml
-    <input id="0">
-      <csv path="my_test_data/traces/my_golden.csv"/>
-      <verilog path="my_test_data/design/my_design.v"/>
-    </input>
-    ```
+- The paths a relative to $USMT_ROOT/input/
+- Each dataset is assigned to an `id` so that it can be referenced later by one or more `<usecase>` sections.
+- If both csv and vcd traces are used, the resulting vcd set must be equal to the csv trace and viceversa, both from a naming point of view of the single elements (with different suffix) and in the content of the trace
+- Source designs of different types (e.g. Verilog vs C++) are not checked for equivalence
+- clk and scope are mandatory when using vcd, the scope is the hierachical path from the top module separated with ::
 
-3.  **Define a `<usecase>` for your miner**. Give it a unique `id`. This block tells the framework exactly how to run your miner for this specific test.
+Also directories containing the traces and the design can be defined (the suffix of the files must match the type, e.g. .vcd for VCD, .csv for CSV, .v for Verilog)
 
-    ```xml
-    <usecase id="my_miner_run_1">
-      <miner name="<your_miner_name>"/> 
-      <input id="0" type="csv" dest_dir="my_input_dir/"/>
-      <configuration type="run" path="my_test_ex/run_miner.sh"/>
-      <configuration type="support" path="my_test_ex/my_config.txt"/>
-      <export MY_VAR="some_value_for_this_test"/>
-    </usecase>
-    ```
-    *   **`<miner name>`**: The name of your miner.
-    *   **`<input id="..." type="..." dest_dir="..."/>`**: Selects the input data (using the `id` from the `<input>` block) and specifies which `type` of data to use. `dest_dir` is the directory where the input files will be placed inside the miner's container.
-    *   **`<configuration path="..."/>`**: Points to test-specific run scripts or support files located in `miners/tools/<your_miner_name>/configurations/`.
-    *   **`<export ...>`**: Defines environment variables specifically for this test run, which can be used by your `run_miner.sh` script.
+Example:
+```xml
+  <input id="1">
+    <vcd_dir path="arb2/traces/bool/" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv_dir path="arb2/traces/bool/"/>
+    <verilog_dir path="arb2/design_bool/"/>
+  </input>
+```
 
-4.  **Add your use case to the `<test>` block**. In the `<test>` block at the end of the file, add a `<usecase>` tag referencing the `id` of the use case you just defined.
 
-    ```xml
-    <test name="my_new_test_all_goals">
-      <!-- Add your use case here -->
-      <usecase id="my_miner_run_1"/>
 
-      <!-- (Optional) Add other miners to compare against -->
-      <usecase id="harm_usecase_1_bool"/>
+---
 
-      <expected path="input/my_test_data/expected/golden_formulas.txt"/>
+### 4.3 The `<usecase>` Section
 
-      <compare with_strategy="n_mined"/>
-      <compare with_strategy="syntactic_similarity"/>
-      <compare with_strategy="time_to_mine"/>
-    </test>
-    ```
+The `<usecase>` section defines how a single miner is executed within the test. It specifies:
+- which input dataset to use,
+- which adaptors are needed,
+- the miner container to run,
+- and any additional settings needed for that execution.
 
-5.  **Update the `<expected>` path** to point to the file containing the golden specifications for your test data. This is necessary for the comparison strategies to work.
+A `<usecase>` must have a unique identifier so it can later be referenced in the `<test>` section.
+
+Example:
+```xml
+  <usecase id="harm_usecase_1_bool">
+    <miner name="harm"/> 
+    <input id="0" type="vcd" dest_dir="bool/"/>
+    <configuration type="support" path="arb2_ex_bool/generic.xml"/>
+    <configuration type="run" path="arb2_ex_bool/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CONFIG="generic.xml" VCD_DIR="bool/" CLK="clk" VCD_SS="arb2_bench::arb2_"/>
+    <docker image="samger/harm:latest"/>  
+  </usecase>
+```
+
+Explanation:
+- `<miner name="<miner_name>"/>` selects the miner by folder name in `$USMT_ROOT/miners/tools/<miner_name>/`.
+- `<input id="..." type="..." dest_dir="<target_dir>/">` connects this usecase to the input defined earlier. The `type` attribute specifies which input types to use (comma-separated if multiple, e.g.`vcd, verilog`). The `dest_dir` is the directory (it will create that directory) where the miner will write the input files relative to `/input/`, in the docker container).
+.
+- `<configuration type="..." path="..."/>` defines the configuration files to use for this usecase. The path is relative to `$USMT_ROOT/miners/<miner_name>/configurations/`. If type="run", then it must points to the bash script used to run the miner. If type="support", then it specifies additional configuration files that are needed by the miner and will be copied to `/input/` in the docker container. If type="support", it specifies an additional configuration file that is needed by the miner and will be copied to /input/ in the docker container.
+- `<input_adaptor path="...">` and `<output_adaptor path="...">` scripts handle data conversion, the path is relative to `$USMT_ROOT/miners/adaptors/input_adaptors/` and `$USMT_ROOT/miners/adaptors/output_adaptors/`, respectively.
+- `<docker image="..."/>` specifies which Docker image contains the miner.
+- `<export VAR_NAME="..." />` optionally defines environment variables for that miner.
+
+A test XML file may define multiple usecases to run different miners or configurations on the same data.
+
+---
+
+### 4.4 The `<test>` Section
+
+The `<test>` section brings everything together. It specifies which usecases will be executed and which evaluation strategies will be applied to compare the miners’ results.
+The `<test>` section is required for every test XML file and is executed when running the framework.
+
+```xml
+  <test name="arb2_all_goals">
+    <usecase id="harm_usecase_1_bool"/>
+    <usecase id="goldminer_usecase_1"/>
+    <usecase id="texada_usecase_1"/> 
+    <usecase id="samples2ltl_usecase_1"/>
+    <external id="manually_defined"/>
+
+    <expected path="input/arb2/expected/arb2_golden_ass_bool.txt"/>
+
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="fault_coverage" faulty_traces="input/arb2/faulty_traces/csv/" trace_type="csv" />
+    <compare with_strategy="time_to_mine"/>
+  </test>
+```
+
+Explaination:
+- The `name` attribute defines an identifier for the test run.
+- One or more `<usecase>` tags specify which miners will participate.
+- The `<expected>` tag provides a file containing the **golden set of specifications** (one for each line) used for comparison. The path is relative to `$USMT_ROOT/`. This is neccessary for all comparison strategies except for time_to_mine, fault_coverage and n_mined.
+
+- Each `<compare>` tag selects an evaluation strategy witht the `with_strategy` attribute.
+
+Typical evaluation strategies include:
+- `n_mined`: counts the number of mined specifications.
+- `syntactic_similarity`: compares mined formulas textually.
+- `semantic_equivalence`: checks logical equivalence.
+- `hybrid_similarity`: combines syntactic and semantic measures.
+- `fault_coverage`: evaluates detection capability using faulty traces, the `faulty_traces` attribute specifies the path to the directory containing the faulty traces (relative to $USMT_ROOT/), and trace_type specifies the type of the traces (csv or vcd). The `trace_type` specifies the type of the traces (csv or vcd).
+- `time_to_mine`: measures mining time performance.
+
+
+---
+

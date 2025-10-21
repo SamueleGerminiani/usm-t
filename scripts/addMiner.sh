@@ -1,13 +1,14 @@
 #!/bin/bash
+# Script to create or remove directory structures for miners.
 
 # Default to create mode
 CREATE=1
 
 # Argument parsing
 if [ "$#" -eq 0 ]; then
-    echo "Usage: $0 <miner_name> [flag]"
+    echo "Usage: $0 <miner_name> [create]"
     echo "  miner_name: The name of the miner."
-    echo "  flag: 1 to create (default), 0 to remove."
+    echo "  create: 1 to create (default), 0 to remove."
     exit 1
 fi
 
@@ -78,9 +79,8 @@ elif [ "$CREATE" -eq 0 ]; then
 
     echo "Successfully removed directory structure for miner '$MINER_NAME'."
 
-# --- Invalid Flag ---
 else
-    echo "Error: Invalid flag. Use 1 to create or 0 to remove."
+    echo "Error: Invalid create flag. Use 1 to create or 0 to remove."
     exit 1
 fi
 
