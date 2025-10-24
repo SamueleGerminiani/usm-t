@@ -160,16 +160,13 @@ void evaluateWithSyntacticSimilarity(
   pb.done(0);
 }
 
-EvalReportPtr
-runSyntacticSimilarity(const usmt::UseCase &use_case,
-                       const std::string expected_assertion_path) {
+EvalReportPtr runSyntacticSimilarity(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions) {
 
   SyntacticSimilarityReportPtr report =
       std::make_shared<SyntacticSimilarityReport>();
-
-  std::unordered_map<std::string, std::vector<AssertionPtr>>
-      assertions = getExpectedMinedAssertions(
-          use_case, expected_assertion_path);
 
   evaluateWithSyntacticSimilarity(report, assertions);
 

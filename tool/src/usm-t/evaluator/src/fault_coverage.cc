@@ -22,8 +22,10 @@ namespace usmt {
 static std::vector<size_t>
 getCoverageSet(const fault_coverage_t &fc_result);
 
-EvalReportPtr runFaultCoverage(const UseCase &use_case,
-                               const Comparator comp) {
+EvalReportPtr runFaultCoverage(
+    const UseCase &use_case, const Comparator comp,
+    const std::unordered_map<std::string, std::vector<AssertionPtr>>
+        &assertions) {
   const std::string MINED_SPECIFICATIONS_FILE =
       getenv("MINED_SPECIFICATIONS_FILE");
 
@@ -37,8 +39,7 @@ EvalReportPtr runFaultCoverage(const UseCase &use_case,
 
   std::string adapted_output_folder =
       ph.work_path + ph.work_adapted + MINED_SPECIFICATIONS_FILE;
-  auto mined_assertions_tmp =
-      getAssertionsFromFile(adapted_output_folder, trace);
+  auto mined_assertions_tmp = assertions.at("mined");
   mined_assertions.insert(mined_assertions.end(),
                           mined_assertions_tmp.begin(),
                           mined_assertions_tmp.end());

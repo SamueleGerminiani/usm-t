@@ -143,16 +143,13 @@ void evaluateWithSemanticComparison(
   pb.done(0);
 }
 
-EvalReportPtr
-runSemanticEquivalence(const usmt::UseCase &use_case,
-                       const std::string expected_assertion_path) {
+EvalReportPtr runSemanticEquivalence(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions) {
 
   SemanticEquivalenceReportPtr report =
       std::make_shared<SemanticEquivalenceReport>();
-
-  std::unordered_map<std::string, std::vector<AssertionPtr>>
-      assertions = getExpectedMinedAssertions(
-          use_case, expected_assertion_path);
 
   evaluateWithSemanticComparison(report, assertions);
 

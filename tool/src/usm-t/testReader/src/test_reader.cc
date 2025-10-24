@@ -567,6 +567,7 @@ std::vector<Test> parseTests(XmlNode *root) {
     std::string expected = "";
     if (!expectedNodes.empty()) {
       expected = getAttributeValue(expectedNodes[0], "path", "");
+      test.expected = expected;
     }
 
     //parse comparators
@@ -574,9 +575,8 @@ std::vector<Test> parseTests(XmlNode *root) {
     getNodesFromName(testNode, "compare", compareNodes);
     for (auto compareNode : compareNodes) {
       Comparator comp = parseCompare(compareNode);
-      comp.expected = expected;
       messageErrorIf(
-          comp.expected == "" &&
+          test.expected == "" &&
               (comp.with_strategy == "semantic_equivalence" ||
                comp.with_strategy == "systactic_similarity" ||
                comp.with_strategy == "n_mined" ||
@@ -645,7 +645,7 @@ std::vector<Test> parseTests(XmlNode *root) {
                 << "\n";
       if (comp.with_strategy != "fault_coverage" &&
           comp.with_strategy != "time_to_mine") {
-        std::cout << "\t\t\texpected: " << comp.expected << "\n";
+        std::cout << "\t\t\texpected: " << test.expected << "\n";
       }
     }
 

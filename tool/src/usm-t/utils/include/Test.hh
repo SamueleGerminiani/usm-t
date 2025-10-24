@@ -150,7 +150,6 @@ struct UseCase {
 
 struct Comparator {
   std::string with_strategy;
-  std::string expected;
   std::string faulty_traces;
   std::string trace_type;
   std::string scope;
@@ -162,6 +161,7 @@ struct Test {
   std::vector<Comparator> comparators;
   std::string mode;
   std::string name;
+  std::string expected;
 
   rapidxml::XmlNode *xml_test;
 };

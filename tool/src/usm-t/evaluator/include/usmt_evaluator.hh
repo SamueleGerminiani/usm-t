@@ -33,22 +33,30 @@ struct SimplifiedAssertion;
 int compareLanguage(const SimplifiedAssertion &a1,
                     const SimplifiedAssertion &a2);
 
-EvalReportPtr
-runSemanticEquivalence(const usmt::UseCase &use_case,
-                       const std::string expected_assertion_path);
+EvalReportPtr runSemanticEquivalence(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
 
-EvalReportPtr runHybrid(const usmt::UseCase &use_case,
-                        const std::string expected_assertion_path);
+EvalReportPtr runHybrid(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
 
-EvalReportPtr
-runSyntacticSimilarity(const usmt::UseCase &use_case,
-                       const std::string expected_assertion_path);
+EvalReportPtr runSyntacticSimilarity(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
 
-EvalReportPtr runFaultCoverage(const UseCase &use_case,
-                               const Comparator comp);
+EvalReportPtr runFaultCoverage(
+    const UseCase &use_case, const Comparator comp,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
 
-EvalReportPtr evaluate(const usmt::UseCase &use_case,
-                       const Comparator &comp);
+EvalReportPtr evaluate(
+    const usmt::UseCase &use_case, const Comparator &comp,
+    const std::unordered_map<
+        std::string, std::vector<harm::AssertionPtr>> &assertions);
 
 void evaluateWithHybrid(
     HybridReportPtr &report,

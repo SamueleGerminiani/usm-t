@@ -122,14 +122,12 @@ void evaluateWithHybrid(
   pb.done(0);
 }
 
-EvalReportPtr runHybrid(const usmt::UseCase &use_case,
-                        const std::string expected_assertion_path) {
+EvalReportPtr runHybrid(
+    const usmt::UseCase &use_case,
+    const std::unordered_map<std::string, std::vector<AssertionPtr>>
+        &assertions) {
 
   HybridReportPtr report = std::make_shared<HybridReport>();
-
-  std::unordered_map<std::string, std::vector<AssertionPtr>>
-      assertions = getExpectedMinedAssertions(
-          use_case, expected_assertion_path);
 
   evaluateWithHybrid(report, assertions);
 

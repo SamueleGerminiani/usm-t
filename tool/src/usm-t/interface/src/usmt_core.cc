@@ -2,6 +2,7 @@
 #include "EvalReport.hh"
 #include "Test.hh"
 #include "adaptor.hh"
+#include "assertion_utils.hh"
 #include "fort.h"
 #include "fort.hpp"
 #include "globals.hh"
@@ -476,6 +477,10 @@ void run_usmt() {
     std::map<std::string, std::vector<EvalReportPtr>>
         useCaseToEvalReports;
     for (auto &use_case : test.use_cases) {
+
+      std::unordered_map<std::string, std::vector<harm::AssertionPtr>>
+          assertions;
+
       //find the absolute path for all paths
       initPathHandler(use_case);
 
@@ -563,6 +568,24 @@ void run_usmt() {
       //-----------------[ADAPT THE OUTPUT]------------------
       adaptOutput(use_case);
 
+      //Parse the assertions
+      try {
+        assertions = getExpectedMinedAssertions(
+            use_case, use_case.ph.ustm_root + "/" + test.expected);
+      } catch (std::exception &e) {
+        messageWarning("Could not parse expected mined "
+                       "assertions for use case '" +
+                       use_case.usecase_id +
+                       "': " + std::string(e.what()));
+        messageWarning(use_case.usecase_id + " will not be used");
+        if (askToContinue()) {
+          //skip to the next use case but dump the standalone config
+          goto dump_standalone_config;
+        } else {
+          messageError("Aborting...");
+        }
+      }
+
       //-----------------[EVAL]------------------------------
       for (const auto &comp : test.comparators) {
         //skip time_to_mine comparator which is implicit
@@ -571,7 +594,7 @@ void run_usmt() {
           continue;
         }
         try {
-          EvalReportPtr er = evaluate(use_case, comp);
+          EvalReportPtr er = evaluate(use_case, comp, assertions);
           std::cout << er->to_string() << "\n";
           er->dumpTo(ph.work_path + ph.work_eval);
           useCaseToEvalReports[use_case.usecase_id].push_back(er);
