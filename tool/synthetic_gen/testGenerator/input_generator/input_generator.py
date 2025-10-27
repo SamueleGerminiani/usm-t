@@ -20,12 +20,16 @@ import globals
 #G(..#N&.. -> ..#M&..)
 #G(..&&.. -> ..&&.. U ..&&..)
 #G(..&&.. -> F ..&&..)
-#numprops is a pair of max numprops in the antecedent and max number of propositions in the consequent
+#numprops is a pair of max propositions in the antecedent and max number of propositions in the consequent
 def expand_spec(specification, numprops, assnumb):
     formula = specification['formula'] 
     # Find all occurrences of '..&&..' or '..##N..' in the formula
     #Need to use regex because the placeholders can have arbitrary numbers
     placeholder_positions = {}
+    
+    #number of placeholders in the antecedent and consequent
+    placeholder_count = [0, 0] 
+
     match = re.search(r'\(([^)]*)\)', formula)
     formula_reduced = match.group(1) if match else formula
     formula_parts = formula_reduced.split(' ')
@@ -34,7 +38,15 @@ def expand_spec(specification, numprops, assnumb):
     for i, part in enumerate(formula_parts):
         if re.fullmatch(r'..&&..', part) or re.fullmatch(r"..##\d+..", part) or re.fullmatch(r'..#\d+&..', part):
             placeholder_positions[i] = part
-        if '>' in part:    
+            if implication_index != 0:
+                placeholder_count[1] += 1
+            else:
+                placeholder_count[0] += 1
+        if '>' in part:
+            if i == 0:
+            # If implication is found at the first position the template is invalid    
+                print(globals.CERR +"Error:" + globals.CEND + "Template malformed: There is no antecedent before the implication operator.")
+                exit(1)
             implication_index = i
     if placeholder_positions == {}:
         print(globals.CERR +"Error:" + globals.CEND + "No placeholders found in the formula. Please use '..&&..', '..##N..' or '..#N&..' as placeholders.")
@@ -47,18 +59,34 @@ def expand_spec(specification, numprops, assnumb):
     outs = "" 
     prop_seq = {}
     
+    #Keeps track of the current ant(con) placeholder being expanded.
+    pl_index = [0, 0]
+    
     #97 because we start from 'a' in ASCII
     current_prop = 97
     for pos, ph in placeholder_positions.items():
         # Select the sequence length based on the position of the placeholder (ant or cons)
         if implication_index > pos:
             seq_len_selector = 0
+            pl_index[0] += 1
         else:
             seq_len_selector = 1
+            pl_index[1] += 1
+
+       
+        #Calculate the max sequence length based on the number of placeholders and the max number of propositions.
+        # It has been decided that if the max number of propositions is not even, the last sequence will have only one proposition
+        if(numprops[seq_len_selector] % placeholder_count[seq_len_selector] == 1 and pl_index[seq_len_selector] == placeholder_count[seq_len_selector]):
+            sequence_len = numprops[seq_len_selector] // placeholder_count[seq_len_selector]
+        elif(numprops[seq_len_selector] % placeholder_count[seq_len_selector] == 1):
+            sequence_len = numprops[seq_len_selector] // placeholder_count[seq_len_selector] + 1
+        else:
+            sequence_len = numprops[seq_len_selector] // placeholder_count[seq_len_selector]
+
         match ph:
             case '..&&..':
                 prop_seq[pos] = "{"
-                for i in range(0, numprops[seq_len_selector]):
+                for i in range(0, sequence_len):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " & "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
@@ -71,7 +99,7 @@ def expand_spec(specification, numprops, assnumb):
                 # Extract the number between "##" and ".."
                 number = ph[4:-2]
                 prop_seq[pos] = "{"
-                for i in range(0, numprops[seq_len_selector]):
+                for i in range(0, sequence_len):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " ##" + number + " "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
@@ -85,7 +113,7 @@ def expand_spec(specification, numprops, assnumb):
                 number = ph[3:-3]
                 prop_seq[pos] = "{"
                 operators = ["&", "##"+str(number)]
-                for i in range(0, numprops[seq_len_selector]):
+                for i in range(0, sequence_len):
                     prop_seq[pos] += chr(current_prop + i) + "_" + str(assnumb) + " " + operators[i % 2] + " "
                     if implication_index > pos:
                         ins += chr(current_prop + i) + "_" + str(assnumb) + ","
