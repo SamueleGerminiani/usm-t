@@ -14,8 +14,12 @@ fi
 
 # --- CSV list of parameter sets ---
 # Each group is: nant,ncon,nspec,overlap
-param_list="3,3,10,0"
-test_type="representative"
+#param_list="3,3,10,0"
+#test_type="representative"
+
+#Increasing spec 
+param_list="3,3,1,0 3,3,2,0 3,3,3,0 3,3,4,0 3,3,5,0 3,3,6,0 3,3,7,0 3,3,8,0 3,3,9,0 3,3,10,0"
+test_type="increasing_spec"
 
 next_results_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/NextAnd_Results/Tests/"
 elapsed_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/NextAnd_Results/Elapsed/"

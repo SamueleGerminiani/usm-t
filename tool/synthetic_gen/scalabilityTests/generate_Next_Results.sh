@@ -18,8 +18,11 @@ fi
 #test_type="representative"
 
 #Incresing depth
-param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0"
-test_type="increasing_depth"
+#param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0"
+#test_type="increasing_depth"
+
+param_list="2,2,1,0 2,2,2,0 2,2,3,0 2,2,4,0 2,2,5,0 2,2,6,0 2,2,7,0 2,2,8,0 2,2,9,0 2,2,10,0"
+test_type="increasing_spec"
 
 next_results_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/Next_Results/Tests/"
 elapsed_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/Next_Results/Elapsed/"

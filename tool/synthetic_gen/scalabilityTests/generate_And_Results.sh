@@ -16,16 +16,16 @@ fi
 # Each group is: nant,ncon,nspec,overlap
 
 #Representative parameter sets for testing
-param_list="2,2,10,0"
-test_type="representative"
+#param_list="2,2,10,0"
+#test_type="representative"
 
 #Increasing spec numbers
 #param_list="2,2,1,0 2,2,2,0 2,2,3,0 2,2,4,0 2,2,5,0 2,2,6,0 2,2,7,0 2,2,8,0 2,2,9,0 2,2,10,0"
 #test_type="increasing_spec"
 
 #Increasing overlap
-#param_list="5,5,20,0 5,5,20,1 5,5,20,2 5,5,20,3 5,5,20,4 5,5,20,5 5,5,20,6 5,5,20,7 5,5,20,8 5,5,20,9 5,5,20,10"
-#test_type="increasing_overlap"
+param_list="5,5,10,0 5,5,10,1 5,5,10,2 5,5,10,3 5,5,10,4 5,5,10,5 5,5,10,6 5,5,10,7 5,5,10,8 5,5,10,9 5,5,10,10"
+test_type="increasing_overlap"
 
 #Incresing complexity
 #param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0 4,4,10,0 5,4,10,0 5,5,10,0"
