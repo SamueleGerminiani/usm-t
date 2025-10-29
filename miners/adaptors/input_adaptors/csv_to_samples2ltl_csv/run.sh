@@ -8,7 +8,7 @@ fi
 
 input_path=$1
 output_path=$2
-max_length=${3:-10}  # Default to 10000 lines if not specified
+max_length=${3:-10000}  # Default to 10000 lines if not specified
 
 
 if [ ! -d "$input_path" ]; then

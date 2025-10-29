@@ -60,9 +60,9 @@
 
   <test name="<TEST_NAME>">
     <usecase id="harm_default"/>
+    <usecase id="goldminer_default"/>
     <usecase id="texada_default"/>
     <usecase id="samples2ltl_default"/>
-    <usecase id="goldminer_default"/>
     <!--
     <usecase id="gemini_default"/>
     -->
