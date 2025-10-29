@@ -187,103 +187,217 @@ def create_specification(template_list,modules):
             #for each iteration add the expanded formula to the list
             spec_list.append(copy.deepcopy(expanded_formula))
 
-
-            current_formula = overlap_spec(spec_list,merged_specification,template['overlap'])
-            
-            # If this is the first specification, we don't need to overlap, so current_formula will be expanded_formula
-            if current_formula is None:
-                current_formula = expanded_formula['formula']
-            
-            # Write expanded formulas to a file
-            with open(globals.out_folder + 'specifications.txt', 'a') as file:
-                file.write(f"{current_formula}\n")
-
             #update the global spec counter    
             specounter += 1
+    
+    spec_list, merged_specification = overlap_spec(spec_list, merged_specification, template['overlap'],template['nant'],template['ncon'])
+
+    # Write expanded formulas to a file
+    with open(globals.out_folder + 'specifications.txt', 'a') as file:
+        for spec in spec_list:
+            file.write(f"{spec['formula']}\n")
 
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND,  flush=True)
         print("Merged specification:", flush=True)
         print(merged_specification, flush=True)
         print("\n", flush=True)
+
+
     return merged_specification, spec_list
 
 #This function is used to overlap the specifications
 #spec_list is the list of specifications
 #first is the index of the first specification from this template
-#Since we are using the same template we know the overlap value is the same 
-def overlap_spec(spec_list,merged_specification,overlap):
+#The overlap will select pairs of random properties (separating inputs and outputs) from two specification and make them equal
+#The max number of overlaps is limited by the number of inputs and outputs available (nant//2 + ncon//2)
+#The selection of properties will be random but guided by a counter that will select the specifications with less overlaps first
+def overlap_spec(spec_list,merged_specification,overlap,nant,ncon):
+    if globals.debug:
+        print(globals.CDBG+"DEBUG_MSG: " + globals.CEND + "Starting specification overlapping.", flush=True)
+    
     #if there is only one specification we don't need to overlap
     if len(spec_list)-1 == 0:
+        print(globals.CERR + "ERROR:" + globals.CEND + "Only one specification generated, skipping overlap step", flush=True)
         return
-    current_spec = spec_list[len(spec_list) - 1]
-    #get current spec formula
-    current_spec_overlapped = current_spec['formula']
-    #get current spec inputs and outputs
-    current_spec_inputs = current_spec['inputs'].split(',')
-    current_spec_outputs = current_spec['outputs'].split(',')
+    
+    #initialize the vector that keeps track of the number of overlaps for each specification
+    ovlp_counters = [{'count': 0, 'spec': spec_list.index(spec)} for spec in spec_list]
+    
+    #The second part is the max number of overlaps possible 
+    max_overlaps = min(overlap, ((nant // 2) + (ncon // 2)) * len(spec_list))
+    
+    #This will map for each specification the propositions that are available for overlapping, initialized to all propositions
+    available_props = [{} for i in range(len(spec_list))]
+    
+    # Initialize the available propositions for each specification
+    for idx, spec in enumerate(spec_list):
+        available_props[idx]['inputs'] = spec['inputs'].split(',')
+        available_props[idx]['outputs'] = spec['outputs'].split(',')
 
-    #Divide the overlap value by 2 to gen an equal overlap on both sides
-    #Arbitrarily assign the extra overlap to the consequent side
-    overlap_ant = (overlap // 2)
-    overlap_con = (overlap // 2) + (overlap % 2)
+    for ovlp in range(0, max_overlaps):
+        #select two specifications to overlap
+        # 1. select the specification with the lowest number of overlaps
+        #irst_spec_index = min(ovlp_counters, key=lambda x: x['count'])['spec']
+        # Find all specifications with the minimum overlap count
+        
+        #account for multiple candidates with the same min count
+        min_count = min(ovlp_counters, key=lambda x: x['count'])['count']
+        candidates = [spec['spec'] for spec in ovlp_counters if spec['count'] == min_count]
 
-    #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
-    if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
-        print(globals.CWRN + "Warning:" + globals.CEND + "Overlap value is greater than the number of inputs and outputs. Adjusting overlap value to match the number of inputs and outputs", flush=True)
-        overlap_ant = len(current_spec_inputs)
-        overlap_con = len(current_spec_outputs)
+        # Randomly select one of the candidates
+        first_spec_index = random.choice(candidates)
+        
+        # 2. select the second specification (the second-min overlapped one)
+        #Probably not the best way to do it, but works for now
+        #Need to do this to avoid modifying the original list and mess up the indices
+        reduced_ovlp_counters = ovlp_counters.copy()
+        reduced_ovlp_counters.pop(first_spec_index)
+        # Find all specifications with the minimum overlap count in the reduced list
+        
+        #account for multiple candidates with the same min count
+        min_count_reduced = min(reduced_ovlp_counters, key=lambda x: x['count'])['count']
+        candidates_reduced = [spec['spec'] for spec in reduced_ovlp_counters if spec['count'] == min_count_reduced]
 
-    #get all inputs and outputs
-    inputs_globals = merged_specification['inputs'].split(',')
-    outputs_globals = merged_specification['outputs'].split(',')
-    inputs_globals_copy = copy.deepcopy(inputs_globals)
-    outputs_globals_copy = copy.deepcopy(outputs_globals)
+        # Randomly select one of the candidates
+        second_spec_index = random.choice(candidates_reduced)
 
-    #remove current spec inputs and outputs from the merged specification
-    for inp in current_spec['inputs'].split(','):
-        inputs_globals.remove(inp)
-    for out in current_spec['outputs'].split(','):
-        outputs_globals.remove(out)
+        if globals.debug:
+            print(globals.CDBG +"DEBUG_MSG: "+globals.CEND + "Selected " + spec_list[first_spec_index]['formula'] + " as first spec" , flush=True)
+            print(globals.CDBG + "DEBUG_MSG: "+globals.CEND + "Selected " + spec_list[second_spec_index]['formula'] + " as second spec" , flush=True)
 
-    #select overlap_ant random samples from inputs and outputs
-    antecedent_prop_overlapped = random.sample(inputs_globals, overlap_ant)
-    consequent_prop_overlapped = random.sample(outputs_globals, overlap_con)
+        # 3. Select the random property to overlap from the specifications available properties
+        #randomly select if we want to overlap an input or an output
+        prop_type = random.choice(['inputs', 'outputs'])
+    
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Selected " + prop_type + " as property type to overlap" , flush=True)
+        
+        # Ensure both specifications still have at least one proposition available for the selected prop_type
+        if not available_props[first_spec_index][prop_type] or not available_props[second_spec_index][prop_type]:
+            # Switch prop_type if one of the specifications has no available propositions of the current type
+            prop_type = 'outputs' if prop_type == 'inputs' else 'inputs'
+            if not available_props[first_spec_index][prop_type] or not available_props[second_spec_index][prop_type]:
+                print(globals.CERR + "Error:" + globals.CEND + " No available propositions to overlap.", flush=True)
+            return
+        # select random propositions from both specifications
+        first_spec_prop = random.choice(available_props[first_spec_index][prop_type])
+        second_spec_prop = random.choice(available_props[second_spec_index][prop_type])
+        
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Selected " + first_spec_prop + " from first spec" , flush=True)
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Selected " + second_spec_prop + " from second spec" , flush=True)
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Substituting: " + second_spec_prop + " --> " + first_spec_prop , flush=True)
+        
+        #4. Substitute the proposition from the first into the second specification
+        spec_list[second_spec_index]['formula'] = spec_list[second_spec_index]['formula'].replace(second_spec_prop, first_spec_prop)
+        # Update the inputs/outputs of the second specification accounting for duplicates
+        spec_list[second_spec_index][prop_type] = ','.join(
+            dict.fromkeys(
+            spec_list[second_spec_index][prop_type].replace(second_spec_prop, first_spec_prop).split(',')
+            )
+        )
+        
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Updated second spec formula: " + spec_list[second_spec_index]['formula'] , flush=True)
+        
+        # remove the two propositions from the available propositions
+        available_props[first_spec_index][prop_type].remove(first_spec_prop)
+        available_props[second_spec_index][prop_type].remove(second_spec_prop)
+        #5. Increment the overlap counters for both specifications
+        ovlp_counters[first_spec_index]['count'] += 1
+        ovlp_counters[second_spec_index]['count'] += 1
 
-    #select overlap_ant/con random samples from current spec inputs and outputs
-    antecedent_prop = random.sample(current_spec_inputs, overlap_ant)
-    consequent_prop = random.sample(current_spec_outputs, overlap_con)
-
-    #substitute the selected inputs and outputs with the current spec inputs and outputs
-    for i in range(0, overlap_ant):
-        current_spec_inputs[current_spec_inputs.index(antecedent_prop[i])] = antecedent_prop_overlapped[i]
-    for i in range(0, overlap_con):
-        current_spec_outputs[current_spec_outputs.index(consequent_prop[i])] = consequent_prop_overlapped[i]
-    #subtitute also in the formula
-    for i in range(0, overlap_ant):
-        current_spec_overlapped = current_spec_overlapped.replace(antecedent_prop[i],antecedent_prop_overlapped[i])
-    for i in range(0, overlap_con):
-        current_spec_overlapped = current_spec_overlapped.replace(consequent_prop[i],consequent_prop_overlapped[i])
-
-    #Remove the subtituted inputs and outputs from the merged inputs and outputs
-    for inp in antecedent_prop:
-        inputs_globals_copy.remove(inp)
-    for out in consequent_prop:
-        outputs_globals_copy.remove(out)    
+        if globals.debug:
+            print(globals.CDBG+"DEBUG_MSG: "+globals.CEND + "Current overlap counters: " + str(ovlp_counters), flush=True)
 
 
+        # Update the merged specification formula
+        merged_specification['formula'] = merged_specification['formula'].replace(second_spec_prop, first_spec_prop)
+        # Update the inputs/outputs of the merged specification
+        merged_specification['inputs'] = merged_specification['inputs'].replace(second_spec_prop, first_spec_prop)
+        merged_specification['outputs'] = merged_specification['outputs'].replace(second_spec_prop, first_spec_prop)
 
-    #update the merged specification
-    merged_specification['formula'] = merged_specification['formula'].replace(current_spec['formula'], current_spec_overlapped)
-    merged_specification['inputs'] = ','.join(inputs_globals_copy)
-    merged_specification['outputs'] = ','.join(outputs_globals_copy)
 
-    #update the current spec inputs and outputs
-    spec_list[len(spec_list) - 1]['inputs'] = ','.join(current_spec_inputs)
-    spec_list[len(spec_list) - 1]['outputs'] = ','.join(current_spec_outputs)
-    spec_list[len(spec_list) - 1]['formula'] = current_spec_overlapped
+    #Before returning, fix duplicates in merged inputs and outputs
+    merged_inputs = list(dict.fromkeys(merged_specification['inputs'].split(',')))
+    merged_outputs = list(dict.fromkeys(merged_specification['outputs'].split(',')))
+    merged_specification['inputs'] = ','.join(merged_inputs)
+    merged_specification['outputs'] = ','.join(merged_outputs)
+    
+    if globals.debug:
+        print(globals.CDBG + "DEBUG_MSG: " + globals.CEND + "Completed specification overlapping."  , flush=True)
+    
+    return spec_list, merged_specification
 
-    return spec_list[len(spec_list) - 1]['formula']
+    #current_spec = spec_list[len(spec_list) - 1]
+    # #get current spec formula
+    # current_spec_overlapped = current_spec['formula']
+    # #get current spec inputs and outputs
+    # current_spec_inputs = current_spec['inputs'].split(',')
+    # current_spec_outputs = current_spec['outputs'].split(',')
+
+    # #Divide the overlap value by 2 to gen an equal overlap on both sides
+    # #Arbitrarily assign the extra overlap to the consequent side
+    # overlap_ant = (overlap // 2)
+    # overlap_con = (overlap // 2) + (overlap % 2)
+
+    # #if inputs+outputs is less than the overlap value adjust overlap values to match the number of inputs and outputs
+    # if len(current_spec_inputs) + len(current_spec_outputs) < overlap:
+    #     print(globals.CWRN + "Warning:" + globals.CEND + "Overlap value is greater than the number of inputs and outputs. Adjusting overlap value to match the number of inputs and outputs", flush=True)
+    #     overlap_ant = len(current_spec_inputs)
+    #     overlap_con = len(current_spec_outputs)
+
+    # #get all inputs and outputs
+    # inputs_globals = merged_specification['inputs'].split(',')
+    # outputs_globals = merged_specification['outputs'].split(',')
+    # inputs_globals_copy = copy.deepcopy(inputs_globals)
+    # outputs_globals_copy = copy.deepcopy(outputs_globals)
+
+    # #remove current spec inputs and outputs from the merged specification
+    # for inp in current_spec['inputs'].split(','):
+    #     inputs_globals.remove(inp)
+    # for out in current_spec['outputs'].split(','):
+    #     outputs_globals.remove(out)
+
+    # #select overlap_ant random samples from inputs and outputs
+    # antecedent_prop_overlapped = random.sample(inputs_globals, overlap_ant)
+    # consequent_prop_overlapped = random.sample(outputs_globals, overlap_con)
+
+    # #select overlap_ant/con random samples from current spec inputs and outputs
+    # antecedent_prop = random.sample(current_spec_inputs, overlap_ant)
+    # consequent_prop = random.sample(current_spec_outputs, overlap_con)
+
+    # #substitute the selected inputs and outputs with the current spec inputs and outputs
+    # for i in range(0, overlap_ant):
+    #     current_spec_inputs[current_spec_inputs.index(antecedent_prop[i])] = antecedent_prop_overlapped[i]
+    # for i in range(0, overlap_con):
+    #     current_spec_outputs[current_spec_outputs.index(consequent_prop[i])] = consequent_prop_overlapped[i]
+    # #subtitute also in the formula
+    # for i in range(0, overlap_ant):
+    #     current_spec_overlapped = current_spec_overlapped.replace(antecedent_prop[i],antecedent_prop_overlapped[i])
+    # for i in range(0, overlap_con):
+    #     current_spec_overlapped = current_spec_overlapped.replace(consequent_prop[i],consequent_prop_overlapped[i])
+
+    # #Remove the subtituted inputs and outputs from the merged inputs and outputs
+    # for inp in antecedent_prop:
+    #     inputs_globals_copy.remove(inp)
+    # for out in consequent_prop:
+    #     outputs_globals_copy.remove(out)    
+
+
+
+    # #update the merged specification
+    # merged_specification['formula'] = merged_specification['formula'].replace(current_spec['formula'], current_spec_overlapped)
+    # merged_specification['inputs'] = ','.join(inputs_globals_copy)
+    # merged_specification['outputs'] = ','.join(outputs_globals_copy)
+
+    # #update the current spec inputs and outputs
+    # spec_list[len(spec_list) - 1]['inputs'] = ','.join(current_spec_inputs)
+    # spec_list[len(spec_list) - 1]['outputs'] = ','.join(current_spec_outputs)
+    # spec_list[len(spec_list) - 1]['formula'] = current_spec_overlapped
+
+    # return spec_list[len(spec_list) - 1]['formula']
 
 def main():
     print(globals.CSTP + "1." + globals.CEND + " Parsing inputs" + " \n", flush=True)
