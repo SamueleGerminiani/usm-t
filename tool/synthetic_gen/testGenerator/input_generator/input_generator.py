@@ -195,7 +195,7 @@ def create_specification(template_list,modules):
     # Write expanded formulas to a file
     with open(globals.out_folder + 'specifications.txt', 'a') as file:
         for spec in spec_list:
-            file.write(f"{spec}\n")
+            file.write(f"{spec['formula']}\n")
 
     if globals.debug:
         print(globals.CDBG+"DEBUG_MSG"+globals.CEND,  flush=True)
@@ -238,14 +238,29 @@ def overlap_spec(spec_list,merged_specification,overlap,nant,ncon):
     for ovlp in range(0, max_overlaps):
         #select two specifications to overlap
         # 1. select the specification with the lowest number of overlaps
-        first_spec_index = min(ovlp_counters, key=lambda x: x['count'])['spec']
+        #irst_spec_index = min(ovlp_counters, key=lambda x: x['count'])['spec']
+        # Find all specifications with the minimum overlap count
+        
+        #account for multiple candidates with the same min count
+        min_count = min(ovlp_counters, key=lambda x: x['count'])['count']
+        candidates = [spec['spec'] for spec in ovlp_counters if spec['count'] == min_count]
+
+        # Randomly select one of the candidates
+        first_spec_index = random.choice(candidates)
         
         # 2. select the second specification (the second-min overlapped one)
         #Probably not the best way to do it, but works for now
         #Need to do this to avoid modifying the original list and mess up the indices
         reduced_ovlp_counters = ovlp_counters.copy()
         reduced_ovlp_counters.pop(first_spec_index)
-        second_spec_index = min(reduced_ovlp_counters, key=lambda x: x['count'])['spec']
+        # Find all specifications with the minimum overlap count in the reduced list
+        
+        #account for multiple candidates with the same min count
+        min_count_reduced = min(reduced_ovlp_counters, key=lambda x: x['count'])['count']
+        candidates_reduced = [spec['spec'] for spec in reduced_ovlp_counters if spec['count'] == min_count_reduced]
+
+        # Randomly select one of the candidates
+        second_spec_index = random.choice(candidates_reduced)
 
         if globals.debug:
             print(globals.CDBG +"DEBUG_MSG: "+globals.CEND + "Selected " + spec_list[first_spec_index]['formula'] + " as first spec" , flush=True)
