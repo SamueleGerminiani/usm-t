@@ -14,6 +14,7 @@
 #include <chrono>
 #include <cstring>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <limits>
 #include <map>
@@ -76,7 +77,7 @@ void dumpRadarChart(
 
   std::vector<std::string> wanted_reports = {
       "hybrid_similarity", "fault_coverage", "time_to_mine"};
-  std::string data_string = "name, MS, RS, FC, Time \n";
+  std::string data_string = "name, MS, RS, SFC, Time \n";
 
   //check that all use cases contain the wanted reports, if not remove them from the wanted reports list
   for (auto &wanted_report : wanted_reports) {
@@ -162,6 +163,9 @@ void dumpRadarChart(
   //std::cout << "Relative: " << relative << "\n";
   //std::cout << "Inverted: " << inverted << "\n";
   //std::cout << "Data string:\n" << data_string << "\n";
+  std::ofstream debug_file("radar_chart_debug_" + title + ".csv");
+  debug_file << data_string;
+  debug_file.close();
 
   if (systemCheckFailure(
           "python3 " + radar_chart_plotter_path + " --dump-to \"" +
@@ -345,7 +349,7 @@ makeSubHeader(fort::utf8_table &table, const Test &test,
       line_subheader.push_back("");
       heatmap_configuration_col.push_back(2);
     } else if (comparator.with_strategy == "fault_coverage") {
-      line_subheader.push_back("FC");
+      line_subheader.push_back("SFC");
       heatmap_configuration_col.push_back(1);
       line_subheader.push_back("MC");
       heatmap_configuration_col.push_back(2);

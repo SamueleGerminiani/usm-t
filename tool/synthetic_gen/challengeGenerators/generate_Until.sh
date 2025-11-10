@@ -15,7 +15,7 @@ clk \
 "{formula : G(..&&.. |-> ..&&.. U ..&&..), nant : 2, ncon : 2, nspec : 10, overlap : 0}" \
 rst \
 Until_top_bench::Until_top_ \
-1000 \
+10000 \
 $install \
 $debug
 

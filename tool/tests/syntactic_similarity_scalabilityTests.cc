@@ -10,8 +10,8 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
 #include "TraceReader.hh"
@@ -178,8 +178,8 @@ size_t test_with_parameters(std::string template_,
             << "\n";
   std::unordered_map<std::string, std::string> targetToRemap;
   auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
-                                    assertions_map.at("mined"),
-                                    targetToRemap);
+                                     assertions_map.at("mined"),
+                                     targetToRemap);
   auto start = std::chrono::high_resolution_clock::now();
   evaluateWithSyntacticSimilarity(report, assertions_map);
   auto end = std::chrono::high_resolution_clock::now();

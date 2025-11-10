@@ -12,9 +12,9 @@ bash "$USMT_ROOT"/tool/synthetic_gen/testGenerator/wrapper.sh \
 Next \
 Next_top \
 clk \
-"{formula : G(..##7.. |-> ..##1..), nant : 2, ncon : 1, nspec: 10, overlap : 0}" \
+"{formula : G(..##1.. |-> ..##1..), nant : 2, ncon : 2, nspec: 10, overlap : 10}" \
 rst \
 Next_top_bench::Next_top_ \
-1000 \
+10000 \
 $install \
 $debug

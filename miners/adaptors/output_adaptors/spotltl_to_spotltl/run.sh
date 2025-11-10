@@ -8,6 +8,11 @@ fi
 
 cat $in_path
 
+# Hardcoded replacements
+declare -A replacements=(
+  ["W"]="U"
+)
+
 #check that in_path is a file
 if [ ! -f $in_path ]; then
   echo "Error: $in_path is not a file"
@@ -15,3 +20,9 @@ if [ ! -f $in_path ]; then
 fi
 
 cp $in_path $out_path
+
+# Apply replacements using sed
+for original in "${!replacements[@]}"; do
+  replacement=${replacements[$original]}
+  sed -i "s/$original/$replacement/g" "$out_path"
+done

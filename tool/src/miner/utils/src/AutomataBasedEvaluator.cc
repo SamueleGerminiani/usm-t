@@ -14,11 +14,11 @@
 #include "spot/twa/bddprint.hh"
 #include "spot/twa/twa.hh"
 #include "spot/twa/twagraph.hh"
+#include "spot/twaalgos/hoa.hh"
+#include "spot/twaalgos/remprop.hh"
 #include "spot/twaalgos/translate.hh"
 #include <spot/tl/formula.hh>
 #include <spot/tl/ltlf.hh>
-#include "spot/twaalgos/hoa.hh"
-#include "spot/twaalgos/remprop.hh"
 #include <spot/tl/parse.hh>
 #include <spot/tl/print.hh>
 #include <spot/twaalgos/isdet.hh>
@@ -215,12 +215,7 @@ generateDeterministicSpotAutomaton(const spot::formula &formula) {
                  spot::postprocessor::Complete |
                  spot::postprocessor::SBAcc);
   std::shared_ptr<spot::twa_graph> aut;
-  if (clc::useFiniteSemantics) {
-    aut = trans.run(spot::from_ltlf(formula));
-    aut = spot::to_finite(aut);
-  } else {
-    aut = trans.run(formula);
-  }
+  aut = trans.run(formula);
 
   if (!spot::is_deterministic(aut)) {
     throw std::runtime_error(

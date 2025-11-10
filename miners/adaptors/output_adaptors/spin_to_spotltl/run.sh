@@ -43,6 +43,7 @@ fi
 declare -A replacements=(
   ["\s"]=""  # Remove all spaces
   ["\\[\\]"]="G"  # Escaped square brackets
+  ["<>"]="F"  # Escaped square brackets
   ["\([a-zA-Z_][a-zA-Z0-9_]*\)=0"]="!\1"      
   ["=1"]="" #convert =1 to boolean      
   ["\([a-zA-Z_][a-zA-Z0-9_]*\)=0"]="!\1" #convert =0 to !boolean      

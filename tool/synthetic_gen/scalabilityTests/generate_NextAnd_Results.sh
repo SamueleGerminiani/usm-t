@@ -18,8 +18,11 @@ fi
 #test_type="representative"
 
 #Increasing spec 
-param_list="3,3,1,0 3,3,2,0 3,3,3,0 3,3,4,0 3,3,5,0 3,3,6,0 3,3,7,0 3,3,8,0 3,3,9,0 3,3,10,0"
+param_list="3,3,10,0 3,3,20,0 3,3,30,0 3,3,40,0 3,3,50,0 3,3,60,0 3,3,70,0 3,3,80,0 3,3,90,0 3,3,100,0"
 test_type="increasing_spec"
+
+#param_list="3,3,10,0 3,3,10,1 3,3,10,2 3,3,10,3 3,3,10,4 3,3,10,5 3,3,10,6 3,3,10,7 3,3,10,8 3,3,10,9 3,3,10,10"
+#test_type="increasing_overlap"
 
 next_results_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/NextAnd_Results/Tests/"
 elapsed_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/NextAnd_Results/Elapsed/"

@@ -30,9 +30,9 @@ public:
   virtual ~FaultCoverageReport() = default;
   virtual std::string to_string() override {
     std::stringstream ss;
-    ss << "Fault Coverage Report\n";
+    ss << "Specification Fault Coverage Report\n";
 
-    ss << "Fault coverage: ";
+    ss << "Specification Fault coverage: ";
     ss << "\t" << _totFaults - _uncoveredFaults.size() << "/"
        << _totFaults << " (" << fault_coverage * 100.f << "%)\n";
     ss << "Uncovered faults: " << _uncoveredFaults.size() << "\n";
@@ -58,7 +58,8 @@ public:
   }
 
   virtual void dumpTo(const std::string &pathToDir) override {
-    messageInfo("Dumping Fault Coverage Report to: " + pathToDir);
+    messageInfo("Dumping Specification Fault Coverage Report to: " +
+                pathToDir);
     std::ofstream out(pathToDir + "/fault_coverage_report.csv");
     out << "Fault covered, Covered %,  Min Covering Size, Min "
            "Covering Set\n";

@@ -44,7 +44,7 @@ function generate_harm_xml() {
       imp_shift="X"
     fi
 
-    harm_effort=0.05
+    harm_effort=0
 
     #G(..&&.. -> ..&&..)
     if echo "$formula" | grep -Eq '^G\(..&&..[[:space:]]*(->|=>|\|->|\|=>)[[:space:]]*..&&..\)$'; then
@@ -83,11 +83,16 @@ function generate_harm_xml() {
       if (( ncon > 2 )); then
         harm_template_xml="$harm_template_xml\n${indent2}<template dtLimits=\"3A,3D,3W,${harm_effort}E\" exp=\"G(..#${N}&.. $imp_sign {(P0 && P1) ##$N P2})\" />"
         harm_template_xml="$harm_template_xml\n${indent2}<template dtLimits=\"3A,3D,3W,${harm_effort}E\" exp=\"G(..#${N}&.. $imp_sign {P0 ##$N (P2 && P3)})\" />"
-      harm_template_xml="$harm_template_xml\n${indent2}<template dtLimits=\"3A,3D,${harm_effor}E\" exp=\"G(..#$N&.. $imp_sign {P0 ##$M P1 ##$M P2})\" />"
+      harm_template_xml="$harm_template_xml\n${indent2}<template dtLimits=\"3A,3D,${harm_effort}E\" exp=\"G(..#$N&.. $imp_sign {P0 ##$M P1 ##$M P2})\" />"
       fi
 
     #G(..&&.. -> ..&&.. U ..&&..)
     elif echo "$formula" | grep -Eq '^G\(..&&..[[:space:]]*(->|=>|\|->|\|=>)[[:space:]]*..&&..[[:space:]]*U[[:space:]]*..&&..\)$'; then
+      ##Issue an error if ncon < 2
+      if (( ncon < 2 )); then
+        echo "generateHarm.sh: Until template requires at least 2 consequence variables: $formula"
+        exit 1
+      fi  
 
       #harm_template_xml="${indent2}<template dtLimits=\"3A,${harm_effor}E\" exp=\"G(..&&.. $imp_sign P0 W P1)\" />"
       ##only if ncon > 2, add more templates
@@ -98,16 +103,35 @@ function generate_harm_xml() {
 
       harm_template_xml="${indent2}<template exp=\"G(P0 -> $imp_shift (P10 W P11))\" />"
 
+
       if (( nant > 1 )); then
          harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 -> $imp_shift (P10 W P11))\" />"
       fi
 
       #only if ncon > 2, add more templates
-      if (( ncon > 1 )); then
+      if (( ncon > 2 )); then
+        harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 -> $imp_shift ((P10 && P11) W P12))\" />"
+        harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 -> $imp_shift (P10 W (P11 && P12)))\" />"
+        if (( nant > 1 )); then
+            harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 -> $imp_shift ((P10 && P11) W P12))\" />"
+            harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 -> $imp_shift (P10 W (P11 && P12)))\" />"
+        fi
+      fi
+
+      if (( ncon > 3 )); then
         harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 -> $imp_shift ((P10 && P11) W (P12 && P13)))\" />"
         if (( nant > 1 )); then
-           harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 -> $imp_shift ((P10 && P11) W (P12 && P13)))\" />"
+            harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 -> $imp_shift ((P10 && P11) W (P12 && P13)))\" />"
         fi
+        if (( nant > 2 )); then
+          harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 && P2 -> $imp_shift ((P10 && P11) W (P12 && P13)))\" />"
+        fi    
+
+        if (( nant > 3 )); then
+          harm_template_xml="$harm_template_xml\n${indent2}<template exp=\"G(P0 && P1 && P2 && P3 -> $imp_shift ((P10 && P11) W (P12 && P13)))\" />"
+
+        fi
+
       fi
 
 

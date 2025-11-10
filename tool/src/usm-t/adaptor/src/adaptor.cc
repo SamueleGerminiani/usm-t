@@ -1,4 +1,5 @@
 #include "Test.hh"
+#include "globals.hh"
 #include "message.hh"
 #include "misc.hh"
 #include <filesystem>
@@ -69,17 +70,32 @@ void adaptOutput(const UseCase &use_case) {
                  adapted_output_folder + "'");
   }
 
+  messageInfo("Shuffling mined specifications...");
+  systemCheckExit("shuf " + ph.work_path + ph.work_output +
+                  MINED_SPECIFICATIONS_FILE + " -o " + ph.work_path +
+                  ph.work_output + "shuffled_" +
+                  MINED_SPECIFICATIONS_FILE);
+
   std::string adapt_output_command = "bash " + ph.output_adaptor_path;
   //add the path to the input and output file of the output adaptor (add an optional var map file)
-  //in
-  adapt_output_command +=
-      " " + ph.work_path + ph.work_output + MINED_SPECIFICATIONS_FILE;
+  adapt_output_command += " " + ph.work_path + ph.work_output +
+                          "shuffled_" + MINED_SPECIFICATIONS_FILE;
   //out
-  adapt_output_command += " " + adapted_output_folder + MINED_SPECIFICATIONS_FILE;
+  adapt_output_command +=
+      " " + adapted_output_folder + MINED_SPECIFICATIONS_FILE;
   //add the path to the variables map file
   adapt_output_command +=
       " " + ph.work_path + ph.work_input + VARIABLES_MAP_FILE;
 
   systemCheckExit(adapt_output_command);
+
+  if (clc::maxMined != -1) {
+    messageInfo("Selecting up to " + std::to_string(clc::maxMined) +
+                " mined specifications...");
+    systemCheckExit("sed -i \'" + std::to_string(clc::maxMined + 1) +
+                    ",$d\'" + " " + adapted_output_folder +
+                    MINED_SPECIFICATIONS_FILE);
+  }
+  return;
 }
 } // namespace usmt

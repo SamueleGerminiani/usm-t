@@ -13,6 +13,8 @@ bool svaAssert = false;
 std::string dumpPath = "";
 bool useFiniteSemantics = false;
 
+size_t maxMined = -1;
+
 //logging
 bool silent = false;
 bool wsilent = false;

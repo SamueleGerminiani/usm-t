@@ -12,7 +12,7 @@ function extendTexadaRun() {
   texada_run=$texada_run"echo \"--------------------------------------------\"\\n"
   texada_run=$texada_run"echo \"Running with template $new_formula\"\\n"
   texada_run=$texada_run"echo \"--------------------------------------------\"\\n"
-  texada_run=$texada_run"timeout --foreground 120s ./texada -m --parse-mult-prop -f "\"$new_formula\"" --log-file /input/\$LOG_FILE --out-file /output/.temp \\n"
+  texada_run=$texada_run"./texada -m --parse-mult-prop -f "\"$new_formula\"" --log-file /input/\$LOG_FILE --out-file /output/.temp \\n"
   #append .temp to MINED_SPECIFICATIONS_FILE
   texada_run=$texada_run"cat /output/.temp >> /output/\$MINED_SPECIFICATIONS_FILE \\n"
   texada_run=$texada_run"cat /output/.temp\\n"
@@ -209,6 +209,12 @@ function generate_texada_run() {
     #G(..&&.. -> ..&&.. U ..&&..)
     elif echo "$formula" | grep -Eq '^G\(..&&..[[:space:]]*(->|=>|\|->|\|=>)[[:space:]]*..&&..[[:space:]]*U[[:space:]]*..&&..\)$'; then
 
+      #Issue an error if ncon < 2
+      if (( ncon < 2 )); then
+        echo "generateTexada.sh: Until template requires at least 2 consequence variables: $formula"
+        exit 1
+      fi  
+
       #Extract the implication sign
       #if imp sign is => or |-> add a next
       if [[ "$imp_sign" == "=>" || "$imp_sign" == "|=>" ]]; then
@@ -220,8 +226,6 @@ function generate_texada_run() {
 
       con_1_1=$(makeAnd 10 1)
       con_1_2=$(makeAnd 11 1)
-      con_2_1=$(makeAnd 10 2)
-      con_2_2=$(makeAnd 12 2)
 
       template="[]($ant_1 -> ${imp_shift} ($con_1_1 U $con_1_2))"
       extendTexadaRun "$template"
@@ -230,14 +234,22 @@ function generate_texada_run() {
         extendTexadaRun "$template"
       fi
 
-      if (( ncon > 1 )); then
-        template="[]($ant_1 -> ${imp_shift} ($con_2_1 U $con_2_1))"
-        extendTexadaRun "$template"
-        if (( nant > 1 )); then
-          template="[]($ant_2 -> ${imp_shift} ($con_2_1 U $con_2_2))"
-          extendTexadaRun "$template"
-        fi
 
+
+      if (( ncon > 2 )); then
+        template="[]($ant_1 -> ${imp_shift} (P10 && P11 U P12))"
+        extendTexadaRun "$template"
+
+        template="[]($ant_1 -> ${imp_shift} (P10 U P11 && P12))"
+        extendTexadaRun "$template"
+
+        if (( nant > 1 )); then
+            template="[]($ant_2 -> ${imp_shift} (P10 && P11 U P12))"
+            extendTexadaRun "$template"
+
+            template="[]($ant_2 -> ${imp_shift} (P10 U P11 && P12))"
+            extendTexadaRun "$template"
+        fi
       fi
 
 
@@ -260,13 +272,17 @@ function generate_texada_run() {
       template="[]($ant_1 -> ${imp_shift} <> $con_1)"
       extendTexadaRun "$template"
 
+      if (( nant > 1 )); then
+        template="[]($ant_2 -> ${imp_shift} <> $con_1)"
+      extendTexadaRun "$template"
+      fi
+
       #only if ncon > 1, add more templates
       if (( ncon > 1 )); then
           template="[]($ant_1 -> ${imp_shift} <> $con_2)"
           extendTexadaRun "$template"
+
           if (( nant > 1 )); then
-            template="[]($ant_2 -> ${imp_shift} <> $con_1)"
-            extendTexadaRun "$template"
             template="[]($ant_2 -> ${imp_shift} <> $con_2)"
             extendTexadaRun "$template"
           fi

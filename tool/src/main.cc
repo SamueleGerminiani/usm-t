@@ -67,6 +67,13 @@ void parseCommandLineArguments(int argc, char *args[]) {
   if (result.count("ltlf")) {
     clc::useFiniteSemantics = true;
   }
+
+  if (result.count("max-mined")) {
+    clc::maxMined = safeStoull(result["max-mined"].as<std::string>());
+    messageErrorIf(clc::maxMined == 0,
+                   "max-mined must be a positive integer");
+  }
+
   if (result.count("sva")) {
     messageErrorIf(
         result.count("spotltl") || result.count("psl"),

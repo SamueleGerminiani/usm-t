@@ -15,6 +15,6 @@ clk \
 "{formula : G(..&&.. |-> F ..&&..), nant : 2, ncon : 1, nspec: 10, overlap : 0}" \
 rst \
 Eventually_top_bench::Eventually_top_ \
-1000 \
+10000 \
 $install \
 $debug

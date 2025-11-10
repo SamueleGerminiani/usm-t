@@ -15,6 +15,6 @@ clk \
 "{formula : G(..#1&.. |-> ..#1&..), nant : 3, ncon : 3, nspec: 10, overlap : 0}" \
 rst \
 NextAnd_top_bench::NextAnd_top_ \
-1000 \
+10000 \
 $install \
 $debug

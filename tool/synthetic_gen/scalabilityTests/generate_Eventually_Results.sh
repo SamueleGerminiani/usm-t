@@ -22,8 +22,11 @@ fi
 #test_type="increasing_complexity"
 
 #Increasing spec 
-param_list="2,2,1,0 2,2,2,0 2,2,3,0 2,2,4,0 2,2,5,0 2,2,6,0 2,2,7,0 2,2,8,0 2,2,9,0 2,2,10,0"
+param_list="2,2,10,0 2,2,20,0 2,2,30,0 2,2,40,0 2,2,50,0 2,2,60,0 2,2,70,0 2,2,80,0 2,2,90,0 2,2,100,0"
 test_type="increasing_spec"
+
+#param_list="2,2,10,0 2,2,10,1 2,2,10,2 2,2,10,3 2,2,10,4 2,2,10,5 2,2,10,6 2,2,10,7 2,2,10,8 2,2,10,9 2,2,10,10"
+#test_type="increasing_overlap"
 
 next_results_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/Eventually_Results/Tests/"
 elapsed_dir="$USMT_ROOT/tool/synthetic_gen/raw_challenges/Eventually_Results/Elapsed/"

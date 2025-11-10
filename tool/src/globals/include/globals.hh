@@ -15,6 +15,9 @@ extern std::string testFile;
 ///--dump-to
 extern std::string dumpPath;
 
+//--max-mined
+extern size_t maxMined;
+
 ///--silent
 extern bool silent;
 ///--wilent

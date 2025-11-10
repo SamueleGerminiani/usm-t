@@ -168,7 +168,7 @@ size_t test_with_parameters(std::string template_,
                             bool force_uint) {
 
   std::vector<AssertionPtr> assertions;
-  size_t trace_length = 1000;
+  size_t trace_length = 10000;
   size_t max_number_of_variables = 100;
 
   auto assertions_trace = makeAssertionsFromTemplate(
