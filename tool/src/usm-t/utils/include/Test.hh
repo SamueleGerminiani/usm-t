@@ -112,6 +112,7 @@ struct Input {
   std::string id;
   std::set<std::string> selected_type;
   std::string dest_dir;
+  size_t trim_csv_to = (size_t)-1;
   rapidxml::XmlNode *xml_input;
 };
 

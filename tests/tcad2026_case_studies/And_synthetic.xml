@@ -1,0 +1,106 @@
+<usm-t>
+  <input id="0">
+    <vcd path="And/traces/vcd/golden.vcd" clk="clk" rst="rst" scope="And_top_bench::And_top_"/>
+    <verilog_dir path="And/design/"/>
+    <csv path="And/traces/csv/golden.csv"/>
+  </input>
+
+  <usecase id="harm">
+    <miner name="harm"/>
+    <input id="0" type="vcd"/>
+    <configuration type="support" path="And/config.xml"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export MAX_THREADS="1" CLK="clk" SCOPE="And_top_bench::And_top_" CONFIG="And/config.xml"/>
+    <docker image="samger/harm:latest"/>  
+  </usecase>
+
+  <usecase id="texada">
+    <miner name="texada"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <input_adaptor path="csv_to_texada_log/run.sh"/>
+    <output_adaptor path="spin_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt"/>
+    <docker image="samger/texada:latest"/>  
+  </usecase>
+
+  <usecase id="samples2ltl">
+    <miner name="samples2ltl"/>
+    <input id="0" type="csv"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <input_adaptor path="csv_to_samples2ltl_csv/run.sh"/>
+    <output_adaptor path="samples2ltl_to_spotltl/run.sh"/>
+    <export LOG_FILE="all_traces.txt" MAX_TRACE_LENGTH="100"/>
+    <docker image="samger/samples2ltl:latest"/>  
+  </usecase>
+
+  <usecase id="goldminer">
+    <miner name="goldminer"/>
+    <input id="0" type="vcd,verilog"/>
+    <configuration type="support" path="And/goldmine.cfg"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <input_adaptor path="vcd_to_vcd/run.sh"/>
+    <output_adaptor path="goldminer_to_spotltl/run.sh"/>
+    <export VCD_FILE="And/traces/vcd/golden.vcd" CLK="clk" TOP_MODULE="And_top"/>
+    <docker image="samger/goldminer2:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_source">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <configuration type="support" path="And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_trace">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="csv" trim_csv_to="1000"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <configuration type="support" path="And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog, csv" trim_csv_to="1000"/>
+    <configuration type="run" path="And/run_miner.sh"/>
+    <configuration type="support" path="And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <test name="And">
+    <usecase id="gemini"/>
+    <!--
+    <usecase id="gemini_only_source"/>
+    <usecase id="gemini_only_trace"/>
+
+    <usecase id="harm"/>
+    <usecase id="goldminer"/>
+    <usecase id="texada"/>
+    <usecase id="samples2ltl"/>
+    <usecase id="gemini"/>
+    -->
+
+    <expected path="input/And/expected/specifications.txt"/>
+    <compare with_strategy="n_mined"/>
+    <compare with_strategy="syntactic_similarity"/>
+    <compare with_strategy="semantic_equivalence"/>
+    <compare with_strategy="hybrid_similarity"/>
+    <compare with_strategy="fault_coverage" faulty_traces="input/And/faulty_traces/vcd/" trace_type="vcd" clk="clk" scope="And_top_bench::And_top_"/>
+    <compare with_strategy="time_to_mine"/>
+  </test>
+
+</usm-t>
+

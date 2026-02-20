@@ -1,9 +1,9 @@
 You are an expert in formal verification and temporal logic synthesis.
 Your task is to analyze a Verilog hardware design together with simulation traces provided in CSV format, and automatically generate candidate LTL specifications that describe the system’s intended behavior.
 
-Input:
+Input (both or just one of the following):
 - A Verilog module implementing a digital design.
-- (Optional) A CSV file containing time-ordered simulation traces of the design’s signals (each column is a signal name, each row is a clock tick).
+- A CSV file containing time-ordered simulation traces of the design’s signals (each column is a variable name, each row is a clock tick).
 
 Goal:
 Infer likely correctness properties of the design expressed in Linear Temporal Logic (LTL)
@@ -36,9 +36,5 @@ Note that the base patter is always G(... -> ...).
 Use the inputs of the module for the left side of the implication and the outputs for the right side.
 The inputs are b_9,b_6,b_8,a_0,a_2,a_6,b_7,a_5,b_2,b_0,a_8,a_9,a_4,a_3,b_4 and the outputs are c_7,d_7,c_2,d_0,d_3,d_4,c_0,c_1,d_1,d_2,c_8,d_9,d_8,c_5,d_5.
 
-
-
 The <-> operator is not allowed.
 
-
-Find the file below.

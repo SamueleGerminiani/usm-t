@@ -1,4 +1,3 @@
-
 #pragma once
 #include "message.hh"
 #include <cstdio>

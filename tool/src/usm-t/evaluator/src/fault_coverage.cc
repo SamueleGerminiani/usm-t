@@ -65,6 +65,16 @@ EvalReportPtr runFaultCoverage(
   fc_result._findMinSubset = 1;
 
   evaluateWithFaultCoverage(mined_assertions, trace, fc_result);
+  if (fc_result._aidToF.empty()) {
+    messageWarning("No assertion covers any fault, SFC is 0");
+    ret->fault_coverage = 0.f;
+    ret->_minCoveringAssertions = {};
+    for (size_t j = 0; j < fc_result._faultyTraceFiles.size(); j++) {
+      ret->_uncoveredFaults.push_back(fc_result._faultyTraceFiles[j]);
+    }
+    return ret;
+  }
+
   std::unordered_map<size_t, std::vector<size_t>> &_fToAid =
       fc_result._fToAid;
 
@@ -148,8 +158,7 @@ void evaluateWithFaultCoverage(
                                   selected_copy.end(), nullptr),
                       selected_copy.end());
   if (selected_copy.empty()) {
-    throw std::runtime_error(
-        "No valid assertion to evaluate for fault coverage");
+    return;
   }
 
   //silence warnings and infos (to silence the traceReader)

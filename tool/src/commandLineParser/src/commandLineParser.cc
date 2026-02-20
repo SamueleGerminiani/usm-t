@@ -103,3 +103,49 @@ options.add_options()
   }
 }
 
+cxxopts::ParseResult parseSimilarityStandalone(int argc,
+                                               char *argv[]) {
+  try {
+    cxxopts::Options options(argv[0], "");
+    options.positional_help("[optional args]").show_positional_help();
+
+    std::string file = "";
+
+    // clang-format off
+options.add_options()
+( "spec1", "first specification to be compared", cxxopts::value<std::string>(), "<STRING>")
+( "spec2", "second specification to be compared", cxxopts::value<std::string>(), "<STRING>")
+( "metric", "similarity metric to be used for the comparison", cxxopts::value<std::string>(), "<STRING>")
+( "vars", "comma-separated list of variables used in the specs", cxxopts::value<std::string>(), "<STRING>")
+( "silent", "disable all outputs")
+("wsilent", "disable all warnings")
+( "isilent", "disable all infos")
+("psilent", "disable all progress bars")
+( "name", "name of this execution (used when dumping statistics)", cxxopts::value<std::string>(), "<String>")
+("help", "Show options");
+    // clang-format on
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help")) {
+      std::cout << options.help({"", "Group"}) << std::endl;
+      exit(0);
+    }
+
+    if (result.count("spec1") == 0 || result.count("spec2") == 0 ||
+        result.count("metric") == 0 || result.count("vars") == 0) {
+      std::cout << "Usage:\n";
+      std::cout << "similarity_standalone --spec1 <spec1> --spec2 "
+                   "<spec2> --metric <metric> --vars <var1,var2,...> "
+                   "[<OptionalArguments...>]\n";
+      exit(0);
+    }
+
+    return result;
+
+  } catch (const cxxopts::OptionException &e) {
+    std::cout << "error parsing options: " << e.what() << std::endl;
+    exit(1);
+  }
+}
+

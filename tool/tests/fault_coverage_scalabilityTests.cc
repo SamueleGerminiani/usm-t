@@ -237,32 +237,6 @@ TEST(fault_coverage_scalabilityTests, fault_coverage_next) {
     {"..##1..",400,500,true},
     {"..##1..",500,500,true},
 
-    {"..##1..",100,100,false},
-    {"..##1..",200,100,false},
-    {"..##1..",300,100,false},
-    {"..##1..",400,100,false},
-    {"..##1..",500,100,false},
-    {"..##1..",100,200,false},
-    {"..##1..",200,200,false},
-    {"..##1..",300,200,false},
-    {"..##1..",400,200,false},
-    {"..##1..",500,200,false},
-    {"..##1..",100,300,false},
-    {"..##1..",200,300,false},
-    {"..##1..",300,300,false},
-    {"..##1..",400,300,false},
-    {"..##1..",500,300,false},
-    {"..##1..",100,400,false},
-    {"..##1..",200,400,false},
-    {"..##1..",300,400,false},
-    {"..##1..",400,400,false},
-    {"..##1..",500,400,false},
-    {"..##1..",100,500,false},
-    {"..##1..",200,500,false},
-    {"..##1..",300,500,false},
-    {"..##1..",400,500,false},
-    {"..##1..",500,500,false},
-
   };
   // clang-format on
   //
@@ -275,7 +249,7 @@ TEST(fault_coverage_scalabilityTests, fault_coverage_next) {
   }
   std::ofstream file(dump_path);
   file << "template,number_of_assertions_to_make,number_of_faults,"
-          "force_uint,"
+          "var_type,"
        << "time_spent\n";
   file.close();
 

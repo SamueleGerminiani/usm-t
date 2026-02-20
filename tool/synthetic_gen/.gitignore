@@ -3,3 +3,4 @@ __pycache__
 synthetic_gen/sa
 raw_challenges
 testGenerator/input_generator/__pycache__
+tcad2026_synth_gen_scalability_tests/results

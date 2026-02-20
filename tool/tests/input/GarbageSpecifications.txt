@@ -1,0 +1,71 @@
+-- Category 1: Register updates (Output_combinational -> X Output_registered)
+-- These properties describe that a registered output (d_X, d_Y, d_Z) in the next cycle (X) reflects the value of its corresponding combinational input (c_X or another d_Y) in the current cycle.
+-- All signals involved (c_X, d_X, etc.) are top-level outputs.
+
+G(c_0 -> X d_0)
+G(X d_0 -> c_0)
+G(c_1 -> X d_1)
+G(X d_1 -> c_1)
+G(c_2 -> X d_2)
+G(X d_2 -> c_2)
+G(c_2 -> X d_3)
+G(X d_3 -> c_2)
+G(c_8 -> X d_4)
+G(X d_4 -> c_8)
+G(c_5 -> X d_5)
+G(X d_5 -> c_5)
+G(c_7 -> X d_4)
+G(X d_4 -> c_7)
+G(c_7 -> X d_7)
+G(X d_7 -> c_7)
+G(c_8 -> X d_8)
+G(X d_8 -> c_8)
+G(d_2 -> X d_9)
+G(X d_9 -> d_2)
+
+-- Category 2: Simplified Input-Output relations (combinational logic: Output(t) = Input_A(t) & Input_B(t-1))
+-- Based on the internal logic (c_X = Input_B & (d_X ^ _43_)) and the sequential update (_43_ <= a_X ^ c_X),
+-- this simplifies to Output_C(t) = Input_B(t) & Input_A(t-1).
+-- This is translated to LTL as G(X Output_C <-> (X Input_B && Input_A)).
+-- For multi-driven outputs (c_2, c_7, c_8, d_2, d_4), an OR-tie resolution is assumed for candidate generation.
+
+-- Output c_0
+G(X b_0 && a_0 -> X c_0)
+G(X c_0 -> X b_0 && a_0)
+
+-- Output c_1
+G(X a_5 && a_0 -> X c_1)
+G(X c_1 -> X a_5 && a_0)
+
+-- Output c_2 (driven by spec2 and spec3)
+-- c_2_spec2(t+1) = X b_2 && a_2
+-- c_2_spec3(t+1) = X a_8 && a_3
+G((X b_2 && a_2) || (X a_8 && a_3) -> X c_2)
+G(X c_2 -> (X b_2 && a_2) || (X a_8 && a_3))
+
+-- Output c_5
+G(X b_9 && a_5 -> X c_5)
+G(X c_5 -> X b_9 && a_5)
+
+-- Output c_7 (driven by spec6 and spec7)
+-- c_7_spec6(t+1) = X b_6 && a_6
+-- c_7_spec7(t+1) = X b_7 && b_0
+G((X b_6 && a_6) || (X b_7 && b_0) -> X c_7)
+G(X c_7 -> (X b_6 && a_6) || (X b_7 && b_0))
+
+-- Output c_8 (driven by spec4 and spec8)
+-- c_8_spec4(t+1) = X b_4 && a_4
+-- c_8_spec8(t+1) = X b_8 && a_8
+G((X b_4 && a_4) || (X b_8 && a_8) -> X c_8)
+G(X c_8 -> (X b_4 && a_4) || (X b_8 && a_8))
+
+-- Output d_2 (driven by spec9, where it is a combinational output)
+-- d_2_spec9(t+1) = X b_9 && a_9
+G(X b_9 && a_9 -> X d_2)
+G(X d_2 -> X b_9 && a_9)
+
+-- Output d_4 (driven by spec4 and spec6, where it is a registered output)
+-- d_4_spec4(t+1) = c_8(t) (which is Next_top.c_8)
+-- d_4_spec6(t+1) = c_7(t) (which is Next_top.c_7)
+G(c_8 || c_7 -> X d_4)
+G(X d_4 -> c_8 || c_7)

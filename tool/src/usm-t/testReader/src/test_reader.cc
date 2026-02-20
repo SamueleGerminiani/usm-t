@@ -371,6 +371,22 @@ void populateWithInput(
   usecase.input = idToInput.at(id);
   usecase.input.selected_type = parseCSVToSet(type);
 
+  std::string trim_csv_to =
+      getAttributeValue(inode, "trim_csv_to", "");
+
+  if (trim_csv_to != "") {
+    usecase.input.trim_csv_to = safeStoull(trim_csv_to);
+    messageErrorIf(
+        usecase.input.selected_type.count("csv") == 0,
+        "The 'trim_csv_to' attribute can only be used if the "
+        "input type includes 'csv' in usecase '" +
+            usecase.usecase_id + "'");
+    messageErrorIf(usecase.input.selected_type.count("vcd"),
+                   "The 'trim_csv_to' attribute cannot be used with "
+                   "input type 'vcd' in usecase '" +
+                       usecase.usecase_id + "'");
+  }
+
   for (auto type : usecase.input.selected_type) {
     messageErrorIf(type != "vcd" && type != "csv" &&
                        type != "verilog",
@@ -671,6 +687,8 @@ std::vector<Test> parseTests(XmlNode *root) {
         std::cout << type << " ";
       }
       std::cout << "\n";
+      std::cout << "\t\t\tTRIM_CSV_TO: " << input.trim_csv_to << "\n";
+
       if (input.vcdExists() && input.selected_type.count("vcd")) {
         std::cout << "VCD"
                   << "\n";

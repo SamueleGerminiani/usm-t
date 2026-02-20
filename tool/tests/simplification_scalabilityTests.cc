@@ -11,8 +11,8 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
 #include "TraceReader.hh"
@@ -169,8 +169,7 @@ size_t test_with_parameters(std::string template_,
   assertions_map["expected"] = assertions;
   assertions_map["mined"] = assertions;
 
-  HybridReportPtr report =
-      std::make_shared<HybridReport>();
+  HybridReportPtr report = std::make_shared<HybridReport>();
 
   std::cout << "Number of comparisons: "
             << assertions_map["expected"].size() *
@@ -179,8 +178,8 @@ size_t test_with_parameters(std::string template_,
   auto start = std::chrono::high_resolution_clock::now();
   std::unordered_map<std::string, std::string> targetToRemap;
   auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
-                                    assertions_map.at("mined"),
-                                    targetToRemap);
+                                     assertions_map.at("mined"),
+                                     targetToRemap);
   auto end = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::milliseconds>(end -
                                                                start)
@@ -258,7 +257,7 @@ TEST(simplification_scalabilityTests, simplification_next) {
   }
   std::ofstream file(dump_path);
   file << "template,number_of_assertions,number_of_variables,"
-          "time,force_uint\n";
+          "time,var_type\n";
   file.close();
 
   for (auto test_case : test_cases) {

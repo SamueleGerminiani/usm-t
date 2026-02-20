@@ -10,8 +10,8 @@
 #include "CSVtraceReader.hh"
 #include "EvalReport.hh"
 #include "Evaluator.hh"
-#include "SimplifiedAssertion.hh"
 #include "ProgressBar.hpp"
+#include "SimplifiedAssertion.hh"
 #include "TemplateImplication.hh"
 #include "Trace.hh"
 #include "TraceReader.hh"
@@ -177,8 +177,8 @@ size_t test_with_parameters(std::string template_,
             << "\n";
   std::unordered_map<std::string, std::string> targetToRemap;
   auto tmp = getSimplifiedAssertions(assertions_map.at("expected"),
-                                    assertions_map.at("mined"),
-                                    targetToRemap);
+                                     assertions_map.at("mined"),
+                                     targetToRemap);
   auto start = std::chrono::high_resolution_clock::now();
   evaluateWithSemanticComparison(report, assertions_map);
   auto end = std::chrono::high_resolution_clock::now();
@@ -220,32 +220,6 @@ TEST(edit_distance_scalabilityTests, edit_distance_and) {
       {"..##1..", 300, 100, false},
       {"..##1..", 400, 100, false},
       {"..##1..", 500, 100, false},
-//      {"..##1..", 100, 100, true},
-//      {"..##1..", 200, 100, true},
-//      {"..##1..", 300, 100, true},
-//      {"..##1..", 400, 100, true},
-//      {"..##1..", 500, 100, true},
-//      {"..##1..", 100, 200, true},
-//      {"..##1..", 200, 200, true},
-//      {"..##1..", 300, 200, true},
-//      {"..##1..", 400, 200, true},
-//      {"..##1..", 500, 200, true},
-//      {"..##1..", 100, 300, true},
-//      {"..##1..", 200, 300, true},
-//      {"..##1..", 300, 300, true},
-//      {"..##1..", 400, 300, true},
-//      {"..##1..", 500, 300, true},
-//      {"..##1..", 100, 400, true},
-//      {"..##1..", 200, 400, true},
-//      {"..##1..", 300, 400, true},
-//      {"..##1..", 400, 400, true},
-//      {"..##1..", 500, 400, true},
-//      {"..##1..", 100, 500, true},
-//      {"..##1..", 200, 500, true},
-//      {"..##1..", 300, 500, true},
-//      {"..##1..", 400, 500, true},
-//      {"..##1..", 500, 500, true},
-
   };
   // clang-format on
 
@@ -258,7 +232,7 @@ TEST(edit_distance_scalabilityTests, edit_distance_and) {
   }
   std::ofstream file(dump_path);
   file << "template,number_of_assertions,number_of_variables,"
-          "time,force_uint\n";
+          "time,var_type\n";
   file.close();
 
   for (auto test_case : test_cases) {

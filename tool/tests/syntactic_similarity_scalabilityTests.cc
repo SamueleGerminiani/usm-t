@@ -221,31 +221,6 @@ TEST(syntactic_similarity_scalabilityTests, ss1) {
       {"..##1..", 300, 100, false},
       {"..##1..", 400, 100, false},
       {"..##1..", 500, 100, false},
-//      {"..##1..", 100, 100, true},
-//      {"..##1..", 200, 100, true},
-//      {"..##1..", 300, 100, true},
-//      {"..##1..", 400, 100, true},
-//      {"..##1..", 500, 100, true},
-//      {"..##1..", 100, 200, true},
-//      {"..##1..", 200, 200, true},
-//      {"..##1..", 300, 200, true},
-//      {"..##1..", 400, 200, true},
-//      {"..##1..", 500, 200, true},
-//      {"..##1..", 100, 300, true},
-//      {"..##1..", 200, 300, true},
-//      {"..##1..", 300, 300, true},
-//      {"..##1..", 400, 300, true},
-//      {"..##1..", 500, 300, true},
-//      {"..##1..", 100, 400, true},
-//      {"..##1..", 200, 400, true},
-//      {"..##1..", 300, 400, true},
-//      {"..##1..", 400, 400, true},
-//      {"..##1..", 500, 400, true},
-//      {"..##1..", 100, 500, true},
-//      {"..##1..", 200, 500, true},
-//      {"..##1..", 300, 500, true},
-//      {"..##1..", 400, 500, true},
-//      {"..##1..", 500, 500, true},
   };
   // clang-format on
 
@@ -258,7 +233,7 @@ TEST(syntactic_similarity_scalabilityTests, ss1) {
   }
   std::ofstream file(dump_path);
   file << "template,number_of_assertions,number_of_variables,"
-          "time,force_uint\n";
+          "time,var_type\n";
   file.close();
 
   for (auto test_case : test_cases) {

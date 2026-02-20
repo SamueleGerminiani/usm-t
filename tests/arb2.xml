@@ -18,8 +18,8 @@
     <!--
     Also directories containing the traces and the design can be defined (the suffix of the files must match the type, e.g. .vcd for VCD, .csv for CSV, .v for Verilog)
     -->
-    <vcd_dir path="arb2/traces/bool/" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
-    <csv_dir path="arb2/traces/bool/"/>
+    <vcd_dir path="arb2/traces/bool/vcd/" clk="clk" rst="rst" scope="arb2_bench::arb2_"/>
+    <csv_dir path="arb2/traces/bool/csv/"/>
     <verilog_dir path="arb2/design_bool/"/>
   </input>
 
@@ -125,7 +125,6 @@
     <usecase id="samples2ltl_usecase_1"/>
     <external id="manually_defined"/>
 
-    <!--
       - The path is relative to $USMT_ROOT/
     - File containing the golden specifications to compare with
     - This is necessary for all comparison strategies except for time_to_mine and fault_coverage

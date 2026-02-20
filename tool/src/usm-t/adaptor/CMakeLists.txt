@@ -7,7 +7,7 @@ project(${NAME})
 # Sources.
 #############################################
 
-SET(ADAPTOR_SRC src/adaptor.cc)
+SET(ADAPTOR_SRC src/adaptor.cc src/adaptor_utils.cc)
 
 #############################################
 # Targets.

@@ -6,7 +6,7 @@ SET(NAME usmt_core)
 # Sources.
 #############################################
 
-SET(USMT_SRC interface/src/usmt_core.cc)
+SET(USMT_SRC interface/src/usmt_core.cc interface/src/dump_utils.cc)
 
 #############################################
 # Targets.

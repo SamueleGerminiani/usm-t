@@ -10,7 +10,7 @@ if [ -z "$in_path" ] || [ -z "$out_path" ]; then
 fi
 
 if [ ! -d "$in_path" ]; then
-    echo "Error: Input path '$in_path' is not a file or directory."
+    echo "Error: Input path '$in_path' is not a directory"
     exit 1
 fi
 

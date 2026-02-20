@@ -200,6 +200,9 @@ target_link_libraries(${NAME} usmt_core)
 add_subdirectory(src/miner)
 add_subdirectory(src/vcd2csv)
 
+#similarity standalone tool
+add_subdirectory(src/similarity_standalone)
+
 ### TESTS & EXAMPLES ##################################
 enable_testing()
 include (CTest)

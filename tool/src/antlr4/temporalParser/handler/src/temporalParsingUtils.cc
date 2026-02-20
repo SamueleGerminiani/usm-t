@@ -83,8 +83,21 @@ parseTemporalExpression(std::string formula,
   return parsedFormula;
 }
 
-bool isSyntacticallyCorrectTemporalExpression(
+std::string isSyntacticallyCorrectTemporalExpression(
     std::string formula, const harm::TracePtr &trace) {
+  static std::map<std::pair<std::string, harm::TracePtr>, std::string>
+      cache;
+  if (cache.count({formula, trace})) {
+    return cache.at({formula, trace});
+  }
+
+  std::string ret = "";
+
+  if (formula == "") {
+    ret = "The formula is empty";
+    return ret;
+  }
+
   auto decls = trace->getDeclarations();
   addTypeToExp(formula, decls);
 
@@ -94,19 +107,22 @@ bool isSyntacticallyCorrectTemporalExpression(
   listener->_useCache = 0;
 
   // Define a flag to capture lexer/parser errors
-  bool hasError = false;
 
   // Custom error listener to set flag instead of throwing
   class BailErrorListener : public antlr4::BaseErrorListener {
   public:
-    bool *errorFlag;
-    explicit BailErrorListener(bool *flag) : errorFlag(flag) {}
+    std::string *errorMessage;
+
+    explicit BailErrorListener(std::string *errorMessage)
+        : errorMessage(errorMessage) {}
     void syntaxError(antlr4::Recognizer *recognizer,
                      antlr4::Token *offendingSymbol, size_t line,
                      size_t charPositionInLine,
                      const std::string &msg,
                      std::exception_ptr e) override {
-      *errorFlag = true;
+      *errorMessage = "Syntax error at line " + std::to_string(line) +
+                      ", char " + std::to_string(charPositionInLine) +
+                      ": " + msg;
     }
   };
 
@@ -114,7 +130,7 @@ bool isSyntacticallyCorrectTemporalExpression(
     antlr4::ANTLRInputStream input(formula);
     temporalLexer lexer(&input);
 
-    BailErrorListener errorListener(&hasError);
+    BailErrorListener errorListener(&ret);
     lexer.removeErrorListeners();
     lexer.addErrorListener(&errorListener);
 
@@ -127,15 +143,16 @@ bool isSyntacticallyCorrectTemporalExpression(
     antlr4::tree::ParseTree *treeFragAnt = parser.formula();
 
     // Only walk if no lexer/parser errors
-    if (!hasError)
+    if (ret == "")
       antlr4::tree::ParseTreeWalker::DEFAULT.walk(listener.get(),
                                                   treeFragAnt);
 
-  } catch (...) {
-    hasError = true; // Catch any unexpected parser exceptions
+  } catch (const std::exception &e) {
+    ret = "Exception during parsing: " + std::string(e.what());
   }
 
-  // Return true if a syntax error occurred
-  return hasError == false;
+  cache[std::make_pair(formula, trace)] = ret;
+
+  return ret;
 }
 } // namespace hparser
