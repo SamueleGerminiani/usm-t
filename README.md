@@ -88,33 +88,62 @@ make
 
 The next command must be run from the root of the repository.
 
-```
-bash scripts/setupEnvironment.sh
+```bash
+source scripts/setupEnvironment.sh
 ```
 
 This will set the variable USMT_ROOT to the root of this repo.
 
 #### Download the containerized miners
 
-```
+```bash
 bash scripts/downloadMiners.sh
 ```
 
 #### Go to the build directory
 
-```
+```bash
 cd tool/build
 ```
 
 #### Run the sample example
 
-```
+```bash
 ./usm-t --test ../../tests/arb2.xml --dump-to .
 ```
 
-This will generate singolar reports in the runs directory for each miner and a summary report in the current directory. Together with a radar chart. We report an example of the radar chart generated below. 
+This will generate singolar reports in the runs directory for each miner and a summary report in the current directory. Together with a radar chart. We report an example of the radar chart generated below.
 
 ![Radar Chart Example](figures/sample_radar_chart.png)
+
+### Running TCAD 2026 Experiments
+
+To run the experiments presented in the TCAD 2026 paper, follow these steps:
+
+1.  **Source the environment variables:**
+    Ensure you are in the root directory of the repository and run:
+    ```bash
+    source scripts/setupEnvironment.sh
+    ```
+
+2.  **Execute the experiment scripts:**
+    You can run each set of experiments individually:
+
+    *   **Case Study Experiments:**
+        ```bash
+        bash scripts/run_tcad2026_experiments/run_case_study.sh
+        ```
+
+    *   **Scalability of Synthetic Generators Experiments:**
+        ```bash
+        bash scripts/run_tcad2026_experiments/run_scalability_of_synthetic_generators.sh
+        ```
+
+    *   **Scalability of Evaluators Experiments:**
+        ```bash
+        bash scripts/run_tcad2026_experiments/run_scalability_of_evaluators.sh
+        ```
+
 
 ## All Options
 

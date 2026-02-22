@@ -81,16 +81,15 @@
   </usecase>
 
   <test name="And">
-    <usecase id="gemini"/>
-    <!--
-    <usecase id="gemini_only_source"/>
-    <usecase id="gemini_only_trace"/>
 
     <usecase id="harm"/>
     <usecase id="goldminer"/>
     <usecase id="texada"/>
     <usecase id="samples2ltl"/>
     <usecase id="gemini"/>
+    <usecase id="gemini_only_source"/>
+    <usecase id="gemini_only_trace"/>
+    <!--
     -->
 
     <expected path="input/And/expected/specifications.txt"/>

@@ -83,13 +83,13 @@
 
   <test name="Eventually">
 
-    <usecase id="gemini"/>
-    <usecase id="gemini_only_trace"/>
-    <usecase id="gemini_only_source"/>
     <usecase id="harm"/>
     <usecase id="texada"/>
     <usecase id="samples2ltl"/>
     <usecase id="goldminer"/>
+    <usecase id="gemini"/>
+    <usecase id="gemini_only_trace"/>
+    <usecase id="gemini_only_source"/>
     <!--
     -->
 
