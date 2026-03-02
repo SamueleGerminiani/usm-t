@@ -542,3 +542,23 @@ splitString(const std::string &s, const std::string &delimiter) {
   return parts;
 }
 
+/*
+ * This function splits a string by spaces and collects the unique tokens in a remap map.
+ */
+inline std::vector<unsigned char> splitBySpacesCollectRemap(
+    const std::string &str,
+    std::unordered_map<std::string, unsigned char> &all_tokens) {
+
+  std::vector<unsigned char> ramapped_tokens;
+  std::istringstream iss(str);
+
+  std::string token;
+  while (iss >> token) {
+    if (!all_tokens.count(token)) {
+      all_tokens.insert({token, all_tokens.size()});
+    }
+    ramapped_tokens.push_back(all_tokens.at(token));
+  }
+  return ramapped_tokens;
+}
+

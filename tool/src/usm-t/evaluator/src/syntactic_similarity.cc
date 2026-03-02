@@ -7,6 +7,7 @@
 #include "Trace.hh"
 #include "assertion_utils.hh"
 #include "minerUtils.hh"
+#include "misc.hh"
 #include "opal.h"
 #include <algorithm>
 #include <exception>
@@ -20,23 +21,6 @@
 
 namespace usmt {
 using namespace harm;
-
-std::vector<unsigned char> splitBySpacesCollectRemap(
-    const std::string &str,
-    std::unordered_map<std::string, unsigned char> &all_tokens) {
-
-  std::vector<unsigned char> ramapped_tokens;
-  std::istringstream iss(str);
-
-  std::string token;
-  while (iss >> token) {
-    if (!all_tokens.count(token)) {
-      all_tokens.insert({token, all_tokens.size()});
-    }
-    ramapped_tokens.push_back(all_tokens.at(token));
-  }
-  return ramapped_tokens;
-}
 
 OpalSearchResult **getSimilarity(int alphabetLength,
                                  int scoreMatrix[],

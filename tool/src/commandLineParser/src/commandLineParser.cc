@@ -115,7 +115,6 @@ cxxopts::ParseResult parseSimilarityStandalone(int argc,
 options.add_options()
 ( "spec1", "first specification to be compared", cxxopts::value<std::string>(), "<STRING>")
 ( "spec2", "second specification to be compared", cxxopts::value<std::string>(), "<STRING>")
-( "metric", "similarity metric to be used for the comparison", cxxopts::value<std::string>(), "<STRING>")
 ( "vars", "comma-separated list of variables used in the specs", cxxopts::value<std::string>(), "<STRING>")
 ( "silent", "disable all outputs")
 ("wsilent", "disable all warnings")
@@ -133,10 +132,10 @@ options.add_options()
     }
 
     if (result.count("spec1") == 0 || result.count("spec2") == 0 ||
-        result.count("metric") == 0 || result.count("vars") == 0) {
+        result.count("vars") == 0) {
       std::cout << "Usage:\n";
-      std::cout << "similarity_standalone --spec1 <spec1> --spec2 "
-                   "<spec2> --metric <metric> --vars <var1,var2,...> "
+      std::cout << "similarity --spec1 <spec1> --spec2 "
+                   "<spec2> <metric> --vars <var1,var2,...> "
                    "[<OptionalArguments...>]\n";
       exit(0);
     }
