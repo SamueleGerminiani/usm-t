@@ -54,9 +54,6 @@ tool/syntetic_gen/hif_sim/traces
 
 
 
-input/And/
-input/Eventually/
-input/Next/
 input/NextAnd/
 input/Until/
 miners/tools/gemini-flash/configurations/And/

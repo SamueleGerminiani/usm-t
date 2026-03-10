@@ -687,7 +687,10 @@ std::vector<Test> parseTests(XmlNode *root) {
         std::cout << type << " ";
       }
       std::cout << "\n";
-      std::cout << "\t\t\tTRIM_CSV_TO: " << input.trim_csv_to << "\n";
+      if (input.trim_csv_to != (size_t)-1) {
+        std::cout << "\t\t\tTRIM_CSV_TO: " << input.trim_csv_to
+                  << "\n";
+      }
 
       if (input.vcdExists() && input.selected_type.count("vcd")) {
         std::cout << "VCD"

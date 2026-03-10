@@ -1,0 +1,40 @@
+<harm>
+  <context name="default">
+    <prop exp="b_9" loc="a, dt"/>
+    <prop exp="b_6" loc="a, dt"/>
+    <prop exp="b_8" loc="a, dt"/>
+    <prop exp="a_0" loc="a, dt"/>
+    <prop exp="a_2" loc="a, dt"/>
+    <prop exp="a_6" loc="a, dt"/>
+    <prop exp="b_7" loc="a, dt"/>
+    <prop exp="a_5" loc="a, dt"/>
+    <prop exp="b_2" loc="a, dt"/>
+    <prop exp="b_0" loc="a, dt"/>
+    <prop exp="a_8" loc="a, dt"/>
+    <prop exp="a_9" loc="a, dt"/>
+    <prop exp="a_4" loc="a, dt"/>
+    <prop exp="a_3" loc="a, dt"/>
+    <prop exp="b_4" loc="a, dt"/>
+    <prop exp="c_7" loc="c"/>
+    <prop exp="d_7" loc="c"/>
+    <prop exp="c_2" loc="c"/>
+    <prop exp="d_0" loc="c"/>
+    <prop exp="d_3" loc="c"/>
+    <prop exp="d_4" loc="c"/>
+    <prop exp="c_0" loc="c"/>
+    <prop exp="c_1" loc="c"/>
+    <prop exp="d_1" loc="c"/>
+    <prop exp="d_2" loc="c"/>
+    <prop exp="c_8" loc="c"/>
+    <prop exp="d_9" loc="c"/>
+    <prop exp="d_8" loc="c"/>
+    <prop exp="c_5" loc="c"/>
+    <prop exp="d_5" loc="c"/>
+
+    <template dtLimits="3A,3D,0E" exp="G(..##1.. |-> P0)" />
+    <template dtLimits="3A,3D,0E" exp="G(..##1.. |-> {P0 ##1 P1})" />
+
+    <sort name="causality" exp="1-afct/traceLength"/>
+    <sort name="frequency" exp="atct/traceLength"/>
+  </context>
+</harm>
