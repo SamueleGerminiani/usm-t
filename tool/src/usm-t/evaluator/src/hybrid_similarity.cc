@@ -8,6 +8,7 @@
 #include "assertion_utils.hh"
 #include "gedlibWrapper.hh"
 #include "minerUtils.hh"
+#include "usmt_evaluator.hh"
 #include <algorithm>
 #include <exception>
 #include <map>
@@ -31,6 +32,10 @@ void evaluateWithHybrid(
 
   std::unordered_map<AssertionPtr, SerializedAutomaton>
       minedToSAutomaton;
+
+  //needed for the semantic equivalence check
+  std::unordered_map<AssertionPtr, SimplifiedAssertion>
+      assertionToSimplified;
 
   std::unordered_map<std::string, std::string> targetToRemap;
 
@@ -65,6 +70,7 @@ void evaluateWithHybrid(
       continue;
     }
     expectedToSAutomaton[ea] = serializeAutomaton(aut);
+    assertionToSimplified[ea] = SimplifiedAssertion(ea, sea);
   }
 
   for (const auto &[ma, sma] : minedSimpAssertions) {
@@ -77,6 +83,7 @@ void evaluateWithHybrid(
       continue;
     }
     minedToSAutomaton[ma] = serializeAutomaton(aut);
+    assertionToSimplified[ma] = SimplifiedAssertion(ma, sma);
   }
 
   //Compute the similarity between each expected and mined automaton
@@ -101,6 +108,10 @@ void evaluateWithHybrid(
       double similarity = 0.f;
       //Syntatic equality
       if (ea_assertionStr == ma_assertionStr) {
+        similarity = 1.f;
+        //Semantic equivalence
+      } else if (areLanguageEquivalent(assertionToSimplified.at(ea),
+                                       assertionToSimplified.at(ma))) {
         similarity = 1.f;
       } else {
         similarity = computeHybridSimilarity(ea_sa, ma_sa);

@@ -160,6 +160,7 @@ size_t test_with_parameters(std::string template_,
                             bool force_uint) {
   edge_rel_cost_map.clear();
   equivalence_cache.clear();
+  clearLanguageEquivalenceCache();
 
   std::vector<AssertionPtr> assertions = makeAssertionsFromTemplate(
       template_, 3, 3, number_of_assertions, number_of_variables,

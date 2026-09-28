@@ -63,7 +63,7 @@
     <configuration type="support" path="arb2_ex/agent_instructions.txt"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export GEMINI_API_KEY="AIzaSyC_W23nnKpMQIsJYNRowDjFyYwMHyYUO1E" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <export AGENT_INSTRUCTIONS="agent_instructions.txt"/>
     <docker image="samger/gemini-flash-miner:latest"/>  
   </usecase>
 
@@ -117,15 +117,16 @@
     <!--
     - Define the usecases to run for this test (must be defined above)
     - They will appear in the summary report in alphabetical order
-    <usecase id="gemini_usecase_1"/>
     -->
     <usecase id="harm_usecase_1_bool"/>
+    <usecase id="gemini_usecase_1"/>
     <usecase id="goldminer_usecase_1"/>
     <usecase id="texada_usecase_1"/> 
     <usecase id="samples2ltl_usecase_1"/>
     <external id="manually_defined"/>
 
-      - The path is relative to $USMT_ROOT/
+    <!--
+    - The path is relative to $USMT_ROOT/
     - File containing the golden specifications to compare with
     - This is necessary for all comparison strategies except for time_to_mine and fault_coverage
     -->

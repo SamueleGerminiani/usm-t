@@ -33,6 +33,11 @@ struct SimplifiedAssertion;
 int compareLanguage(const SimplifiedAssertion &a1,
                     const SimplifiedAssertion &a2);
 
+bool areLanguageEquivalent(const SimplifiedAssertion &a1,
+                           const SimplifiedAssertion &a2);
+
+void clearLanguageEquivalenceCache();
+
 EvalReportPtr runSemanticEquivalence(
     const usmt::UseCase &use_case,
     const std::unordered_map<

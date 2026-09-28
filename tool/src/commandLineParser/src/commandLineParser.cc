@@ -148,3 +148,49 @@ options.add_options()
   }
 }
 
+
+cxxopts::ParseResult parseGoldenCheck(int argc, char *argv[]) {
+  try {
+    cxxopts::Options options(argv[0], "");
+    options.positional_help("[optional args]").show_positional_help();
+
+    // clang-format off
+options.add_options()
+( "spec-file", "file containing the golden specifications, one per line", cxxopts::value<std::string>(), "<FILE>")
+("vcd", "golden .vcd trace", cxxopts::value<std::string>(), "<FILE>")
+( "vcd-ss", "select a scope of signals in the .vcd trace", cxxopts::value<std::string>(), "<String>")
+( "clk", "clk signal", cxxopts::value<std::string>(), "<String>")
+("csv", "golden .csv trace", cxxopts::value<std::string>(), "<FILE>")
+( "dump-to", "dump the report (one line per specification) to this file", cxxopts::value<std::string>(), "<FILE>")
+("ltlf", "use finite semantics when checking that the specifications hold")
+( "silent", "disable all outputs")
+("wsilent", "disable all warnings")
+( "isilent", "disable all infos")
+("psilent", "disable all progress bars")
+("help", "Show options");
+    // clang-format on
+
+    auto result = options.parse(argc, argv);
+
+    if (result.count("help")) {
+      std::cout << options.help({"", "Group"}) << std::endl;
+      exit(0);
+    }
+
+    if (result.count("spec-file") == 0 ||
+        (result.count("vcd") + result.count("csv")) != 1 ||
+        (result.count("vcd") == 1 && result.count("clk") == 0)) {
+      std::cout << "Usage:\n";
+      std::cout << "golden_check --spec-file <file> [--vcd <vcdFile> "
+                   "--clk <clk> [--vcd-ss <scope>] | --csv <csvFile>] "
+                   "[<OptionalArguments...>]\n";
+      exit(1);
+    }
+
+    return result;
+
+  } catch (const cxxopts::OptionException &e) {
+    std::cout << "error parsing options: " << e.what() << std::endl;
+    exit(1);
+  }
+}

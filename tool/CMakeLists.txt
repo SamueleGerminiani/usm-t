@@ -203,6 +203,9 @@ add_subdirectory(src/vcd2csv)
 #similarity standalone tool
 add_subdirectory(src/similarity_standalone)
 
+#golden specifications check tool
+add_subdirectory(src/golden_check)
+
 ### TESTS & EXAMPLES ##################################
 enable_testing()
 include (CTest)

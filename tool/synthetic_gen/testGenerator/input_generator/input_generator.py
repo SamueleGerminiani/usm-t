@@ -531,6 +531,13 @@ def main():
         print(globals.CERR + "4.5" + globals.CEND +
               " vcd2csv not found in tool/build directory, to generate CSV traces please compile it first" + " \n", flush=True)
 
+    print(globals.CSTP + "4.6" + globals.CEND + " Checking the golden specifications on the golden trace" + " \n", flush=True)
+    golden_check_start_time = time.time()
+    dir_utils.check_golden_specifications()
+    globals.time_map['golden_check'] = time.time() - golden_check_start_time
+    print(globals.CSTP + "4.6" + globals.CEND + "     " +
+          globals.CSTP + "Complete!" + globals.CEND + " \n", flush=True)
+
     print(globals.CSTP + "5." + globals.CEND + " Populating selected output directory" + " \n", flush=True)
     dir_utils.populate_output_dir(dirpath)
 
@@ -574,6 +581,7 @@ def main():
             f.write(f"\t\tcopy_traces, {globals.time_map.get('copy_traces', 0):.2f}\n")
             f.write(f"\t\tgenerate_testbench, {globals.time_map.get('generate_testbench', 0):.2f}\n")
             f.write(f"\tgenerate_csv, {globals.time_map.get('generate_csv', 0):.2f}\n")
+            f.write(f"\tgolden_check, {globals.time_map.get('golden_check', 0):.2f}\n")
 
 
 

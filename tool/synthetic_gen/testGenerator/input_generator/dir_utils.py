@@ -34,6 +34,11 @@ def populate_output_dir(dirpath):
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to move specifications.txt to {dirpath}/expected. {e}", flush=True)
         exit(1)
     try:
+        subprocess.run(f"mv {globals.out_folder}golden_check_report.txt {dirpath}/expected/", shell=True, check=True)
+    except  subprocess.CalledProcessError as e:
+        print(globals.CERR +"Error:" + globals.CEND + f"Failed to move golden_check_report.txt to {dirpath}/expected. {e}", flush=True)
+        exit(1)
+    try:
         subprocess.run(f"mv {globals.out_folder}/traces {dirpath}", shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to move traces to {dirpath}/traces. {e}", flush=True)
@@ -91,4 +96,20 @@ def generateCSV():
         subprocess.run(f"{globals.root}/tool/build/vcd2csv --vcd-dir {globals.out_folder}faulty_traces/vcd --clk {globals.clk_name} --vcd-ss \"{globals.top_module_name}_bench::{globals.top_module_name}_\" --dump-to {globals.out_folder}faulty_traces/csv",stdout=subprocess.DEVNULL if not globals.debug else None,stderr=subprocess.DEVNULL if not globals.debug else None, shell=True, check=True)
     except subprocess.CalledProcessError as e:
         print(globals.CERR +"Error:" + globals.CEND + f"Failed to convert vcd to csv. {e}", flush=True)
+        exit(1)
+
+#Check that every golden specification holds on the golden trace and is non-vacuously triggered (its antecedent is activated at least once)
+def check_golden_specifications():
+    golden_check = f"{globals.root}/tool/build/golden_check"
+    if not os.path.exists(golden_check):
+        print(globals.CERR +"Error:" + globals.CEND + f" golden_check not found in tool/build directory, please compile it first", flush=True)
+        exit(1)
+    golden_vcd = f"{globals.out_folder}traces/vcd/golden.vcd"
+    if not os.path.exists(golden_vcd):
+        golden_vcd = f"{globals.out_folder}faulty_traces/vcd/golden.vcd"
+    report = f"{globals.out_folder}golden_check_report.txt"
+    try:
+        subprocess.run(f"{golden_check} --spec-file {globals.out_folder}specifications.txt --vcd {golden_vcd} --clk {globals.clk_name} --vcd-ss \"{globals.top_module_name}_bench::{globals.top_module_name}_\" --dump-to {report} --psilent", shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(globals.CERR +"Error:" + globals.CEND + f" Some golden specifications do not hold or are never activated on the golden trace, see {report}", flush=True)
         exit(1)

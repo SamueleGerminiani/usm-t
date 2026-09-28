@@ -54,7 +54,10 @@
     <configuration type="support" path="<GEMINI_AGENT_SETUP>"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export GEMINI_API_KEY="AIzaSyC_W23nnKpMQIsJYNRowDjFyYwMHyYUO1E" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <!--
+    Alternatively, you can add the API globally to all tests in USMT_ROOT/miners/tools/run_docker_container.sh 
+    -->
+    <export GEMINI_API_KEY="<key>" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
     <docker image="samger/gemini-flash-miner:latest"/>  
   </usecase>
 

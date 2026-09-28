@@ -7,6 +7,7 @@
 #include "misc.hh"
 #include <algorithm>
 #include <filesystem>
+#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -49,25 +50,70 @@
 namespace usmt {
 using namespace harm;
 
+//caches shared by the semantic and hybrid evaluators, keyed by the flattened formula
+static std::unordered_map<std::string, spot::formula> parsed_formulas;
+static std::unordered_map<std::string, bool> vacuity_cache;
+static std::map<std::pair<std::string, std::string>, bool>
+    language_equivalence_cache;
+
+static const spot::formula &getSpotFormula(const std::string &str) {
+  auto it = parsed_formulas.find(str);
+  if (it == parsed_formulas.end()) {
+    it = parsed_formulas.emplace(str, spot::parse_formula(str)).first;
+  }
+  return it->second;
+}
+
+//"true" is vacuously equivalent to everything
+static bool isVacuous(const std::string &str) {
+  auto it = vacuity_cache.find(str);
+  if (it == vacuity_cache.end()) {
+    const spot::formula &p = getSpotFormula(str);
+    bool vacuous =
+        p.is_tt() || spot::are_equivalent(p, spot::formula::tt());
+    it = vacuity_cache.emplace(str, vacuous).first;
+  }
+  return it->second;
+}
+
+bool areLanguageEquivalent(const SimplifiedAssertion &a1,
+                           const SimplifiedAssertion &a2) {
+  const std::string &s1 = a1.flattened_str;
+  const std::string &s2 = a2.flattened_str;
+
+  //if one of them is tt, then we discard it
+  if (isVacuous(s1) || isVacuous(s2)) {
+    return false;
+  }
+
+  auto key = s1 < s2 ? std::make_pair(s1, s2) : std::make_pair(s2, s1);
+  auto it = language_equivalence_cache.find(key);
+  if (it == language_equivalence_cache.end()) {
+    bool equivalent =
+        spot::are_equivalent(getSpotFormula(s1), getSpotFormula(s2));
+    it = language_equivalence_cache.emplace(key, equivalent).first;
+  }
+  return it->second;
+}
+
+void clearLanguageEquivalenceCache() {
+  parsed_formulas.clear();
+  vacuity_cache.clear();
+  language_equivalence_cache.clear();
+}
+
 int compareLanguage(const SimplifiedAssertion &a1,
                     const SimplifiedAssertion &a2) {
   //ret 0 if equivalent, 1 if a1 contains/implies/covers a2, 2 if a2 contains/implies/covers a1, -1 if not
-  spot::formula p1 = spot::parse_formula(a1.flattened_str);
-  spot::formula p2 = spot::parse_formula(a2.flattened_str);
-
-  //if one of them is tt, then we discard it, because "true" it is vacuously equivalent to everything
-  if (spot::are_equivalent(p1, spot::formula::tt()) ||
-      spot::are_equivalent(p2, spot::formula::tt())) {
+  if (isVacuous(a1.flattened_str) || isVacuous(a2.flattened_str)) {
     return -1;
   }
 
-  if (p1.is_tt() || p2.is_tt()) {
-    return -1;
-  }
-
-  if (spot::are_equivalent(p1, p2)) {
+  if (areLanguageEquivalent(a1, a2)) {
     return 0;
   } else {
+    const spot::formula &p1 = getSpotFormula(a1.flattened_str);
+    const spot::formula &p2 = getSpotFormula(a2.flattened_str);
     if (spot::contains(p1, p2) == 1) {
       return 1;
     } else if (spot::contains(p2, p1) == 1) {

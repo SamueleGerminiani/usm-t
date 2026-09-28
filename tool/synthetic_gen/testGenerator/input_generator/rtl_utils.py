@@ -47,14 +47,31 @@ def generate_top_module(spec_list):
     top_module +='output '
     top_module += ",".join(set(outs_tmp)) + ';\n'
 
+    #outputs shared by several specifications (overlap) are driven by the OR of
+    #the submodules producing them: consequents only contain positive outputs,
+    #hence each submodule only needs to raise the output to satisfy its spec
+    drivers = {}
+    for spec in spec_list:
+        for output_signal in spec['outputs'].split(','):
+            drivers.setdefault(output_signal, []).append(spec_list.index(spec))
+    shared_outs = {sig: idxs for sig, idxs in drivers.items() if len(idxs) > 1}
+    for output_signal, idxs in shared_outs.items():
+        top_module += 'wire ' + ",".join(f"{output_signal}_spec{idx}" for idx in idxs) + ';\n'
+
     # instantiate the submodules
     for spec in spec_list:
         top_module += 'spec' + str(spec_list.index(spec)) + ' spec_sbm' + str(spec_list.index(spec)) + '(' + f".{globals.clk_name}({globals.clk_name}), "
         for input_signal in spec['inputs'].split(','):
             top_module += f".{input_signal}({input_signal}), "
         for output_signal in spec['outputs'].split(','):
-            top_module += f".{output_signal}({output_signal}), "
+            if output_signal in shared_outs:
+                top_module += f".{output_signal}({output_signal}_spec{spec_list.index(spec)}), "
+            else:
+                top_module += f".{output_signal}({output_signal}), "
         top_module = top_module.rstrip(', ') + ');\n'
+
+    for output_signal, idxs in shared_outs.items():
+        top_module += f'assign {output_signal} = ' + " | ".join(f"{output_signal}_spec{idx}" for idx in idxs) + ';\n'
 
     top_module += 'endmodule\n'
 

@@ -5,3 +5,4 @@ cxxopts::ParseResult parseUSMT(int argc, char *argv[]);
 cxxopts::ParseResult parseVCD2CSV(int argc, char *argv[]);
 cxxopts::ParseResult parseSimilarityStandalone(int argc,
                                                char *argv[]);
+cxxopts::ParseResult parseGoldenCheck(int argc, char *argv[]);
