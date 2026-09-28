@@ -12,6 +12,6 @@ if ls /input/*.v 1> /dev/null 2>&1; then
     enclosed_as_prompt_files="$enclosed_as_prompt_files,$v_files"
 fi
 
-python3 runAgent.py --enclose-files-as-prompt $enclosed_as_prompt_files --enclose-files $enclosed_files --agent-setup /input/$AGENT_INSTRUCTIONS --dump-to /output/query_out.txt --api-key $GEMINI_API_KEY
+python3 runAgent.py --enclose-files-as-prompt $enclosed_as_prompt_files --enclose-files $enclosed_files --agent-setup /input/$AGENT_INSTRUCTIONS --dump-to /output/query_out.txt --api-key $GEMINI_API_KEY --seed $SEED
 sed -n '/\[Start\]/,/\[End\]/p' /output/query_out.txt | sed '1d;$d' > /output/$MINED_SPECIFICATIONS_FILE
 cat /output/$MINED_SPECIFICATIONS_FILE

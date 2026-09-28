@@ -48,56 +48,202 @@
     <docker image="samger/goldminer2:latest"/>  
   </usecase>
 
-  <usecase id="gemini_only_source">
+  <usecase id="gemini_only_source_1">
     <miner name="gemini-flash"/> 
     <input id="0" type="verilog"/>
     <configuration type="run" path="tcad2026/And/run_miner.sh"/>
     <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="42"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_source_2">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="123"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_source_3">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="1024"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_source_4">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="2026"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_source_5">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="9999"/>
     <docker image="samger/gemini-flash-miner:latest"/>  
   </usecase>
 
 
 
-
-  <usecase id="gemini_only_trace">
+  <usecase id="gemini_only_trace_1">
     <miner name="gemini-flash"/> 
     <input id="0" type="csv" trim_csv_to="1000"/>
     <configuration type="run" path="tcad2026/And/run_miner.sh"/>
     <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="42"/>
     <docker image="samger/gemini-flash-miner:latest"/>  
   </usecase>
 
-  <usecase id="gemini">
+  <usecase id="gemini_only_trace_2">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="123"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_trace_3">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="1024"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_trace_4">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="2026"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_only_trace_5">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="9999"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_1">
     <miner name="gemini-flash"/> 
     <input id="0" type="verilog, csv" trim_csv_to="1000"/>
     <configuration type="run" path="tcad2026/And/run_miner.sh"/>
     <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
     <input_adaptor path="csv_to_csv/run.sh"/>
     <output_adaptor path="spotltl_to_spotltl/run.sh"/>
-    <export GEMINI_API_KEY="AIzaSyAssYJNCR3zitGczUmopL4BxCCcNkNrfEo" AGENT_INSTRUCTIONS="agent_instructions.txt"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="42"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+  <usecase id="gemini_2">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog, csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="123"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+
+  <usecase id="gemini_3">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog, csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="1024"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+
+  <usecase id="gemini_4">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog, csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="2026"/>
+    <docker image="samger/gemini-flash-miner:latest"/>  
+  </usecase>
+
+
+  <usecase id="gemini_5">
+    <miner name="gemini-flash"/> 
+    <input id="0" type="verilog, csv" trim_csv_to="1000"/>
+    <configuration type="run" path="tcad2026/And/run_miner.sh"/>
+    <configuration type="support" path="tcad2026/And/agent_instructions.txt"/>
+    <input_adaptor path="csv_to_csv/run.sh"/>
+    <output_adaptor path="spotltl_to_spotltl/run.sh"/>
+    <export  AGENT_INSTRUCTIONS="agent_instructions.txt" SEED="9999"/>
     <docker image="samger/gemini-flash-miner:latest"/>  
   </usecase>
 
   <!--
-  -->
+    <usecase id="gemini_only_source_2"/>
+    <usecase id="gemini_only_source_3"/>
+    <usecase id="gemini_only_source_4"/>
+    <usecase id="gemini_only_source_5"/>
 
-  <test name="And">
+    <usecase id="gemini_only_trace_2"/>
+    <usecase id="gemini_only_trace_3"/>
+    <usecase id="gemini_only_trace_4"/>
+    <usecase id="gemini_only_trace_5"/>
 
+    <usecase id="gemini_2"/>
+    <usecase id="gemini_3"/>
+    <usecase id="gemini_4"/>
+    <usecase id="gemini_5"/>
+    <usecase id="gemini_only_trace_1"/>
+    <usecase id="gemini_1"/>
     <usecase id="harm"/>
     <usecase id="goldminer"/>
     <usecase id="texada"/>
     <usecase id="samples2ltl"/>
-    <usecase id="gemini"/>
-    <usecase id="gemini_only_trace"/>
-    <usecase id="gemini_only_source"/>
-    <!--
-    -->
+  -->
+
+  <test name="And">
+
+    <usecase id="gemini_only_source_1"/>
 
     <expected path="input/tcad2026/And/expected/specifications.txt"/>
     <compare with_strategy="n_mined"/>
