@@ -233,17 +233,17 @@
     <usecase id="gemini_3"/>
     <usecase id="gemini_4"/>
     <usecase id="gemini_5"/>
+  -->
+  <test name="And">
+
+    <usecase id="gemini_only_source_1"/>
     <usecase id="gemini_only_trace_1"/>
     <usecase id="gemini_1"/>
     <usecase id="harm"/>
     <usecase id="goldminer"/>
     <usecase id="texada"/>
     <usecase id="samples2ltl"/>
-  -->
 
-  <test name="And">
-
-    <usecase id="gemini_only_source_1"/>
 
     <expected path="input/todaes2026/And/expected/specifications.txt"/>
     <compare with_strategy="n_mined"/>

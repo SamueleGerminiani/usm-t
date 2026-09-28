@@ -240,9 +240,6 @@
     <usecase id="goldminer"/>
     <usecase id="texada"/>
     <usecase id="samples2ltl"/>
-    <usecase id="gemini"/>
-    <usecase id="gemini_only_source"/>
-    <usecase id="gemini_only_trace"/>
 
     <usecase id="gemini_only_source_1"/>
     <usecase id="gemini_only_trace_1"/>
