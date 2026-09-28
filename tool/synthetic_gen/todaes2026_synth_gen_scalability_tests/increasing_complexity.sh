@@ -16,7 +16,7 @@ param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0 4,4,10,0 5,4,1
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_complex_and_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_complex_and_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Complexity,Time" > "$result_file"
@@ -58,7 +58,7 @@ param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0 4,4,10,0 5,4,1
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_complex_until_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_complex_until_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Complexity,Time" > "$result_file"
@@ -106,7 +106,7 @@ echo "===========EVENTUALLY=========="
 param_list="1,1,10,0 2,1,10,0 2,2,10,0 3,2,10,0 3,3,10,0 4,3,10,0 4,4,10,0 5,4,10,0 5,5,10,0"
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_complex_eventually_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_complex_eventually_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Complexity,Time" > "$result_file"

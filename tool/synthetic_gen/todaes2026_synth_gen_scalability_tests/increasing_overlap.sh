@@ -15,7 +15,7 @@ param_list="3,3,10,0 3,3,10,1 3,3,10,2 3,3,10,3 3,3,10,4 3,3,10,5 3,3,10,6 3,3,1
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_overlap_and_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_overlap_and_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Overlap,Time" > "$result_file"
@@ -64,7 +64,7 @@ param_list="2,2,10,0,G(..##1.. |-> ..##1..); \
 2,2,10,9,G(..##1.. |-> ..##1..); \
 2,2,10,10,G(..##1.. |-> ..##1..)"
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_overlap_next_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_overlap_next_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Overlap,Time" > "$result_file"
@@ -105,7 +105,7 @@ done
 echo "===========NEXT_AND=========="
 param_list="3,3,10,0 3,3,10,1 3,3,10,2 3,3,10,3 3,3,10,4 3,3,10,5 3,3,10,6 3,3,10,7 3,3,10,8 3,3,10,9 3,3,10,10"
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_overlap_nextAnd_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_overlap_nextAnd_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Overlap,Time" > "$result_file"
@@ -148,7 +148,7 @@ param_list="2,2,10,0 2,2,10,1 2,2,10,2 2,2,10,3 2,2,10,4 2,2,10,5 2,2,10,6 2,2,1
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_overlap_until_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_overlap_until_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Overlap,Time" > "$result_file"
@@ -189,7 +189,7 @@ echo "===========EVENTUALLY=========="
 param_list="2,2,10,0 2,2,10,1 2,2,10,2 2,2,10,3 2,2,10,4 2,2,10,5 2,2,10,6 2,2,10,7 2,2,10,8 2,2,10,9 2,2,10,10"
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_overlap_eventually_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_overlap_eventually_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Overlap,Time" > "$result_file"

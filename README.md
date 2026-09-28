@@ -116,9 +116,9 @@ This will generate singolar reports in the runs directory for each miner and a s
 
 ![Radar Chart Example](figures/sample_radar_chart.png)
 
-### Running TCAD 2026 Experiments
+### Running TODAES 2026 Experiments
 
-To run the experiments presented in the TCAD 2026 paper, follow these steps:
+To run the experiments presented in the TODAES 2026 paper, follow these steps:
 
 1.  **Source the environment variables:**
     Ensure you are in the root directory of the repository and run:
@@ -131,17 +131,17 @@ To run the experiments presented in the TCAD 2026 paper, follow these steps:
 
     *   **Case Study Experiments:**
         ```bash
-        bash scripts/run_tcad2026_experiments/run_case_study.sh
+        bash scripts/run_todaes2026_experiments/run_case_study.sh
         ```
 
     *   **Scalability of Synthetic Generators Experiments:**
         ```bash
-        bash scripts/run_tcad2026_experiments/run_scalability_of_synthetic_generators.sh
+        bash scripts/run_todaes2026_experiments/run_scalability_of_synthetic_generators.sh
         ```
 
     *   **Scalability of Evaluators Experiments:**
         ```bash
-        bash scripts/run_tcad2026_experiments/run_scalability_of_evaluators.sh
+        bash scripts/run_todaes2026_experiments/run_scalability_of_evaluators.sh
         ```
 
 

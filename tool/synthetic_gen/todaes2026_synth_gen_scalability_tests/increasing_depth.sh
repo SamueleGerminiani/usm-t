@@ -25,7 +25,7 @@ param_list="1,1,10,0,G(..##1.. |-> ..##1..); \
 1,2,10,0,G(..##1.. |-> ..##7..); \
 1,2,10,0,G(..##1.. |-> ..##8..)"
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_depth_next_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_depth_next_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Depth,Time,NLines" > "$result_file"

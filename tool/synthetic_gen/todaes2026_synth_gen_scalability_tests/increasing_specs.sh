@@ -16,7 +16,7 @@ param_list="2,2,10,0 2,2,20,0 2,2,30,0 2,2,40,0 2,2,50,0 2,2,60,0 2,2,70,0 2,2,8
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_spec_and_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_spec_and_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Nspec,Time" > "$result_file"
@@ -64,7 +64,7 @@ param_list="2,2,10,0,G(..##1.. |-> ..##1..); \
 2,2,90,0,G(..##1.. |-> ..##1..); \
 2,2,100,0,G(..##1.. |-> ..##1..)"
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_spec_next_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_spec_next_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Nspec,Time" > "$result_file"
@@ -104,7 +104,7 @@ done
 #===========NEXT_AND===========
 echo "===========NEXT_AND=========="
 param_list="3,3,10,0 3,3,20,0 3,3,30,0 3,3,40,0 3,3,50,0 3,3,60,0 3,3,70,0 3,3,80,0 3,3,90,0 3,3,100,0"
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_spec_nextAnd_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_spec_nextAnd_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Nspec,Time" > "$result_file"
@@ -147,7 +147,7 @@ param_list="2,2,10,0 2,2,20,0 2,2,30,0 2,2,40,0 2,2,50,0 2,2,60,0 2,2,70,0 2,2,8
 
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_spec_until_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_spec_until_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Nspec,Time" > "$result_file"
@@ -188,7 +188,7 @@ echo "===========EVENTUALLY=========="
 param_list="2,2,10,0 2,2,20,0 2,2,30,0 2,2,40,0 2,2,50,0 2,2,60,0 2,2,70,0 2,2,80,0 2,2,90,0 2,2,100,0"
 
 
-result_file="$USMT_ROOT/tool/synthetic_gen/tcad2026_synth_gen_scalability_tests/results/increasing_spec_eventually_chart.csv"
+result_file="$USMT_ROOT/tool/synthetic_gen/todaes2026_synth_gen_scalability_tests/results/increasing_spec_eventually_chart.csv"
 rm -f "$result_file"
 #make header of result file
 echo "Nspec,Time" > "$result_file"
